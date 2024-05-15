@@ -130,3 +130,13 @@ class VeliteWebpackPlugin {
  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 
 ```
+
+## 8. Custom Components in MDX
+
+```typescript
+//mdx-components.tsx
+const components = {
+  Image,
+  Callout,
+};
+```
