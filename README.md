@@ -112,3 +112,9 @@ class VeliteWebpackPlugin {
 ## 4. Moblie Menu
 
 `npx shadcn-ui@latest add sheet`
+
+## 5. Theme toggle
+
+### `npm i next-themes`
+
+### `npx shadcn-ui@latest add dropdown-menu`
