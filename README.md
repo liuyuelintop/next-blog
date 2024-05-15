@@ -34,7 +34,7 @@ extend: {
 
 ### `npx shadcn-ui@latest add button`
 
-## Install and Config Velite
+## 2. Install and Config Velite
 
 ### `npm install velite -D`
 
@@ -108,3 +108,7 @@ class VeliteWebpackPlugin {
   }
 }
 ```
+
+## 4. Moblie Menu
+
+`npx shadcn-ui@latest add sheet`
