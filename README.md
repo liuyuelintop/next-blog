@@ -33,3 +33,78 @@ extend: {
 ```
 
 ### `npx shadcn-ui@latest add button`
+
+## Install and Config Velite
+
+### `npm install velite -D`
+
+```typescript
+// vilite.config.ts
+import { defineConfig, defineCollection, s } from "velite";
+
+const computedFields = <T extends { slug: string }>(data: T) => ({
+  ...data,
+  slugAsParams: data.slug.split("/").slice(1).join("/"),
+});
+
+const posts = defineCollection({
+  name: "Post",
+  pattern: "blog/**/*.mdx",
+  schema: s
+    .object({
+      slug: s.path(),
+      title: s.string().max(99),
+      description: s.string().max(999).optional(),
+      date: s.isodate(),
+      published: s.boolean().default(true),
+      body: s.mdx(),
+    })
+    .transform(computedFields),
+});
+
+export default defineConfig({
+  root: "content",
+  output: {
+    data: ".velite",
+    assets: "public/static",
+    base: "/static/",
+    name: "[name]-[hash:6].[ext]",
+    clean: true,
+  },
+  collections: { posts },
+  mdx: {
+    rehypePlugins: [],
+    remarkPlugins: [],
+  },
+});
+```
+
+---
+
+```javascript
+// next.config.mjs
+import { build } from "velite";
+
+/** @type {import('next').NextConfig} */
+export default {
+  // othor next config here...
+  webpack: (config) => {
+    config.plugins.push(new VeliteWebpackPlugin());
+    return config;
+  },
+};
+
+class VeliteWebpackPlugin {
+  static started = false;
+  apply(/** @type {import('webpack').Compiler} */ compiler) {
+    // executed three times in nextjs
+    // twice for the server (nodejs / edge runtime) and once for the client
+    compiler.hooks.beforeCompile.tapPromise("VeliteWebpackPlugin", async () => {
+      if (VeliteWebpackPlugin.started) return;
+      VeliteWebpackPlugin.started = true;
+      const dev = compiler.options.mode === "development";
+      await build({ watch: dev, clean: !dev });
+    });
+  }
+}
+```
