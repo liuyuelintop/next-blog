@@ -140,3 +140,31 @@ const components = {
   Callout,
 };
 ```
+
+## 9. Code block styling & mdx plugins
+
+### `npm i rehype-autolink-headings rehype-pretty-code rehype-slug`
+
+```typescript
+import rehypeSlug from "rehype-slug";
+import rehypePrettyCode from "rehype-pretty-code";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+...
+mdx: {
+    rehypePlugins: [
+      rehypeSlug,
+      [rehypePrettyCode, { theme: "github-dark" }],
+      [
+        rehypeAutolinkHeadings,
+        {
+          behavior: "wrap",
+          properties: {
+            className: ["subheading-anchor"],
+            ariaLabel: "Link to section",
+          },
+        },
+      ],
+    ],
+    remarkPlugins: [],
+  },
+```
