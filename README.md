@@ -168,3 +168,7 @@ mdx: {
     remarkPlugins: [],
   },
 ```
+
+## 10. Pagination
+
+### `npx shadcn-ui@latest add pagination`
