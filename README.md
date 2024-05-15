@@ -118,3 +118,15 @@ class VeliteWebpackPlugin {
 ### `npm i next-themes`
 
 ### `npx shadcn-ui@latest add dropdown-menu`
+
+## 6. Setup Blog Page
+
+## 7. Setup Post Page (Difficult)
+
+### `npm install -D @tailwindcss/typography`
+
+```typescript
+// tailwind.config.ts
+ plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+
+```
