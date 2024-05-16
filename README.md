@@ -1,3 +1,40 @@
+## NextJS 14, Tailwind, Shadcn UI, MDX and Velite Blog Templat
+
+In this repo is a simple implementation of a markdown static blog, a demo can be seen [here](#), Features include:
+
+- MDX Components
+- Shadcn UI
+- Pagination
+- Dynamic Open Graph Image
+- Syntax Highlighting in code block
+
+### Learning Points
+
+Hopefully, from this project and the video, you can learn:
+
+- NextJS 14 basics (layouts, app router etc)
+- NextJS SEO
+- NextJS Dynamic Graph Images
+- [Velite](https://velite.js.org/) Setup and usage
+- [Shadcn/ui](https://ui.shadcn.com/) setup and usage
+- Custom components in MDX
+- Tailwind styling
+
+## Credits
+
+### Youtube
+
+You can follow along with [Jolly Coding ](https://www.youtube.com/@JollyCoding)as we build this on YouTube.
+[![YouTube video](https://img.youtube.com/vi/tSI98g3PDyE/0.jpg)](<[https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE](https://youtu.be/tSI98g3PDyE)>)
+
+### Design
+
+Much of the design of this project is taken from shadcn in his projects, such as [shadcn/ui](https://ui.shadcn.com/) and [Taxonomy](https://tx.shadcn.com/)
+
+---
+
+# Getting Started
+
 ## 1. Installing shadcn/ui
 
 ### `npx shadcn-ui@latest init`
@@ -186,3 +223,11 @@ mdx: {
 ## 14. SEO and Favicon
 
 ## 15. Site Footer
+
+## 16. Setup Tags
+
+`npm install github-slugger`
+
+`npx shadcn-ui@latest add badge`
+
+`npx shadcn-ui@latest add card`
