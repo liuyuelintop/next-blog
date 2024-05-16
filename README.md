@@ -231,3 +231,5 @@ mdx: {
 `npx shadcn-ui@latest add badge`
 
 `npx shadcn-ui@latest add card`
+
+## 17. Add tags to post items
