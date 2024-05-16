@@ -235,3 +235,5 @@ mdx: {
 ## 17. Add tags to post items
 
 ## 18. Add tag cards
+
+## 19. Add tags pages
