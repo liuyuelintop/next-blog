@@ -172,3 +172,5 @@ mdx: {
 ## 10. Pagination
 
 ### `npx shadcn-ui@latest add pagination`
+
+## 11. Home Page Changes
