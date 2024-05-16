@@ -30,21 +30,6 @@ export function SiteHeader() {
               </div>
             </Link>
             <Link
-              href={siteConfig.links.instagram}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div
-                className={cn(
-                  buttonVariants({ variant: "ghost" }),
-                  "w-10 px-0 hidden sm:inline-flex"
-                )}
-              >
-                <Icons.instagram className="h-4 w-4" />
-                <span className="sr-only">Instagram</span>
-              </div>
-            </Link>
-            <Link
               href={siteConfig.links.linkedin}
               target="_blank"
               rel="noreferrer"
