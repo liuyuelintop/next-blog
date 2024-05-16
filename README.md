@@ -182,3 +182,5 @@ mdx: {
 ## 13. Dynamic graph page
 
 [customize your own og playgroud](https://og-playground.vercel.app/)
+
+## 14. SEO and Favicon
