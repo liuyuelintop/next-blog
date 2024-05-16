@@ -178,3 +178,7 @@ mdx: {
 ## 12. About page & FIx z-index header
 
 ### `npx shadcn-ui@latest add avatar`
+
+## 13. Dynamic graph page
+
+[customize your own og playgroud](https://og-playground.vercel.app/)
