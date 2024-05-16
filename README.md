@@ -1,6 +1,6 @@
 ## NextJS 14, Tailwind, Shadcn UI, MDX and Velite Blog Templat
 
-In this repo is a simple implementation of a markdown static blog, a demo can be seen [here](#), Features include:
+In this repo is a simple implementation of a markdown static blog, a demo can be seen [here](https://next-blog-alpha-sable-40.vercel.app/), Features include:
 
 - MDX Components
 - Shadcn UI
@@ -237,3 +237,7 @@ mdx: {
 ## 18. Add tag cards
 
 ## 19. Add tags pages
+
+## 20. Deploy to Vercel
+
+[My Blog](https://next-blog-alpha-sable-40.vercel.app/)
