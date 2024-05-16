@@ -174,3 +174,7 @@ mdx: {
 ### `npx shadcn-ui@latest add pagination`
 
 ## 11. Home Page Changes
+
+## 12. About page & FIx z-index header
+
+### `npx shadcn-ui@latest add avatar`
