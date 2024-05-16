@@ -184,3 +184,5 @@ mdx: {
 [customize your own og playgroud](https://og-playground.vercel.app/)
 
 ## 14. SEO and Favicon
+
+## 15. Site Footer

@@ -3,6 +3,7 @@ export const siteConfig = {
   url: "https://example.com",
   description: "Nextjs 14 blog using velite, tailwind and shadcn",
   author: "Yuelin Liu",
+  email: "https://liuyuelintop@gmail.com",
   links: {
     instagram: "https://www.instagram.com",
     github: "https://github.com/liuyuelintop",
