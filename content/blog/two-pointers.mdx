@@ -1,0 +1,144 @@
+---
+title: Two Pointers Techniques
+description: Elements Filtering, Elements Replacements, Elements Reordering, Partitioning..
+date: 2024-05-20
+tags: ["Algorithm", "JavaScript", "Leetcode", "Blog", "code"]
+published: true
+---
+
+## Explanation of In-Place Algorithms Using Two-Pointers Technique
+
+The two-pointers technique is an efficient algorithmic approach utilized to manipulate arrays in-place, minimizing the need for additional memory.
+This method leverages two indices (pointers), typically starting from different positions in the array, to traverse and rearrange the elements based on certain conditions, without duplicating the array.
+
+### Examples
+
+1. **[Removing Specific Elements](https://leetcode.com/problems/remove-duplicates-from-sorted-array/description/)**
+
+- **Objective**: To remove all instances of a given value from an array without using extra space.
+- **Mechanism**: Two pointers (`left` and `right`) are used. The `right` pointer traverses the entire array, while the `left` pointer keeps track of the position where the next non-target value should be placed. If `right` points to a value not equal to the target, the value is moved to the position indicated by `left`, and `left` is incremented.
+
+2. **[Removing Duplicates from Sorted Array](https://leetcode.com/problems/remove-element/description/)**
+
+- **Objective**: To return the length of the array after removing all duplicates, modifying the original array to hold unique elements at the start.
+- **Mechanism**: Similar to the first, but here both pointers start at the beginning of the array. The `left` pointer marks the end of the array of unique elements. As the `right` pointer encounters a new unique element, it is placed immediately after the last unique element found (`left`).
+
+3. **[Moving Zeroes](https://leetcode.com/problems/move-zeroes/description/)**
+
+   - **Objective**: To move all zeroes in an array to its end while maintaining the order of non-zero elements.
+   - **Mechanism**: This utilizes a similar approach where the `left` pointer tracks the position for the next non-zero element. Whenever a non-zero is identified by the `right` pointer, it is swapped with the element at `left` index.
+
+4. **Array Partitioning (Quick Sort)**
+   - **Tutorial** : [Quicksort: Partitioning an array](https://www.youtube.com/watch?v=MZaf_9IZCrc&lc=UgxdqSl7Q5pH0GMutxN4AaABAg)
+   - **Objective**: To partition an array around a pivot such that elements less than the pivot are on the left, and those greater are on the right.
+   - **Mechanism**: Two pointers, `i` and `j`, are used where `i` starts just left of the section to be partitioned and moves right when a smaller-than-pivot element is found. The `j` pointer scans through the array, and when a less-than-pivot element is found, it is swapped with the position indicated by `i`.
+
+## Generic Mechanism of the In-Place Two-Pointers Technique
+
+### Core Concept:
+
+- **Two Pointers**: One pointer (`left`) is used to track the location where the next qualifying element should be placed or manipulated, while the other pointer (`right`) iterates through the array to evaluate each element against a given condition.
+
+### Generic Function Design:
+
+- **Array Modification**: A function `inPlaceTransform` accepts the array, a condition (`shouldTransform`), and an action (`performTransform`). The condition determines if an element needs rearranging, and the action defines how the rearrangement is executed.
+
+```javascript
+/**
+ * Function to modify elements of an array in-place based on a provided condition.
+ * @param {Array} arr - The array to be modified.
+ * @param {Function} shouldTransform - A callback function that determines if the element should be transformed.
+ * @param {Function} performTransform - A callback function that defines how to transform the array elements.
+ * @return {number} The new length or state of the array after processing.
+ */
+export function inPlaceTransform(arr, shouldTransform, performTransform) {
+  let left = 0;
+  for (let right = 0; right < arr.length; right++) {
+    if (shouldTransform(arr[right])) {
+      performTransform(arr, left, right);
+      left++;
+    }
+  }
+  return left; // This might be the length or a different measurement based on the use case.
+}
+
+// Sample transformation function to swap elements
+function swapElements(arr, i, j) {
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+}
+
+// Example usage
+let nums = [0, 1, 0, 3, 12];
+console.log("Before:", nums);
+inPlaceTransform(nums, (value) => value !== 0, swapElements);
+console.log("After:", nums);
+// After: [ 1, 3, 12, 0, 0 ]
+```
+
+### Usage Scenario:
+
+```javascript
+import { inPlaceTransform } from "./inPlaceTransform.js";
+function swapElements(arr, i, j) {
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+}
+
+// 1. Remove all occurrences of val from an array
+function removeElement(nums, val) {
+  return inPlaceTransform(nums, (value) => value !== val, swapElements);
+}
+
+// 2. Remove duplicates from a sorted array
+function removeDuplicates(nums) {
+  return inPlaceTransform(
+    nums,
+    (value, idx) => idx === 0 || nums[idx - 1] !== value,
+    swapElements
+  );
+}
+
+// 3. Move zeroes to the end of the array
+function moveZeroes(nums) {
+  return inPlaceTransform(nums, (value) => value !== 0, swapElements);
+}
+
+// 4. Quick sort partition function
+function partition(arr, left, right) {
+  const pivot = arr[right];
+  let pivotIndex =
+    inPlaceTransform(arr, (value) => value < pivot, swapElements) - 1;
+  swapElements(arr, pivotIndex + 1, right); // Move the pivot to its correct position
+  return pivotIndex + 1;
+}
+
+// Example usage of each function
+let nums1 = [3, 2, 2, 3];
+console.log("\nOriginal Array:", [...nums1]);
+console.log("Elements after removing 3:", removeElement(nums1, 3), nums1);
+
+let nums2 = [1, 1, 2];
+console.log("\nOriginal Array:", [...nums2]);
+console.log("Array after duplicates removed:", removeDuplicates(nums2), nums2);
+
+let nums3 = [0, 1, 0, 3, 12];
+console.log("\nOriginal Array:", [...nums3]);
+console.log("Array after moving zeroes:", moveZeroes(nums3), nums3);
+
+let nums4 = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5];
+console.log("\nOriginal Array:", [...nums4]);
+console.log("New pivot index:", partition(nums4, 0, nums4.length - 1), nums4);
+```
+
+### Common Operations:
+
+- **Element Filtering**: Removing unwanted elements (e.g., specific values or duplicates).
+- **Element Reordering**: Moving elements to specific parts of the array (e.g., moving zeros to the end).
+- **Partitioning**: Segregating elements around a pivot for sorting or quick sort algorithms.
+
+### Advantages:
+
+- **Space Efficiency**: Operates directly on the input array, eliminating the need for additional space proportional to the input size.
+- **Adaptability**: Easily adaptable for different operations by changing the condition and action callbacks.
+- **Performance**: Offers efficient processing by minimizing memory usage and often reducing complexity compared to other methods that require additional data structures.
+
+This technique is powerful for a range of problems where the array needs to be modified in place, providing a robust, reusable, and efficient tool in a developer's arsenal. The flexibility to define both the condition for rearrangement and the method of rearrangement ensures that the function can be tailored to fit a wide array of needs.
