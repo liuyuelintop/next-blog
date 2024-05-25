@@ -1,0 +1,193 @@
+---
+title: React Projects Folder Structure
+description: General project architecutre and folder strcutures across different scales of React projects.
+date: 2024-05-25
+tags: ["react", "webdev", "javascript"]
+published: true
+---
+
+It's recommended to structure code by feature or functionality, and to modularize components.
+
+    ## Level 1: Grouping by File TYpes
+    ```bash
+    └── src/
+    ├── assets/
+    ├── api/
+    ├── configs/
+    ├── components/
+    │   ├── SignUpForm.tsx
+    │   ├── Employees.tsx
+    │   ├── PaymentForm.tsx
+    │   └── Button.tsx
+    ├── hooks/
+    │   ├── usePayment.ts
+    │   ├── useUpdateEmployee.ts
+    │   ├── useEmployees.ts
+    │   └── useAuth.tsx
+    ├── lib/
+    ├── services/
+    ├── states/
+    └── utils/
+    ```
+    - Project Size: Small to Medium
+    - Advantages: Simple & straightforward
+    - Disadvantages:
+        - Will inflate quickly and become hard to maintain
+        - No separation of business concerns
+    <Callout type="danger">
+    Let's say you have a lot of code revolving around payment. One day the whole business changes or is no longer needed, how easy is it to replace or remove it? With this folder structure, you'll have to go through every folder and the files inside it to make the necessary changes. And if the project keeps growing larger, it'll soon grow into a maintenance hell that will only get worse over time.
+    </Callout>
+
+    ## Level 2: Grouping by "File Types" and Features
+    ```bash
+    └── src/
+    ├── assets/
+    ├── api/
+    ├── configs/
+    ├── components/
+    │   ├── auth/
+    │   │   └── SignUpForm.tsx
+    │   ├── payment/
+    │   │   └── PaymentForm.tsx
+    │   ├── common/
+    │   │   └── Button.tsx
+    │   └── employees/
+    │       ├── EmployeeList.tsx
+    │       └── EmployeeSummary.tsx
+    ├── hooks/
+    │   ├── auth/
+    │   │   └── useAuth.ts
+    │   ├── payment/
+    │   │   └── usePayment.ts
+    │   └── employees/
+    │       ├── useEmployees.ts
+    │       └── useUpdateEmployee.ts
+    ├── lib/
+    ├── services/
+    ├── states/
+    └── utils/
+    ```
+
+    - Project Size: Medium to Large
+    - Advantages:
+        - Simple & straightforward
+        - Stuff are grouped by features
+    - Disadvantages: Logic related to a feature is still spread across multiple folder types
+
+
+    <Callout type="safe">
+    Now let's come back to the problem statement where the payment module needs to be modified or removed. With this structure, it's a lot easier to do that now.
+    The <span className="font-semibold">"Level 2"</span> folder structure is the one that I'd recommend if you don't know what to choose.
+    </Callout>
+
+      ## Level 3: Grouping by Features/Modules
+      ```bash
+      └── src/
+      ├── assets/
+      ├── modules/
+      |   ├── core/
+      │   │   ├── components/
+      │   │   ├── design-system/
+      │   │   │   └── Button.tsx
+      │   │   ├── hooks/
+      │   │   ├── lib/
+      │   │   └── utils/
+      │   ├── payment/
+      │   │   ├── components/
+      │   │   │   └── PaymentForm.tsx
+      │   │   ├── hooks/
+      │   │   │   └── usePayment.ts
+      │   │   ├── lib/
+      │   │   ├── services/
+      │   │   ├── states/
+      │   │   └── utils/
+      │   ├── auth/
+      │   │   ├── components/
+      │   │   │   └── SignUpForm.tsx
+      │   │   ├── hooks/
+      │   │   │   └── useAuth.ts
+      │   │   ├── lib/
+      │   │   ├── services/
+      │   │   ├── states/
+      │   │   └── utils/
+      │   └── employees/
+      │       ├── components/
+      │       │   ├── EmployeeList.tsx
+      │       │   └── EmployeeSummary.tsx
+      │       ├── hooks/
+      │       │   ├── useEmployees.ts
+      │       │   └── useUpdateEmployee.ts
+      │       ├── services/
+      │       ├── states/
+      │       └── utils/
+      └── ...
+      ```
+
+    - Project Size: Large and Complex
+    - Advantages:
+        - Stuff are clearly grouped by features/modules
+        - Features/Modules are clear representations of objects in the real world
+    - Disadvantages:
+        You'll have to be well-aware of the business logic to make the right grouping decisions
+
+## Give Consistent Meanings to Folder Names
+
+Regardless of the structure level, certain folder names should carry specific meanings. What a folder name means may vary based on your preferences or the project's conventions.
+
+Here's what I usually think about folder names:
+
+### UI Components
+
+- **components**: React components - the main UI building blocks.
+- **design-system**: Fundamental UI elements and patterns based on the design system.
+- **icons**: SVG icons that are meant to be used inline.
+
+### React Specific
+
+- **hooks**: Custom React hooks for shared logic.
+- **hocs**: React Higher-order Components.
+- **contexts/providers**: Contains React Contexts and Providers.
+
+### Utilities & External Integrations
+
+- **utils**: Utilities for universal logic that is not related to business logic or any technologies, e.g. string manipulations, mathematic calculations, etc.
+- **lib**: Utilities that are related to certain technologies, e.g. DOM manipulations, HTML-related logic, localStorage, IndexedDB, etc.
+- **plugins**: Third-party plugins (e.g. i18n, Sentry, etc.)
+
+### Business Logic
+
+- **services**: Encapsulates main business & application logic.
+- **helpers**: Provides business-specific utilities.
+
+### Styles
+
+**styles**: Contains (global) CSS or CSS-in-JS styles.
+
+### TypeScript and Configurations
+
+- **types**: For general TypeScript types, enums and interfaces.
+- **configs**: Configs for the application (e.g. environment variables)
+- **constants**: Constant, unchanged values (e.g. `export const MINUTES_PER_HOUR = 60`).
+
+### Server Communication
+
+- **api**: For logic that communicates with the server(s).
+- **graphql**: GraphQL-specific code.
+
+### State Management
+
+- **states/store**: Global state management logic (Zustand, Valtio, Jotai, etc.)
+- **reducers, store, actions, selectors**: Redux-specific logic
+
+### Routing
+
+- **routes/router**: Defining routes (if you're using React Router or the like).
+- **pages**: Defining entry-point components for pages.
+
+### Testing
+
+**tests**: Unit tests and other kinds of tests for your code.
+
+---
+
+**Credit**: [Will T. : Folder Structures in React Projects](https://dev.to/itswillt/folder-structures-in-react-projects-3dp8)
