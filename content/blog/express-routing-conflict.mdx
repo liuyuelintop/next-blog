@@ -1,0 +1,140 @@
+---
+title: Handling Route Conflicts in Express.js
+description: Understanding route conflicts in Express.js and optimizing delete operations for bookmarks and posts in a Twitter-clone project.
+date: 2024-06-06
+tags: ["express", "nodejs", "mongodb", "backend", "javascript", "blog", "code"]
+published: true
+---
+
+## Handling Route Conflicts and Optimizing Delete Operations in Express.js
+
+In this blog post, we explore how to handle route conflicts in Express.js and optimize the deletion operations for bookmarks and posts in our Twitter-clone project.
+
+### Problem Overview
+
+After adding bookmark functionality to posts, we encountered issues with route conflicts and the correct deletion of posts. Specifically, when attempting to delete all bookmarks, we faced route conflicts that caused incorrect behavior. Additionally, when deleting a post, it is crucial to ensure that any references to the post in other collections are also removed or updated. In our case, we need to clear bookmarks referencing the post before deleting it.
+
+### Route Conflicts in Express.js
+
+When working with Express.js, defining routes with similar patterns can sometimes lead to conflicts. This is especially true when a route parameter is defined at the same path level as a static route. For example, consider the following route definitions:
+
+```javascript
+router.delete("/:id", protectRoute, deletePost);
+router.delete("/bookmarks", protectRoute, deleteAllBookmarks);
+```
+
+The issue here is that the `/bookmarks` route can be mistakenly interpreted as a parameter `:id`, leading to unexpected behavior and errors, such as the one we encountered:
+
+```bash
+Error in deletePost controller: CastError: Cast to ObjectId failed for value "bookmarks" (type string) at path "\_id" for model "Post"
+```
+
+### Route Conflict Resolution
+
+The primary issue was the route conflict caused by the way Express matches routes. To resolve this, we reordered our routes to prevent conflicts and ensure proper route handling.
+
+> Place more specific routes before the more general ones:
+
+```javascript
+router.delete("/bookmarks", protectRoute, deleteAllBookmarks);
+router.delete("/:id", protectRoute, deletePost);
+```
+
+### Optimizing Delete Operations
+
+#### `deletePost` Function
+
+After adding bookmark functionality to posts, we must address an important issue: when deleting a post, it is essential to ensure that any references to the post in other collections are also removed or updated. Specifically, we need to clear bookmarks that reference the post before deleting it.
+Updated `deletePost` function:
+
+```javascript
+export const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id.toString();
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid post ID" });
+    }
+
+    const post = await Post.findById(id);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // check authorization
+    if (post.user.toString() !== userId) {
+      return res
+        .status(401)
+        .json({ error: "You are not authorized to delete this post" });
+    }
+
+    // delete post img (if it exists)
+    if (post.img) {
+      await destroyImage(post.img);
+    }
+
+    // Clear bookmarks referencing this post
+    await User.updateMany(
+      { bookmarkedPosts: id },
+      { $pull: { bookmarkedPosts: id } }
+    );
+
+    // delete the post
+    await Post.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error in deletePost controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+```
+
+### Handling Bookmarks
+
+#### `deleteAllBookmarks` Function
+
+To delete all bookmarks for a user, we need to clear the bookmarks in the user's document and update all posts that reference the user in their bookmarks array.
+
+Updated `deleteAllBookmarks` function:
+
+```javascript
+export const deleteAllBookmarks = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId).populate({
+      path: "bookmarkedPosts",
+      populate: {
+        path: "user",
+        select: "username profileImg fullName",
+      },
+    });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Clear user's bookmarkedPosts
+    user.bookmarkedPosts = [];
+    await user.save();
+
+    // Clear bookmarks in the posts
+    await Post.updateMany(
+      { bookmarks: userId },
+      { $pull: { bookmarks: userId } }
+    );
+
+    res.status(200).json({ message: "All bookmarks deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteAllBookmarks controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+```
+
+### References
+
+For further reading on Express.js routing and middleware, refer to the [official Express.js documentation](https://expressjs.com/en/guide/routing.html).
+
+By correctly ordering our routes and ensuring all references are handled when deleting documents, we can avoid conflicts and maintain data integrity in our application.
