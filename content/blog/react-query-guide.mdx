@@ -1,0 +1,256 @@
+---
+title: "Understanding React Query: Invalidation and Key Functions"
+description: Detailed guide on the usage of useQuery(), setQueryData(), and invalidateQueries() in React Query with practical examples and scenarios.
+date: 2024-06-07
+tags: ["react", "react-query", "javascript", "webdev"]
+published: true
+---
+
+## Understanding React Query: Invalidation and Key Functions
+
+React Query is a powerful library for managing server state in React applications. It simplifies data fetching, caching, synchronization, and more. This document focuses on understanding invalidation in React Query and the usage of key functions: `useQuery()`, `setQueryData()`, and `invalidateQueries()`.
+
+### What is Invalidation?
+
+<Callout type="safe">
+  Invalidation in React Query refers to the process of marking cached data as
+  stale. This triggers a refetch of the data the next time it is accessed.
+  Invalidation is crucial for keeping the UI in sync with the server data,
+  especially in applications where data changes frequently.
+</Callout>
+
+### Key Functions
+
+#### `useQuery()`
+
+The [`useQuery`](https://tanstack.com/query/latest/docs/framework/react/guides/queries) hook is the primary hook for fetching and caching data. It accepts a query key and a function that returns a promise, which resolves with the data.
+Here is an example of how you can use useQuery:
+
+```javascript
+import { useQuery } from "@tanstack/react-query";
+
+const fetchPosts = async () => {
+  const response = await fetch("/api/posts");
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+const Posts = () => {
+  const { data, error, isLoading } = useQuery(["posts"], fetchPosts);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      {data.map((post) => (
+        <div key={post.id}>{post.title}</div>
+      ))}
+    </div>
+  );
+};
+```
+
+In this example, `useQuery` is used to fetch a list of posts from an API. The `queryKey`is an array that identifies the query, and the `queryFn` is a function that fetches the data. The useQuery hook returns an object with three properties: `data`, `error`, and `isLoading`. data is the fetched data, error is the error if there is one, and isLoading is a boolean that indicates whether the data is being fetched.
+
+**Business Scenario:**
+
+Use `useQuery` to fetch data that is read-only or rarely changes, such as a list of posts or user profiles.
+
+#### `setQueryData()`
+
+The `setQueryData` function allows you to directly manipulate the cached data without triggering a refetch. This is useful for optimistic updates or when you know the data has changed. Example:
+
+```javascript
+import { useQueryClient } from "@tanstack/react-query";
+
+const updatePostTitle = async (postId, newTitle) => {
+  const response = await fetch(`/api/posts/${postId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ title: newTitle }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+};
+
+const EditPostTitle = ({ postId, currentTitle }) => {
+  const queryClient = useQueryClient();
+  const [title, setTitle] = useState(currentTitle);
+
+  const handleSave = async () => {
+    await updatePostTitle(postId, title);
+    queryClient.setQueryData(["posts"], (oldData) => {
+      return oldData.map((post) =>
+        post.id === postId ? { ...post, title } : post
+      );
+    });
+  };
+
+  return (
+    <div>
+      <input value={title} onChange={(e) => setTitle(e.target.value)} />
+      <button onClick={handleSave}>Save</button>
+    </div>
+  );
+};
+```
+
+**Business Scenario:**
+
+Use `setQueryData` for optimistic UI updates, such as updating the UI immediately after a form submission, while the actual request is still being processed.
+
+#### `invalidateQueries()`
+
+The `invalidateQueries` function marks queries as stale and triggers a refetch the next time they are accessed. This is essential for ensuring that the data displayed in the UI is up-to-date. Example:
+
+```javascript
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+const deletePost = async (postId) => {
+  const response = await fetch(`/api/posts/${postId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+
+  return response.json();
+};
+
+const DeletePostButton = ({ postId }) => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation(() => deletePost(postId), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["posts"]);
+    },
+  });
+
+  return (
+    <button onClick={() => mutation.mutate()}>
+      {mutation.isLoading ? "Deleting..." : "Delete Post"}
+    </button>
+  );
+};
+```
+
+**Business Scenario:**
+
+Use `invalidateQueries` when the data in the cache may no longer be accurate after an operation, such as after deleting or adding an item. This ensures that the next fetch retrieves the latest data from the server.
+
+### Practical Examples
+
+#### Scenario: Bookmarking a Post
+
+When a user bookmarks a post, we need to update the cached data to reflect this change and ensure the bookmarks page displays the correct information.
+
+**Backend:**
+
+```javascript
+export const bookmarkPost = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { id: postId } = req.params;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const userBookmarkedPost = post.bookmarks.includes(userId);
+
+    if (userBookmarkedPost) {
+      await Post.updateOne({ _id: postId }, { $pull: { bookmarks: userId } });
+      await User.updateOne(
+        { _id: userId },
+        { $pull: { bookmarkedPosts: postId } }
+      );
+      const updatedBookmarks = post.bookmarks.filter(
+        (id) => id.toString() !== userId.toString()
+      );
+      res.status(200).json(updatedBookmarks);
+    } else {
+      post.bookmarks.push(userId);
+      await User.updateOne(
+        { _id: userId },
+        { $push: { bookmarkedPosts: postId } }
+      );
+      await post.save();
+
+      await new Notification({
+        from: userId,
+        to: post.user,
+        type: "bookmark",
+      }).save();
+
+      const updatedBookmarks = post.bookmarks;
+      res.status(200).json(updatedBookmarks);
+    }
+  } catch (error) {
+    console.error("Error in bookmarkPost controller:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+```
+
+**Frontend:**
+
+```javascript
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
+const Post = ({ post }) => {
+  const queryClient = useQueryClient();
+  const location = useLocation();
+
+  const { mutate: bookmarkPost, isPending: isBookmarking } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/bookmark/${post._id}`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return await res.json();
+    },
+    onSuccess: (updatedBookmarks) => {
+      if (/^\/bookmarks\/[^\/]+$/.test(location.pathname)) {
+        queryClient.invalidateQueries(["posts"]);
+      } else {
+        queryClient.setQueryData(["posts"], (oldData) =>
+          oldData.map((p) =>
+            p._id === post._id ? { ...p, bookmarks: updatedBookmarks } : p
+          )
+        );
+      }
+      toast.success("Bookmark updated successfully!");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleBookmark = () => {
+    if (!isBookmarking) bookmarkPost();
+  };
+
+  return (
+    <button onClick={handleBookmark}>
+      {isBookmarking ? "Bookmarking..." : "Bookmark"}
+    </button>
+  );
+};
+```
+
+### References
+
+For further reading on React Query routing, refer to the official [React Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
