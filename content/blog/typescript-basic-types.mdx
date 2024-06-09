@@ -1,0 +1,128 @@
+---
+title: "Understanding TypeScript Basic Types"
+description: A comprehensive guide to understanding the basic types in TypeScript, including static type-checking, non-exception failures, and tooling benefits.
+date: 2024-06-09
+tags: ["typescript", "basic types", "javascript", "webdev"]
+published: true
+---
+
+## Understanding TypeScript Basic Types
+
+TypeScript enhances JavaScript by adding static type-checking, which helps catch errors before runtime. This document covers the fundamentals of TypeScript's basic types and their benefits.
+
+### Static Type-Checking
+
+TypeScript provides a static type system that helps predict the behavior of code before execution. By adding type annotations, developers can catch errors early in the development process.
+
+```typescript
+const message: string = "Hello World!";
+message(); // Error: 'message' is not a function
+```
+
+### Non-Exception Failures
+
+JavaScript allows certain operations without throwing exceptions, like accessing undefined properties. TypeScript flags these operations, preventing potential runtime errors.
+
+```typescript
+const user = { name: "Alice", age: 30 };
+console.log(user.location); // Error: Property 'location' does not exist
+```
+
+### Types for Tooling
+
+TypeScript improves development tooling by providing autocompletion, error messages, and quick fixes. This integration makes coding more efficient and reduces bugs.
+
+```typescript
+import express from "express";
+
+const app = express();
+app.get("/", (req, res) => {
+  res.send("Hello, TypeScript!");
+});
+app.listen(3000);
+```
+
+### The TypeScript Compiler (`tsc`)
+
+TypeScript uses a compiler to transform TypeScript code into JavaScript. The `tsc` command checks for type errors and compiles `.ts` files to `.js`.
+
+```sh
+npm install -g typescript
+tsc hello.ts
+```
+
+### Explicit Types
+
+Explicit type annotations define the expected types for variables and function parameters, helping to avoid type-related errors.
+
+```typescript
+function greet(person: string, date: Date) {
+  console.log(`Hello ${person}, today is ${date.toDateString()}`);
+}
+greet("Alice", new Date());
+```
+
+### Downleveling
+
+TypeScript can compile code to older versions of JavaScript, ensuring compatibility with different environments.
+
+```typescript
+// TypeScript
+const greet = (name: string) => `Hello, ${name}`;
+
+// Compiled JavaScript (ES5)
+var greet = function (name) {
+  return "Hello, " + name;
+};
+```
+
+### Strictness
+
+TypeScript's strict mode enables thorough type-checking, reducing potential bugs by enforcing stricter rules. Key flags include `noImplicitAny` and `strictNullChecks`.
+
+```typescript
+// Enable strict mode in tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true
+  }
+}
+```
+
+### `noImplicitAny`
+
+The `noImplicitAny` flag prevents variables from having an implicit `any` type, encouraging explicit type definitions.
+
+```typescript
+let value: any; // No error
+let value; // Error with `noImplicitAny`
+```
+
+### `strictNullChecks`
+
+The `strictNullChecks` flag ensures that `null` and `undefined` are handled explicitly, preventing common runtime errors.
+
+```typescript
+let value: string | null = null;
+value = "Hello"; // No error
+```
+
+### Behavioral Analysis of JavaScript Values
+
+Each JavaScript value has specific behaviors observed through various operations. For example:
+
+```javascript
+const message = "Hello World!";
+// Accessing and calling toLowerCase on message
+message.toLowerCase(); // "hello world!"
+// Trying to call message directly
+message(); // TypeError: message is not a function
+```
+
+When running code, JavaScript identifies the value's type to decide what operations are valid. TypeScript's static type system helps predict these behaviors before runtime, preventing errors and enhancing code reliability.
+
+By understanding and utilizing TypeScript's basic types and compiler features, developers can write safer and more maintainable code.
+
+### References
+
+For more details, visit the [TypeScript Handbook on Basic Types](https://www.typescriptlang.org/docs/handbook/2/basic-types.html).
