@@ -1,0 +1,441 @@
+---
+title: "Summary of TypeScript Data Types"
+description: A comprehensive guide to understanding data types in TypeScript
+tags: ["typescript", "data types"]
+date: 2024-06-11
+published: true
+---
+
+## JS Data Types
+
+- Number
+- String
+- Boolean
+- Null
+- Undefined
+- Symbol
+- Bigint
+- Object
+
+## `any` Type
+
+The `any` type bypasses type checking, allowing any type of value to be assigned to it. Without constraints, there is no type inference.
+
+## Literal Types
+
+```typescript
+const b = "hello";
+const c = null;
+
+let d: "hello";
+d = "hello";
+// d = "world"; // Error, can only assign "hello"
+```
+
+## Union Types
+
+```typescript
+let v1: string | number | undefined = undefined;
+v1 = "hello";
+v1 = 123;
+
+let v2: "male" | "female";
+v2 = "female";
+
+let v3: "UP" | "DOWN" | "LEFT" | "RIGHT";
+v3 = "RIGHT";
+```
+
+## Arrays
+
+Arrays can be represented by `type[]` or `Array<type>`. For example, `number[]`, `string[]`, `Array<number>`, etc.
+
+```typescript
+const arr1 = [1, 2, 3, 4, 5];
+const arr2: string[] = ["a", "b", "c", "d", "e"];
+const arr3: number[] = [1, 2, 3, 4, 5];
+const arr4: Array<number> = [1, 2, 3, 4, 5];
+```
+
+Empty arrays default to `any[]`, but this is related to type checking mechanisms.
+
+```typescript
+const arr5 = [];
+arr5.push(123);
+arr5.push("123");
+```
+
+Arrays can also be of union types:
+
+```typescript
+let arr6: (string | number)[] = [1, "2", 3, "4"];
+let arr7: Array<string | number> = [1, "2", "3", 4];
+// Note the difference:
+let arr8: string[] | number[] = [1, 2, 3, 4];
+let arr9: Array<string> | Array<number> = ["1", "2", "3", "4"];
+```
+
+## Tuple Types
+
+A tuple is a fixed-length array with specified types for each element.
+
+```typescript
+const tuple1: [number, number] = [1, 2];
+const tuple2: [number, string] = [1, "2"];
+```
+
+**Use Case:** Representing geographical coordinates.
+
+```typescript
+let position: [number, number] = [39.5427, 116.2317];
+```
+
+```typescript
+let tuple3: [] = []; // Empty tuple
+
+// tuple3 = [1]; // Error
+
+let value = []; // Temporary empty array, type is any[]
+```
+
+## Functions
+
+Functions in TypeScript have type definitions for parameters and return values. Return types can be inferred.
+
+```typescript
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+const r = add(1, 2);
+```
+
+**Optional and Default Parameters**
+
+```typescript
+function sum1(a: number, b: number, c?: number) {
+  console.log(a, b, c);
+}
+sum1(3, 4);
+
+// default parameters are acutally optinal parameters
+function sum2(a: number, b: number, c = 10) {
+  console.log(a, b, c);
+}
+```
+
+**Rest Parameters**
+
+```typescript
+const fn = (a: number, b: number, ...args: number[]) => {
+  console.log(a, b, args[0]);
+};
+```
+
+## `void`
+
+If a function has no explicit return type, it defaults to `void`.
+
+```typescript
+function print(): void {
+  console.log("1. Login");
+  console.log("2. Register");
+}
+```
+
+## Generics
+
+Generics in TypeScript allow the creation of reusable components that work with multiple types while ensuring type safety. They enable the use of a type variable when defining functions, interfaces, or classes, acting as a special marker to handle different, specific types in various contexts.
+
+```typescript
+function identity<T>(arg: T): T {
+  return arg;
+}
+
+let output1 = identity<string>("myString"); // Explicitly specifying T as string
+let output2 = identity("myString"); // Type inference, T inferred as string
+let output3 = identity(123); // Type inference, T inferred as number
+console.log(output1, output2, output3);
+
+function getTuple<T>(a: T, b: T) {
+  return [a, b];
+}
+const as = getTuple<string>("hello", "world");
+
+function myNumberFilter(
+  arr: number[],
+  callback: (item: number, index?: number) => boolean
+): number[] {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i];
+    if (callback(item)) {
+      result.push(item);
+    }
+  }
+  return result;
+}
+const filterArr1 = myNumberFilter([1, 2, 3, 4, 5], (item) => item % 2 === 0);
+console.log(filterArr1);
+
+function myFilter<T>(
+  arr: T[],
+  callback: (item: T, index?: number) => boolean
+): T[] {
+  const result = [];
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i];
+    if (callback(item)) {
+      result.push(item);
+    }
+  }
+  return result;
+}
+
+const filterArr2 = myFilter(["xxx.js", "aaa.java", "bbb.md"], (item) =>
+  item.endsWith(".js")
+);
+console.log(filterArr2);
+```
+
+## Object Literal Types
+
+```typescript
+const obj1 = {
+  name: "lily",
+  age: 18,
+};
+
+const obj2: {
+  name: string;
+  age: number;
+} = {
+  name: "lily",
+  age: 18,
+};
+
+function getInfo(user: {
+  name: string;
+  age: number;
+}): { name: string; age: number }[] {
+  return [
+    {
+      name: "lily",
+      age: 18,
+    },
+    {
+      name: "lucy",
+      age: 20,
+    },
+  ];
+}
+```
+
+## Custom Types: Type Aliases and Interfaces
+
+**Type Aliases** are a way to create new names for types, essentially giving a new name to an existing type. Type aliases can be any valid type, including basic types, union types, tuples, etc.
+
+```typescript
+type Point = {
+  x: number;
+  y: number;
+};
+
+type ID = string | number;
+
+type Age = number;
+
+type User = {
+  name: string;
+  age: Age;
+};
+
+const obj3: User = {
+  name: "lily",
+  age: 18,
+};
+```
+
+**Interfaces**, on the other hand, are an object-oriented concept used to define the structure of an object. They describe the shape of an object, specifying what properties it should have and their types. Interfaces are primarily used to declare the structure of objects.
+
+```typescript
+interface Person {
+  id: number;
+  name: string;
+  age: number;
+}
+
+const obj4: Person = {
+  id: 1,
+  name: "lily",
+  age: 18,
+};
+```
+
+Custom types can be used in functions and arrays.
+
+```typescript
+function fn1(user: User) {
+  console.log(user.name);
+}
+
+const users: User[] = [
+  {
+    name: "lily",
+    age: 18,
+  },
+  {
+    name: "lucy",
+    age: 20,
+  },
+];
+```
+
+**Functions in Types and Optional Properties**
+
+```typescript
+type InfoFn = (id: number, name?: string) => string;
+
+interface Book {
+  id: number;
+  name: string;
+  price?: number;
+  show(id: number): void;
+  filter: (id: number) => void;
+  info: InfoFn;
+  author: User;
+}
+
+const book: Book = {
+  id: 1,
+  name: "javascript",
+  show(id: number) {
+    console.log(id);
+  },
+  filter(id: number) {
+    console.log(id);
+  },
+  info(id: number, name?: string) {
+    return "hello";
+  },
+  author: {
+    name: "lily",
+    age: 18,
+  },
+};
+```
+
+## Intersection Types
+
+```typescript
+type A = {
+  id: number;
+  name: string;
+};
+type B = {
+  age: number;
+};
+type C = A & B;
+type D = A | B;
+
+// Note the difference between C and D types
+const v6: D = {
+  id: 1,
+  name: "lily",
+  // age: 18,
+};
+```
+
+## Type Assertions
+
+Type assertions tell the compiler to treat a value as a specific type.
+
+```typescript
+let someValue: any = "this is a string";
+let strLength1: number = (<string>someValue).length;
+let strLength2: number = (someValue as string).length;
+```
+
+**Non-null Assertion**
+
+```typescript
+let maybeString: string | null = "hello";
+let definitelyString = maybeString!;
+```
+
+```typescript
+function getRandom(length?: number) {
+  if (!length) {
+    return undefined;
+  }
+
+  return Math.random().toString(36).slice(-length);
+}
+let s = getRandom(6);
+(s as string).charAt(0);
+s!.charAt(0);
+```
+
+```typescript
+type Box = {
+  id: number;
+  name: string;
+};
+
+function getBox(): Box | undefined {
+  if (Math.random() > 0.5) {
+    return {
+      id: 1,
+      name: "box1",
+    };
+  }
+  return undefined;
+}
+
+function createProduction(box: Box) {
+  // todos...
+}
+
+createProduction(getBox() as Box);
+createProduction(getBox()!);
+```
+
+Common DOM operations
+
+```typescript
+const input;
+
+Dom = document.querySelector("input");
+inputDom!.addEventListener("change", (e) => {
+  console.log((e.target as HTMLInputElement).value);
+});
+```
+
+All DOM-related type declarations are found in the core library definition file lib.dom.d.ts. To look up related elements, you can refer to the _interface_ **HTMLElementTagNameMap**.
+
+## Optional Chaining Operator
+
+The optional chaining operator `?.` allows you to access properties or call methods on an object without causing an error if the object is `undefined` or `null`; instead, it returns `undefined`. This helps avoid lengthy conditional statements to check each level of the object.
+
+```typescript
+interface Address {
+  street?: string;
+  city?: string;
+}
+
+interface Student {
+  name: string;
+  address?: Address;
+}
+
+let student: Student = {
+  name: "Rose",
+  address: {
+    city: "Shanghai",
+    // Note: street property is not provided
+  },
+};
+
+let street = student.address?.street; // street will be undefined without throwing an error
+console.log(street); // Outputs undefined
+```
