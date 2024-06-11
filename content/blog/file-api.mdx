@@ -1,0 +1,270 @@
+---
+title: "Understanding the File API"
+description: A comprehensive guide to understanding the File API in web development, including Blob, FileReader, and practical applications.
+date: 2024-06-11
+tags: ["file api", "web api", "javascript", "webdev"]
+published: true
+---
+
+## Understanding the File API
+
+The File API allows web applications to interact with files on the user's local system. This includes creating, reading, and manipulating file objects.
+
+### Key Concepts
+
+1. **Blob**: Represents immutable raw data.
+2. **File**: Inherits from Blob, representing files from the user's file system.
+3. **FileReader**: Asynchronously reads file contents.
+4. **Drag and Drop**: Handling file uploads via drag-and-drop.
+
+### Creating and Manipulating Blobs
+
+Blobs are used to represent raw data. You can create a Blob using the Blob constructor and manipulate it using methods like `slice`.
+
+```javascript
+const blob = new Blob(["I am a teacher"], { type: "text/plain" });
+const length = 4;
+const firstBlob = blob.slice(0, length);
+const lastBlob = blob.slice(length);
+
+Promise.all([firstBlob.text(), lastBlob.text()]).then((val) => {
+  console.log(val); // ["I am", " a teacher"]
+});
+```
+
+### Handling File Uploads
+
+Files can be uploaded using an `<input type="file">` element or via drag-and-drop.
+
+#### Using Input Element
+
+```html
+<input type="file" multiple />
+<script>
+  document.querySelector("input").addEventListener("change", function (e) {
+    console.log(e.target.files);
+  });
+</script>
+```
+
+#### Using Drag-and-Drop
+
+```html
+<div class="drop-content">Drop files here</div>
+<script>
+  const dropContent = document.querySelector(".drop-content");
+
+  dropContent.addEventListener("dragover", (e) => e.preventDefault());
+  dropContent.addEventListener("drop", (e) => {
+    e.preventDefault();
+    console.log(e.dataTransfer.files);
+  });
+</script>
+```
+
+### Reading Files with FileReader
+
+The FileReader API allows you to read the contents of a File object asynchronously.
+
+```html
+<input type="file" />
+<script>
+  document
+    .querySelector("input[type='file']")
+    .addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+
+      reader.addEventListener("load", function (e) {
+        console.log(e.target.result);
+      });
+      reader.readAsText(file);
+    });
+</script>
+```
+
+### Practical Application: File Management System
+
+Here is an example of a more comprehensive file management system that supports single and multiple file uploads, directory uploads, and drag-and-drop functionality.
+
+#### HTML Structure
+
+```html
+<div class="container">
+  <div class="drop-content">Drag files or folders here to scan</div>
+  <div class="upload-btns">
+    <div class="scan-file">Scan Files</div>
+    <div class="scan-dir">Scan Directory</div>
+  </div>
+  <table role="table" class="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Path</th>
+        <th>Type</th>
+        <th>Size</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody class="list"></tbody>
+  </table>
+  <input type="file" class="file" multiple />
+  <input type="file" webkitdirectory class="dir" />
+</div>
+```
+
+#### JavaScript Logic
+
+```javascript
+/**
+ * Selects the HTML elements for file scan, directory scan, drop content area, file list, and file inputs.
+ */
+const scanFile = document.querySelector(".scan-file");
+const scanDir = document.querySelector(".scan-dir");
+const dropContent = document.querySelector(".drop-content");
+const list = document.querySelector("tbody");
+const fileInput = document.querySelector("input.file");
+const fileInputDir = document.querySelector("input.dir");
+
+const tempFileList = [];
+
+/**
+ * Purpose: This event listener triggers the file input element when the "Scan Files" button is clicked, allowing users to select files for upload.
+ *
+ * Explanation: This is a simple and straightforward event listener that simulates a click on the hidden file input element to open the file selection dialog.
+ */
+scanFile.addEventListener("click", () => fileInput.click());
+
+/**
+ * Purpose: Handles the change event on the file input to capture selected files.
+ *
+ * Explanation: This event listener is crucial as it captures the files selected by the user. The files are then added to the tempFileList array for further processing.
+ *
+ * @param {Event} e - The change event.
+ */
+fileInput.addEventListener("change", (e) => {
+  tempFileList.push(...e.target.files);
+  renderFileList();
+});
+
+/**
+ * Purpose: This event listener triggers the directory input element when the "Scan Directory" button is clicked, allowing users to select directories for upload.
+ *
+ * Explanation: Similar to the file scan, this triggers the hidden directory input to open the directory selection dialog.
+ */
+scanDir.addEventListener("click", () => fileInputDir.click());
+
+/**
+ * Purpose: Handles the change event on the directory input to capture selected directories.
+ *
+ * Explanation: This event listener captures the files within the selected directory and adds them to the tempFileList array.
+ *
+ * @param {Event} e - The change event.
+ */
+fileInputDir.addEventListener("change", (e) => {
+  tempFileList.push(...e.target.files);
+  renderFileList();
+});
+
+/**
+ * Purpose: Prevents the default behavior of the dragover event to allow dropping.
+ *
+ * Explanation: This is essential for enabling the drop functionality. Without preventing the default behavior, the drop event will not fire.
+ *
+ * @param {Event} e - The dragover event.
+ */
+dropContent.addEventListener("dragover", (e) => e.preventDefault());
+
+/**
+ * Purpose: Handles the drop event to capture dropped files or directories.
+ *
+ * Explanation: This event listener processes the dropped items and calls getFileByEntry to handle files and directories recursively.
+ *
+ * @param {Event} e - The drop event.
+ */
+dropContent.addEventListener("drop", (e) => {
+  e.preventDefault();
+  for (const item of e.dataTransfer.items) {
+    getFileByEntry(item.webkitGetAsEntry());
+  }
+});
+
+/**
+ * Purpose: Recursively processes file and directory entries.
+ *
+ * Explanation: This function is one of the most complex and important. It differentiates between files and directories and processes them accordingly. If the entry is a file, it reads and adds it to the list. If it's a directory, it reads the directory's contents recursively.
+ *
+ * @param {FileSystemEntry} entry - The file or directory entry.
+ * @param {string} [path=""] - The path to the entry.
+ */
+function getFileByEntry(entry, path = "") {
+  if (entry.isFile) {
+    entry.file((file) => {
+      file.path = `${path}${file.name}`;
+      tempFileList.push(file);
+      renderFileList();
+    });
+  } else {
+    const reader = entry.createReader();
+    reader.readEntries((entries) => {
+      for (const item of entries) {
+        getFileByEntry(item, `${path}${entry.name}/`);
+      }
+    });
+  }
+}
+
+/**
+ * Purpose: Renders the list of files in the table.
+ *
+ * Explanation: This function updates the HTML table to display the current list of files. It creates table rows dynamically for each file in the tempFileList array.
+ */
+function renderFileList() {
+  list.innerHTML = "";
+  tempFileList.forEach((file, index) => {
+    const tr = document.createElement("tr");
+    list.appendChild(tr);
+    tr.innerHTML = `
+      <td>${file.name}</td>
+      <td>${file.webkitRelativePath || file.path}</td>
+      <td>${file.type}</td>
+      <td>${transformByte(file.size)}</td>
+      <td onclick="delFile(${index})">Delete</td>
+    `;
+  });
+}
+
+/**
+ * Purpose: Converts file size from bytes to a human-readable format (KB, MB, GB).
+ *
+ * Explanation: This utility function converts the file size to a more readable format, improving the user experience by displaying sizes in KB, MB, or GB.
+ *
+ * @param {number} size - The size of the file in bytes.
+ * @returns {string} - The size of the file in a human-readable format.
+ */
+function transformByte(size) {
+  if (size < 1024 ** 2) {
+    return (size / 1024).toFixed(1) + "KB";
+  } else if (size < 1024 ** 3) {
+    return (size / 1024 ** 2).toFixed(1) + "MB";
+  } else {
+    return (size / 1024 ** 3).toFixed(1) + "GB";
+  }
+}
+
+/**
+ * Purpose: Deletes a file from the tempFileList array.
+ *
+ * Explanation: This function removes a file from the list based on its index and re-renders the file list to reflect the change.
+ *
+ * @param {number} index - The index of the file to be deleted.
+ */
+function delFile(index) {
+  tempFileList.splice(index, 1);
+  renderFileList();
+}
+```
+
+### Conclusion
+
+The File API provides powerful capabilities for handling file uploads and processing files in web applications. By leveraging Blobs, Files, FileReader, and drag-and-drop events, developers can create robust file management systems and enhance user interactions.

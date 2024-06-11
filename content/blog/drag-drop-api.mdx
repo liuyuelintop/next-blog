@@ -8,7 +8,7 @@ published: true
 
 ## Understanding the Drag and Drop API
 
-The [Drag and Drop API ](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) provides a way to enable drag-and-drop functionality in web applications. This allows users to drag elements and drop them into designated areas, making for an interactive and user-friendly experience.
+The [Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) provides a way to enable drag-and-drop functionality in web applications. This allows users to drag elements and drop them into designated areas, making for an interactive and user-friendly experience.
 
 ### Key Concepts
 
@@ -22,48 +22,28 @@ The [Drag and Drop API ](https://developer.mozilla.org/en-US/docs/Web/API/HTML_D
 This example demonstrates a simple drag-and-drop interaction between a draggable box and a drop area.
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Basic Drag and Drop</title>
-    <style>
-      .drop-content {
-        width: 200px;
-        height: 200px;
-        border: 2px dashed #000;
-      }
-      .drag-box {
-        background-color: red;
-        color: #fff;
-        width: 100px;
-        height: 100px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="drop-content">Drop Area</div>
-    <div class="drag-box" draggable="true">Drag Item</div>
-    <script>
-      const dropContent = document.querySelector(".drop-content");
-      const dragBox = document.querySelector(".drag-box");
+// ...
+<body>
+  <div class="drop-content">Drop Area</div>
+  <div class="drag-box" draggable="true">Drag Item</div>
+  <script>
+    const dropContent = document.querySelector(".drop-content");
+    const dragBox = document.querySelector(".drag-box");
 
-      dragBox.addEventListener("dragstart", () => console.log("Drag started"));
-      dragBox.addEventListener("dragend", () => console.log("Drag ended"));
+    dragBox.addEventListener("dragstart", () => console.log("Drag started"));
+    dragBox.addEventListener("dragend", () => console.log("Drag ended"));
 
-      dropContent.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        console.log("Dragging over drop area");
-      });
+    dropContent.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      console.log("Dragging over drop area");
+    });
 
-      dropContent.addEventListener("drop", (e) => {
-        e.preventDefault();
-        console.log("Dropped in drop area");
-      });
-    </script>
-  </body>
-</html>
+    dropContent.addEventListener("drop", (e) => {
+      e.preventDefault();
+      console.log("Dropped in drop area");
+    });
+  </script>
+</body>
 ```
 
 ### Advanced Drag and Drop with Custom Data
@@ -71,26 +51,7 @@ This example demonstrates a simple drag-and-drop interaction between a draggable
 This example demonstrates setting custom data for the drag operation and handling the drop event to update the drop area with the dragged content.
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Advanced Drag and Drop</title>
-    <style>
-      .drop-content {
-        width: 200px;
-        height: 200px;
-        border: 2px dashed #000;
-      }
-      .drag-box {
-        background-color: red;
-        color: #fff;
-        width: 100px;
-        height: 100px;
-      }
-    </style>
-  </head>
+  // ...
   <body>
     <div class="drop-content">Drop Area</div>
     <div class="drag-box" draggable="true">Drag Item</div>
@@ -128,30 +89,7 @@ In this practical example, we implement a sortable list where users can rearrang
 ```html
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sortable List</title>
-    <style>
-      ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      li {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin: 5px;
-        background-color: #f9f9f9;
-        cursor: grab;
-      }
-
-      li.dragging {
-        opacity: 0.5;
-      }
-    </style>
-  </head>
+  //...
   <body>
     <ul id="sortableList">
       <li draggable="true">Item 1</li>
@@ -210,6 +148,88 @@ In this practical example, we implement a sortable list where users can rearrang
 
 The Drag and Drop API allows handling different data types, such as text, HTML, and custom formats. This enables complex interactions, like dragging files into the browser for upload.
 
+### Practical Tips and Extensions
+
+#### Adding Visual Feedback
+
+Providing visual feedback during drag-and-drop operations enhances the user experience. You can change the style of drop targets when a draggable element is over them.
+
+```javascript
+dropContent.addEventListener("dragenter", () => {
+  dropContent.style.borderColor = "green";
+});
+dropContent.addEventListener("dragleave", () => {
+  dropContent.style.borderColor = "#000";
+});
+```
+
+#### Preventing Default Behavior
+
+It's important to prevent the default behavior of drag-and-drop events to ensure that custom behavior is applied.
+
+```javascript
+dropContent.addEventListener("dragover", (e) => e.preventDefault());
+dropContent.addEventListener("drop", (e) => e.preventDefault());
+```
+
+### Preventing Default Behavior in Drag and Drop
+
+When implementing drag-and-drop functionality in web applications, it's crucial to prevent the default behavior of the browser's drag-and-drop events. This ensures that your custom behavior is applied correctly. Here’s an explanation of why this is important and what issues can arise if not done.
+
+#### Default Behavior of Drag and Drop Events
+
+By default, the browser's drag-and-drop functionality may not align with your desired behavior for the application. For instance:
+
+- The default action for `dragover` is to prevent dropping. If the default behavior is not prevented, the `drop` event might not be triggered.
+- The default action for `drop` could involve opening the file (in case of files being dragged), navigating away from the current page, or some other unintended action.
+
+#### Preventing Default Behavior
+
+By preventing the default behavior, you ensure that your application handles the events as intended. Here’s how it’s typically done:
+
+```javascript
+dropContent.addEventListener("dragover", (e) => e.preventDefault());
+dropContent.addEventListener("drop", (e) => e.preventDefault());
+```
+
+#### Explanation
+
+1. **Preventing `dragover` Default Behavior**:
+
+   - The `dragover` event must have its default behavior prevented to indicate that the drop target is valid. Without this, the `drop` event will not fire.
+   - Preventing default behavior in `dragover` allows you to customize how the drop target reacts visually (e.g., highlighting the target area).
+
+2. **Preventing `drop` Default Behavior**:
+   - The `drop` event's default behavior needs to be prevented to handle the dropped data as required by your application. This allows you to define custom behaviors, such as processing the dropped files or moving elements within a page.
+   - Without preventing the default, the browser might try to open the file or link, causing unwanted navigation or actions.
+
+#### Potential Issues if Not Prevented
+
+- **No Drop Event**: If `e.preventDefault()` is not called on `dragover`, the drop event will not fire, and users will be unable to drop elements as intended.
+- **Unintended Browser Behavior**: The browser might execute its default behavior, like opening files or links, leading to a poor user experience.
+- **Navigation Away from Page**: Dropping a file without preventing the default action might result in the browser attempting to open the file, causing the user to navigate away from your web application.
+
+#### Practical Example
+
+Consider a scenario where users can drag files into a designated drop area to upload them. Preventing the default behavior ensures the files are handled by your JavaScript code instead of triggering the browser's default actions.
+
+```html
+<div class="drop-content">Drop files here</div>
+<script>
+  const dropContent = document.querySelector(".drop-content");
+
+  dropContent.addEventListener("dragover", (e) => e.preventDefault());
+  dropContent.addEventListener("drop", (e) => {
+    e.preventDefault();
+    console.log(e.dataTransfer.files); // Handle the dropped files
+  });
+</script>
+```
+
+#### Conclusion
+
+Preventing the default behavior in drag-and-drop events is essential for implementing custom functionality. It ensures that the intended interactions and visual feedback occur, enhancing the user experience and preventing unwanted actions by the browser.
+
 ### Conclusion
 
-The [Drag and Drop API ](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API)provides a flexible and powerful way to add drag-and-drop functionality to web applications. By using event listeners and manipulating the DOM, developers can create interactive and dynamic user experiences.
+The [Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) provides a flexible and powerful way to add drag-and-drop functionality to web applications. By using event listeners and manipulating the DOM, developers can create interactive and dynamic user experiences.
