@@ -1,0 +1,185 @@
+---
+title: Implementing Drag-and-Drop File Upload in React
+description: A guide on using libraries and custom implementations to add drag-and-drop file upload functionality in React.
+date: 2024-06-11
+tags: [react, javascript, typescript, file-upload, drag-drop, api]
+published: true
+---
+
+## Implementing Drag-and-Drop File Upload in React
+
+### Using Libraries
+
+1. **react-dropzone**
+
+   - Lightweight and easy-to-use for file drag-and-drop.
+   - Installation: `npm install react-dropzone`.
+   - Usage:
+
+     ```jsx
+     import React, { useCallback } from "react";
+     import { useDropzone } from "react-dropzone";
+
+     const Dropzone = ({ onDrop }) => {
+       const onDropCallback = useCallback(onDrop, [onDrop]);
+
+       const { getRootProps, getInputProps, isDragActive } = useDropzone({
+         onDrop: onDropCallback,
+       });
+
+       return (
+         <div {...getRootProps()} className="dropzone">
+           <input {...getInputProps()} />
+           {isDragActive ? (
+             <p>Drop the files here ...</p>
+           ) : (
+             <p>Drag 'n' drop some files here, or click to select files</p>
+           )}
+         </div>
+       );
+     };
+
+     export default Dropzone;
+     ```
+
+2. **react-dnd**
+
+   - More versatile for complex drag-and-drop interactions.
+   - Installation: `npm install react-dnd react-dnd-html5-backend`.
+   - Usage:
+
+     ```jsx
+     import React from "react";
+     import { useDrop } from "react-dnd";
+     import { HTML5Backend } from "react-dnd-html5-backend";
+     import { DndProvider } from "react-dnd";
+
+     const FileDrop = ({ onDrop }) => {
+       const [{ isOver }, drop] = useDrop({
+         accept: "file",
+         drop: (item, monitor) => {
+           if (monitor) {
+             const files = monitor.getItem().files;
+             onDrop(files);
+           }
+         },
+         collect: (monitor) => ({
+           isOver: monitor.isOver(),
+         }),
+       });
+
+       return (
+         <div ref={drop} className={`dropzone ${isOver ? "hover" : ""}`}>
+           Drop files here
+         </div>
+       );
+     };
+
+     const App = () => {
+       const handleDrop = (files) => {
+         console.log(files);
+       };
+
+       return (
+         <DndProvider backend={HTML5Backend}>
+           <FileDrop onDrop={handleDrop} />
+         </DndProvider>
+       );
+     };
+
+     export default App;
+     ```
+
+### Custom Implementation
+
+1. **Create a Basic Component**
+
+   - Handle file drag-and-drop events in a React component.
+   - Example:
+
+     ```tsx
+     import React, { useState, useCallback } from "react";
+
+     interface DropzoneProps {
+       onFilesAdded: (files: File[]) => void;
+     }
+
+     const Dropzone: React.FC<DropzoneProps> = ({ onFilesAdded }) => {
+       const [highlight, setHighlight] = useState(false);
+
+       const handleDragOver = (event: React.DragEvent) => {
+         event.preventDefault();
+         setHighlight(true);
+       };
+
+       const handleDragLeave = () => {
+         setHighlight(false);
+       };
+
+       const handleDrop = (event: React.DragEvent) => {
+         event.preventDefault();
+         const files = Array.from(event.dataTransfer.files);
+         onFilesAdded(files);
+         setHighlight(false);
+       };
+
+       const handleFilesAdded = (
+         event: React.ChangeEvent<HTMLInputElement>
+       ) => {
+         const files = Array.from(event.target.files || []);
+         onFilesAdded(files);
+       };
+
+       return (
+         <div
+           className={`dropzone ${highlight ? "highlight" : ""}`}
+           onDragOver={handleDragOver}
+           onDragLeave={handleDragLeave}
+           onDrop={handleDrop}
+         >
+           <input
+             type="file"
+             multiple
+             className="file-input"
+             onChange={handleFilesAdded}
+           />
+           <p>Drag & drop files here, or click to select files</p>
+         </div>
+       );
+     };
+
+     export default Dropzone;
+     ```
+
+2. **Use the Custom Component**
+
+   - Integrate the custom component into your project.
+   - Example:
+
+     ```tsx
+     import React, { useState } from "react";
+     import Dropzone from "./Dropzone";
+
+     const FileUpload: React.FC = () => {
+       const [files, setFiles] = useState<File[]>([]);
+
+       const handleFilesAdded = (newFiles: File[]) => {
+         setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+       };
+
+       return (
+         <div>
+           <Dropzone onFilesAdded={handleFilesAdded} />
+           <ul>
+             {files.map((file, index) => (
+               <li key={index}>{file.name}</li>
+             ))}
+           </ul>
+         </div>
+       );
+     };
+
+     export default FileUpload;
+     ```
+
+By using either a library or a custom implementation, you can efficiently add drag-and-drop file upload functionality to your React project.
