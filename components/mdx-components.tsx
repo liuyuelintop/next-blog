@@ -2,6 +2,7 @@ import Image from "next/image";
 import * as runtime from "react/jsx-runtime";
 import { Callout } from "./callout";
 import { cn } from "@/lib/utils";
+import CollapsibleCodeBlock from "./collapsible-codeblock";
 
 const useMDXComponent = (code: string) => {
   const fn = new Function(code);
@@ -11,6 +12,7 @@ const useMDXComponent = (code: string) => {
 const components = {
   Image,
   Callout,
+  CollapsibleCodeBlock,
 };
 
 interface MdxProps {

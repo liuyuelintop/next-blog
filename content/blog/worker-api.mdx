@@ -1,0 +1,570 @@
+---
+title: "Implementing Large File Upload using worker api"
+description: A comprehensive guide to understanding worker api of web api
+tags: ["web", "worker", "api", "javascript", "typescript"]
+date: 2024-06-12
+published: true
+---
+
+## Detailed Explanation of the Native JS Code Snippet
+
+<CollapsibleCodeBlock hint={"Click to view demo.html"}>
+```html
+<script src="./assets/run.js"></script>
+<script>
+  // 大文件上传分片
+  const fileDom = document.querySelector("input");
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_WORKER = navigator.hardwareConcurrency || 4;
+  let finished = 0;
+  // const worker = new Worker("./assets/fileworker.js", {
+  //   type: "module",
+  // });
+  fileDom.onchange = async function (e) {
+    const file = e.target.files[0];
+    const chunklength = Math.ceil(file.size / CHUNK_SIZE);
+    const count = Math.ceil(chunklength / MAX_WORKER);
+    const result = [];
+    for (let i = 0; i < MAX_WORKER; i++) {
+      const worker = new Worker("./assets/fileworker.js", {
+        type: "module",
+      });
+      const startIndex = i * count;
+      let endIndex = startIndex + count;
+      if (endIndex > chunklength) {
+        endIndex = chunklength;
+      }
+      worker.postMessage([file, CHUNK_SIZE, startIndex, endIndex]);
+      worker.onmessage = function (e) {
+        finished++;
+        worker.terminate();
+        e.data.forEach((item) => {
+          result[item.index] = item;
+        });
+        if (finished === MAX_WORKER) {
+          // 处理后续上传的任务
+          console.log(result);
+        }
+      };
+    }
+  };
+</script>
+```
+</CollapsibleCodeBlock>
+
+<CollapsibleCodeBlock hint={"Click to view demo.js"}>
+```javascript
+import "./md5.min.js";
+console.log("我滴任务开始啦");
+self.onmessage =
+  /**
+   * This function is the main worker function that handles the file chunking and hashing.
+   * It listens for messages from the main thread, processes the file chunks, and sends the results back.
+   *
+   * @param {MessageEvent} e - The message event containing the file, chunk size, and start/end indices.
+   */
+  async function (e) {
+    /** @type {File} */
+    const file = e.data[0];
+    /** @type {number} */
+    const CHUNK_SIZE = e.data[1];
+    /** @type {number} */
+    const startIndex = e.data[2];
+    /** @type {number} */
+    const endIndex = e.data[3];
+
+    /** @type {Array} */
+    const result = [];
+
+    // Process each chunk of the file
+    for (let i = startIndex; i < endIndex; i++) {
+      const chunk = await getChunk(file, CHUNK_SIZE, i);
+      result.push(chunk);
+    }
+
+    // Send the results back to the main thread
+    self.postMessage(result);
+
+};
+
+/\*\*
+
+- This function is responsible for reading a chunk of a file and returning its hash.
+- It takes a file, a chunk size, and an index as parameters.
+- It returns a promise that resolves to an object containing the start and end indices of the chunk,
+- the chunk file itself, the index of the chunk, and the hash of the chunk's content.
+-
+- @param {File} file - The file to be chunked and hashed.
+- @param {number} size - The size of each chunk in bytes.
+- @param {number} index - The index of the chunk to be processed.
+- @returns {Promise<{start: number, end: number, chunkFile: File, index: number, hash: string}>} - A promise that resolves to an object containing the start and end indices of the chunk,
+-                                                                                                  the chunk file itself, the index of the chunk, and the hash of the chunk's content.
+  _/
+  function getChunk(file, size, index) {
+  return new Promise((resolve, reject) => {
+  const start = index _ size;
+  const end = start + size;
+  const chunkFile = file.slice(start, end);
+  const fr = new FileReader();
+  fr.onload = function (e) {
+  const arrbuffer = e.target.result;
+  const hash = SparkMD5.ArrayBuffer.hash(arrbuffer);
+  resolve({
+  start,
+  end,
+  chunkFile,
+  index,
+  hash,
+  });
+  };
+  fr.readAsArrayBuffer(chunkFile);
+  });
+  }
+
+````
+</CollapsibleCodeBlock>
+
+
+### Code Implementation Idea
+
+1. **File Selection**
+   Users select files via `<input type="file" />`.
+
+2. **Chunk Size and Maximum Concurrency**
+   Set the chunk size to 5MB (`CHUNK_SIZE`) and use `navigator.hardwareConcurrency` to get the system's hardware concurrency, with a default of 4 (`MAX_WORKER`).
+
+3. **File Chunking and Task Distribution**
+   After selecting the file, calculate the total chunks (`chunklength`) and the number of chunks each Worker needs to process (`count`).
+
+4. **Creating and Assigning Workers**
+   Create multiple Worker instances, each processing a portion of the chunks.
+
+5. **Worker Processing Logic**
+   Workers receive the file, chunk size, start, and end indices, read the corresponding chunks, and compute their hash values.
+
+6. **Result Collection and Processing**
+   The main thread receives the results from Workers, collects all chunk information, and handles subsequent upload tasks once all Workers have completed their tasks.
+
+### Code Highlights
+
+1. **Parallel Processing**
+   Using Web Workers for parallel processing of file chunks, improving processing speed.
+
+2. **Dynamic Worker Creation**
+   Dynamically create Workers based on the system's hardware concurrency to optimize performance.
+
+3. **MD5 Hash Calculation**
+   Calculate the MD5 hash value for each chunk to ensure data integrity.
+
+### Learning Code Design
+
+1. **Step-by-Step Understanding**
+   Understand the basic principles of file reading and chunking first, then learn how to create and use Web Workers for parallel processing.
+
+2. **Hands-On Practice**
+   Try to write a simplified version of the code yourself, then gradually add features.
+
+3. **Debugging and Optimization**
+   Use debugging tools to observe the code execution process, analyze performance bottlenecks, and optimize.
+
+### Disadvantages of Native JS Code for Large File Uploads
+
+1. **Browser Compatibility**
+   Web Workers and some modern APIs may not be compatible with older browsers.
+
+2. **Network Instability**
+   If the network is interrupted, chunks need to be re-uploaded, which may increase upload time.
+
+3. **Memory Usage**
+   Reading multiple chunks simultaneously may use a lot of memory, especially when handling large files.
+
+### Worker API Summary
+
+### Application Scenarios
+
+1. **CPU-Intensive Tasks**
+   Such as large file processing, image processing, complex calculations, etc.
+
+2. **Long-Running Tasks**
+   To avoid blocking the main thread and improve user experience.
+
+### Example Code
+
+#### Example 1: Simple Worker
+
+```javascript
+// worker.js
+self.onmessage = function (e) {
+  const result = e.data * 2;
+  self.postMessage(result);
+};
+
+// main.js
+const worker = new Worker("worker.js");
+worker.postMessage(10);
+worker.onmessage = function (e) {
+  console.log("Result:", e.data); // Result: 20
+};
+````
+
+#### Example 2: Processing Large Arrays
+
+```javascript
+// worker.js
+self.onmessage = function (e) {
+  const data = e.data;
+  const result = data.map((item) => item * 2);
+  self.postMessage(result);
+};
+
+// main.js
+const worker = new Worker("worker.js");
+const largeArray = new Array(1000000).fill(1);
+worker.postMessage(largeArray);
+worker.onmessage = function (e) {
+  console.log("Processed array:", e.data);
+};
+```
+
+#### Example 3: File Chunk Processing
+
+```javascript
+// worker.js
+self.onmessage = function(e) {
+  const [file, chunkSize, start, end] = e.data;
+  const chunks = [];
+  for (let i = start; i < end; i++) {
+    const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+    chunks.push(chunk);
+  }
+  self.postMessage(chunks);
+};
+
+// main.js
+const file = ...; // Assume this is a File object from an input element
+const chunkSize = 1024 * 1024; // 1 MB
+const worker = new Worker('worker.js');
+worker.postMessage([file, chunkSize, 0, Math.ceil(file.size / chunkSize)]);
+worker.onmessage = function(e) {
+  console.log('File chunks:', e.data);
+};
+```
+
+### Implementing Large File Upload in React
+
+1. **Chunk Upload**
+   Split the file into chunks and upload them individually, with backend APIs handling chunk reception and merging.
+
+2. **Using Web Worker**
+   Create Web Workers in React for file chunk processing and hash calculation.
+
+3. **Upload Progress**
+   Implement an upload progress bar to display the status of each chunk upload.
+
+#### Example Code
+
+<CollapsibleCodeBlock>
+```jsx
+import React, { useState } from "react";
+
+function FileUpload() {
+const [uploadProgress, setUploadProgress] = useState(0);
+
+const handleFileChange = (e) => {
+const file = e.target.files[0];
+const chunkSize = 5 _ 1024 _ 1024; // 5 MB
+const totalChunks = Math.ceil(file.size / chunkSize);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+      const formData = new FormData();
+      formData.append("file", chunk);
+      formData.append("chunkIndex", i);
+
+      fetch("/upload", {
+        method: "POST",
+        body: formData,
+      }).then((response) => {
+        if (response.ok) {
+          setUploadProgress((prev) => prev + 1);
+        }
+      });
+    }
+
+};
+
+return (
+
+<div>
+  <input type="file" onChange={handleFileChange} />
+  <progress value={uploadProgress} max="100" />
+</div>
+); }
+
+export default FileUpload;
+```
+</CollapsibleCodeBlock>
+
+#### Generic Component Implementation
+
+<CollapsibleCodeBlock>
+```jsx
+import React, { useState } from "react";
+
+function useFileUpload(url, chunkSize = 5 _ 1024 _ 1024) {
+const [uploadProgress, setUploadProgress] = useState(0);
+
+const uploadFile = (file) => {
+const totalChunks = Math.ceil(file.size / chunkSize);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+      const formData = new FormData();
+      formData.append("file", chunk);
+      formData.append("chunkIndex", i);
+
+      fetch(url, {
+        method: "POST",
+        body: formData,
+      }).then((response) => {
+        if (response.ok) {
+          setUploadProgress((prev) => prev + 1);
+        }
+      });
+    }
+
+};
+
+return { uploadProgress, uploadFile };
+}
+
+function FileUpload({ url }) {
+const { uploadProgress, uploadFile } = useFileUpload(url);
+
+const handleFileChange = (e) => {
+const file = e.target.files[0];
+uploadFile(file);
+};
+
+return (
+
+<div>
+  <input type="file" onChange={handleFileChange} />
+  <progress value={uploadProgress} max="100" />
+</div>
+); }
+
+export default FileUpload;
+```
+</CollapsibleCodeBlock>
+
+#### Implementing Large File Upload in TypeScript
+
+<CollapsibleCodeBlock>
+```tsx
+import React, { useState } from "react";
+
+interface UseFileUploadProps {
+url: string;
+chunkSize?: number;
+}
+
+interface UseFileUploadReturn {
+uploadProgress: number;
+uploadFile: (file: File) => void;
+}
+
+function useFileUpload({
+url,
+chunkSize = 5 _ 1024 _ 1024,
+}: UseFileUploadProps): UseFileUploadReturn {
+const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+const uploadFile = (file: File) => {
+const totalChunks = Math.ceil(file.size / chunkSize);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const chunk = file.slice(i * chunkSize, (i + 1) * chunkSize);
+      const formData = new FormData();
+      formData.append("file", chunk);
+      formData.append("chunkIndex", i.toString());
+
+      fetch(url, {
+        method: "POST",
+        body: formData,
+      }).then((response) => {
+        if (response.ok) {
+          setUploadProgress((prev) => prev + 1);
+        }
+      });
+    }
+
+};
+
+return { uploadProgress, uploadFile };
+}
+
+interface FileUploadProps {
+url: string;
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({ url }) => {
+const { uploadProgress, uploadFile } = useFileUpload({ url });
+
+const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const file = e.target.files?.[0];
+if (file) {
+uploadFile(file);
+}
+};
+
+return (
+
+<div>
+  <input type="file" onChange={handleFileChange} />
+  <progress value={uploadProgress} max="100" />
+</div>
+); };
+
+export default FileUpload;
+```
+</CollapsibleCodeBlock>
+
+### Learning Tasks and Answers
+
+#### Task 1: Understanding File Chunking
+
+**Question**: What is the basic principle of file chunking?
+**Answer**: File chunking is the process of splitting a large file into smaller pieces of fixed size to facilitate individual uploads, reducing single upload time and resource consumption.
+
+**Code Task**: Write a function in JavaScript that takes a file and a chunk size as input and returns an array of file chunks.
+**Answer**:
+
+```javascript
+function chunkFile(file, chunkSize) {
+  const chunks = [];
+  const totalChunks = Math.ceil(file.size / chunkSize);
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * chunkSize;
+    const end = Math.min(file.size, start + chunkSize);
+    chunks.push(file.slice(start, end));
+  }
+  return chunks;
+}
+
+// Usage example:
+const file = new File(["Hello, world!"], "hello.txt", { type: "text/plain" });
+const chunkSize = 5; // 5 bytes
+const chunks = chunkFile(file, chunkSize);
+console.log(chunks); // Array of file chunks
+```
+
+#### Task 2: Creating a Simple Web Worker
+
+**Question**: How do you create a simple Web Worker?
+**Answer**: You can create a Worker instance using `new Worker('worker.js')`, send data to the Worker using `worker.postMessage(data)`, and receive data from the Worker using `worker.onmessage = function(e) {}`.
+
+**Code Task**: Write a simple Web Worker script that receives a number, doubles it, and sends it back. Also, write the main script to interact with this Worker.
+**Answer**:
+
+```javascript
+// worker.js
+self.onmessage = function (e) {
+  const result = e.data * 2;
+  self.postMessage(result);
+};
+
+// main.js
+const worker = new Worker("worker.js");
+worker.postMessage(10);
+worker.onmessage = function (e) {
+  console.log("Result:", e.data); // Result: 20
+};
+```
+
+#### Task 3: Using Web Workers in React
+
+**Question**: How do you use Web Workers in a React project?
+**Answer**: In a React component, create a Web Worker instance, pass data to the Worker for processing, and manage the results through state, updating the component UI.
+
+**Code Task**: Write a React component that uses a Web Worker to double a number entered by the user and displays the result.
+**Answer**:
+
+```jsx
+import React, { useState, useEffect } from "react";
+
+function DoubleNumber() {
+  const [number, setNumber] = useState(0);
+  const [result, setResult] = useState(null);
+  let worker;
+
+  useEffect(() => {
+    worker = new Worker("worker.js");
+    worker.onmessage = (e) => {
+      setResult(e.data);
+    };
+    return () => worker.terminate();
+  }, []);
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setNumber(value);
+    worker.postMessage(Number(value));
+  };
+
+  return (
+    <div>
+      <input type="number" value={number} onChange={handleChange} />
+      <p>Result: {result}</p>
+    </div>
+  );
+}
+
+export default DoubleNumber;
+
+// worker.js
+self.onmessage = function (e) {
+  const result = e.data * 2;
+  self.postMessage(result);
+};
+```
+
+#### Task 4: Implementing File Chunk Upload
+
+**Question**: How do you implement file chunk upload?
+**Answer**: Split the file into fixed-size chunks, upload each chunk sequentially, and update the progress after each chunk is uploaded.
+
+**Code Task**: Write a function in JavaScript that takes a file and chunk size as input, uploads each chunk to a mock endpoint, and logs the upload progress.
+**Answer**:
+
+```javascript
+function uploadFileInChunks(file, chunkSize) {
+  const totalChunks = Math.ceil(file.size / chunkSize);
+  let uploadedChunks = 0;
+
+  for (let i = 0; i < totalChunks; i++) {
+    const start = i * chunkSize;
+    const end = Math.min(file.size, start + chunkSize);
+    const chunk = file.slice(start, end);
+
+    // Mock upload function
+    const uploadChunk = (chunk) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 100); // Simulate network latency
+      });
+    };
+
+    uploadChunk(chunk).then(() => {
+      uploadedChunks++;
+      console.log(`Uploaded chunk ${uploadedChunks}/${totalChunks}`);
+    });
+  }
+}
+
+// Usage example:
+const file = new File(["Hello, world!"], "hello.txt", { type: "text/plain" });
+const chunkSize = 5; // 5 bytes
+uploadFileInChunks(file, chunkSize);
+```
