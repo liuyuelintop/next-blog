@@ -6,7 +6,6 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@radix-ui/react-collapsible";
-
 interface CollapsibleCodeBlockProps {
   children: ReactNode;
   hint: string;

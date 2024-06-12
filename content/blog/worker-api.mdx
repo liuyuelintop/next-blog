@@ -52,78 +52,40 @@ published: true
 ```
 </CollapsibleCodeBlock>
 
-<CollapsibleCodeBlock hint={"Click to view demo.js"}>
-```javascript
+```js showLineNumbers
 import "./md5.min.js";
-console.log("我滴任务开始啦");
-self.onmessage =
-  /**
-   * This function is the main worker function that handles the file chunking and hashing.
-   * It listens for messages from the main thread, processes the file chunks, and sends the results back.
-   *
-   * @param {MessageEvent} e - The message event containing the file, chunk size, and start/end indices.
-   */
-  async function (e) {
-    /** @type {File} */
-    const file = e.data[0];
-    /** @type {number} */
-    const CHUNK_SIZE = e.data[1];
-    /** @type {number} */
-    const startIndex = e.data[2];
-    /** @type {number} */
-    const endIndex = e.data[3];
-
-    /** @type {Array} */
-    const result = [];
-
-    // Process each chunk of the file
-    for (let i = startIndex; i < endIndex; i++) {
-      const chunk = await getChunk(file, CHUNK_SIZE, i);
-      result.push(chunk);
-    }
-
-    // Send the results back to the main thread
-    self.postMessage(result);
-
+console.log("my task is running");
+self.onmessage = async function (e) {
+  const [file, CHUNK_SIZE, startIndex, endIndex] = e.data;
+  const result = [];
+  for (let i = startIndex; i < endIndex; i++) {
+    const chunk = await getChunk(file, CHUNK_SIZE, i);
+    result.push(chunk);
+  }
+  self.postMessage(result);
 };
 
-/\*\*
-
-- This function is responsible for reading a chunk of a file and returning its hash.
-- It takes a file, a chunk size, and an index as parameters.
-- It returns a promise that resolves to an object containing the start and end indices of the chunk,
-- the chunk file itself, the index of the chunk, and the hash of the chunk's content.
--
-- @param {File} file - The file to be chunked and hashed.
-- @param {number} size - The size of each chunk in bytes.
-- @param {number} index - The index of the chunk to be processed.
-- @returns {Promise<{start: number, end: number, chunkFile: File, index: number, hash: string}>} - A promise that resolves to an object containing the start and end indices of the chunk,
--                                                                                                  the chunk file itself, the index of the chunk, and the hash of the chunk's content.
-  _/
-  function getChunk(file, size, index) {
+function getChunk(file, size, index) {
   return new Promise((resolve, reject) => {
-  const start = index _ size;
-  const end = start + size;
-  const chunkFile = file.slice(start, end);
-  const fr = new FileReader();
-  fr.onload = function (e) {
-  const arrbuffer = e.target.result;
-  const hash = SparkMD5.ArrayBuffer.hash(arrbuffer);
-  resolve({
-  start,
-  end,
-  chunkFile,
-  index,
-  hash,
+    const start = index * size;
+    const end = start + size;
+    const chunkFile = file.slice(start, end);
+    const fr = new FileReader();
+    fr.onload = function (e) {
+      const arrbuffer = e.target.result;
+      const hash = SparkMD5.ArrayBuffer.hash(arrbuffer);
+      resolve({
+        start,
+        end,
+        chunkFile,
+        index,
+        hash,
+      });
+    };
+    fr.readAsArrayBuffer(chunkFile);
   });
-  };
-  fr.readAsArrayBuffer(chunkFile);
-  });
-  }
-
-````
-</CollapsibleCodeBlock>
-
+}
+```
 
 ### Code Implementation Idea
 
@@ -192,7 +154,7 @@ self.onmessage =
 
 #### Example 1: Simple Worker
 
-```javascript
+```js
 // worker.js
 self.onmessage = function (e) {
   const result = e.data * 2;
@@ -205,11 +167,11 @@ worker.postMessage(10);
 worker.onmessage = function (e) {
   console.log("Result:", e.data); // Result: 20
 };
-````
+```
 
 #### Example 2: Processing Large Arrays
 
-```javascript
+```js
 // worker.js
 self.onmessage = function (e) {
   const data = e.data;
@@ -228,7 +190,7 @@ worker.onmessage = function (e) {
 
 #### Example 3: File Chunk Processing
 
-```javascript
+```js
 // worker.js
 self.onmessage = function(e) {
   const [file, chunkSize, start, end] = e.data;
@@ -440,7 +402,7 @@ export default FileUpload;
 **Code Task**: Write a function in JavaScript that takes a file and a chunk size as input and returns an array of file chunks.
 **Answer**:
 
-```javascript
+```js
 function chunkFile(file, chunkSize) {
   const chunks = [];
   const totalChunks = Math.ceil(file.size / chunkSize);
@@ -467,7 +429,7 @@ console.log(chunks); // Array of file chunks
 **Code Task**: Write a simple Web Worker script that receives a number, doubles it, and sends it back. Also, write the main script to interact with this Worker.
 **Answer**:
 
-```javascript
+```js
 // worker.js
 self.onmessage = function (e) {
   const result = e.data * 2;
@@ -537,7 +499,7 @@ self.onmessage = function (e) {
 **Code Task**: Write a function in JavaScript that takes a file and chunk size as input, uploads each chunk to a mock endpoint, and logs the upload progress.
 **Answer**:
 
-```javascript
+```js
 function uploadFileInChunks(file, chunkSize) {
   const totalChunks = Math.ceil(file.size / chunkSize);
   let uploadedChunks = 0;
