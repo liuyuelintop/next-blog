@@ -1,0 +1,312 @@
+---
+title: "The Essence of Animation"
+description: A comprehensive guide to understanding the core components of animation, including change rate, elapsed time, and easing functions, with practical examples and code snippets.
+date: 2024-06-15
+tags: ["animation", "javascript", "webdev"]
+published: true
+---
+
+## The Essence of Animation
+
+### 1. Overview of Animation Essence
+
+**Animation is the process of changing a value over time.** The core components of this process include:
+
+- **Change Rate (Change Speed)**: How fast the value changes over a given period.
+- **Elapsed Time**: The amount of time that has passed since the start of the animation.
+- **Easing Function**: A function that defines the rate of change over time, which can be linear (constant speed) or non-linear (e.g., accelerating, decelerating).
+
+### 2. Generic Animation Functions
+
+#### Version 1: Basic Linear Animation
+
+This version uses a simple linear interpolation without any easing function.
+
+```javascript
+const animateLinear = (from, to, duration, callback) => {
+  const speed = (to - from) / duration; // Uniform linear change rate
+  const startTime = Date.now();
+
+  const _run = () => {
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime >= duration) {
+      callback(to); // Ensure the final value is exactly 'to'
+      cancelAnimationFrame(rid);
+      return;
+    }
+    let value = from + speed * elapsedTime;
+    callback(value);
+    requestAnimationFrame(_run);
+  };
+  const rid = requestAnimationFrame(_run);
+};
+```
+
+**Explanation**:
+
+- **Change Rate**: Calculated as `(to - from) / duration`.
+- **Elapsed Time**: `Date.now() - startTime`.
+- **Current Value**: Calculated using a linear interpolation formula `from + speed * elapsedTime`.
+
+#### Version 2: Enhanced Animation with Easing
+
+This version introduces an easing function for more flexible animations.
+
+```javascript
+/**
+ * Generic animate function
+ * @param {Object} options - Options for the animation
+ * @param {number} options.from - Starting value
+ * @param {number} options.to - Ending value
+ * @param {number} options.duration - Duration of the animation in milliseconds
+ * @param {Function} options.callback - Function to be called with the current animated value
+ * @param {Function} [options.easing=linear] - Easing function to control the animation pace
+ */
+const animate = ({ from, to, duration, callback, easing = linear }) => {
+  const startTime = performance.now(); // Use performance.now() for more accurate timing
+
+  /**
+   * Animation loop function
+   * @param {number} now - Current time provided by requestAnimationFrame
+   */
+  const _run = (now) => {
+    const elapsedTime = now - startTime; // Time elapsed since the start of the animation
+    if (elapsedTime >= duration) {
+      callback(to); // Ensure the final value is exactly 'to'
+      cancelAnimationFrame(rid); // Stop the animation loop
+      return;
+    }
+
+    const normalizedTime = elapsedTime / duration; // Normalized time (0 to 1)
+    const easedTime = easing(normalizedTime); // Apply easing function
+    const currentValue = from + (to - from) * easedTime; // Calculate current value based on easing
+    callback(currentValue); // Update the animation state
+
+    rid = requestAnimationFrame(_run); // Continue the animation loop
+  };
+
+  let rid = requestAnimationFrame(_run); // Start the animation loop
+};
+
+/**
+ * Default linear easing function
+ * @param {number} t - Normalized time (0 to 1)
+ * @returns {number} - Eased time
+ */
+const linear = (t) => t;
+
+// Usage example
+const box = document.querySelector(".box");
+
+animate({
+  from: 0,
+  to: 300,
+  duration: 2000,
+  callback: (val) => {
+    box.style.left = val + "px";
+  },
+  easing: linear, // Optional: can be replaced with any other easing function
+});
+```
+
+**Explanation**:
+
+- **Normalized Time**: Represents the progress of the animation as a value between 0 and 1 (`elapsedTime / duration`).
+- **Eased Time**: The result of applying an easing function to the normalized time.
+- **Current Value**: Calculated as `from + (to - from) * easedTime`.
+
+### 3. Normalized Time vs Eased Time
+
+#### Normalized Time
+
+- Normalized time represents the progress of the animation as a value between 0 and 1.
+- It is calculated as the ratio of elapsed time to the total duration of the animation.
+- This value increases linearly from 0 at the start of the animation to 1 at the end of the animation.
+
+```javascript
+const normalizedTime = elapsedTime / duration;
+```
+
+#### Eased Time
+
+- Eased time is the result of applying an easing function to the normalized time.
+- Easing functions modify the rate of change of the animation to create effects like acceleration, deceleration, and bounce.
+- The easing function takes normalized time as input and outputs a new value that determines the actual progress of the animation.
+
+```javascript
+const easedTime = easing(normalizedTime);
+```
+
+#### Calculation of the Current Animated Value
+
+The expression `(to - from) * easedTime` calculates the current value of the animated property based on the eased time.
+
+1. **(to - from)**:
+
+   - Represents the total change in the value that we want to animate over the duration of the animation.
+
+2. **easedTime**:
+
+   - Represents the current progress of the animation after applying the easing function, adjusting how fast or slow the animation appears at different points in time.
+
+3. **Combining Them**:
+
+   - Multiplying `(to - from)` by `easedTime` gives the current change in the value according to the eased progress.
+   - Adding `from` to this result gives the current value of the animated property.
+
+### Example
+
+Let's illustrate with an example:
+
+- **from**: `100`
+- **to**: `200`
+- **duration**: `2000ms` (2 seconds)
+
+If the easing function is linear, `easedTime` is the same as `normalizedTime`.
+
+```javascript
+// Easing function (linear)
+const linear = (t) => t;
+
+// Bounce easing function
+const bounceEaseOut = (t) => {
+  const n1 = 7.5625,
+    d1 = 2.75;
+  if (t < 1 / d1) {
+    return n1 * t * t;
+  } else if (t < 2 / d1) {
+    return n1 * (t -= 1.5 / d1) * t + 0.75;
+  } else if (t < 2.5 / d1) {
+    return n1 * (t -= 2.25 / d1) * t + 0.9375;
+  } else {
+    return n1 * (t -= 2.625 / d1) * t + 0.984375;
+  }
+};
+
+// Animation function
+const animate = ({ from, to, duration, callback, easing = linear }) => {
+  const startTime = performance.now();
+
+  const _run = (now) => {
+    const elapsedTime = now - startTime;
+    if (elapsedTime >= duration) {
+      callback(to); // Ensure the final value is exactly 'to'
+      cancelAnimationFrame(rid); // Stop the animation loop
+      return;
+    }
+
+    const normalizedTime = elapsedTime / duration; // 0 to 1
+    const easedTime = easing(normalizedTime); // Apply easing function
+    const currentValue = from + (to - from) * easedTime; // Calculate current value
+    callback(currentValue); // Update the animation state
+
+    rid = requestAnimationFrame(_run); // Continue the animation loop
+  };
+
+  let rid = requestAnimationFrame(_run); // Start the animation loop
+};
+
+// Usage example
+const box = document.querySelector(".box");
+
+animate({
+  from: 100,
+  to: 200,
+  duration: 2000,
+  callback: (val) => {
+    box.style.left = val + "px";
+  },
+  easing: linear, // Optional: can be replaced with any other easing function
+});
+```
+
+By understanding the concepts of normalized time and eased time, and how they affect the calculation of the current animated value, we can create flexible and powerful animations that transition smoothly between values with different pacing and effects.
+
+---
+
+### Explanation of the `_run` Function
+
+In JavaScript, `requestAnimationFrame` automatically passes a `DOMHighResTimeStamp` as an argument to the callback function. This timestamp represents the time at which the callback function is triggered, typically used to calculate the progress of the animation.
+
+Specifically, the callback function of `requestAnimationFrame` receives one parameter, which is the current timestamp. Therefore, in the `_run` function, the `now` parameter is passed by `requestAnimationFrame` and does not need to be explicitly declared.
+
+### Detailed Explanation
+
+- **`requestAnimationFrame`**: This function calls the specified callback before the next repaint and passes a `DOMHighResTimeStamp` representing the current time.
+- **Timestamp Usage**: This timestamp can be used to calculate the progress of the animation, ensuring smooth animation effects.
+
+### Example Code
+
+Below is a complete example demonstrating how to use `requestAnimationFrame` and the timestamp to achieve animation:
+
+```javascript
+/**
+ * Generic animate function
+ * @param {Object} options - Options for the animation
+ * @param {number} options.from - Starting value
+ * @param {number} options.to - Ending value
+ * @param {number} options.duration - Duration of the animation in milliseconds
+ * @param {Function} options.callback - Function to be called with the current animated value
+ * @param {Function} [options.easing=linear] - Easing function to control the animation pace
+ */
+const animate = ({ from, to, duration, callback, easing = linear }) => {
+  const startTime = performance.now(); // Use performance.now() for more accurate timing
+
+  /**
+   * Animation loop function
+   * @param {number} now - Current time provided by requestAnimationFrame
+   */
+  const _run = (now) => {
+    const elapsedTime = now - startTime; // Time elapsed since the start of the animation
+    if (elapsedTime >= duration) {
+      callback(to); // Ensure the final value is exactly 'to'
+      cancelAnimationFrame(rid); // Stop the animation loop
+      return;
+    }
+
+    const normalizedTime = elapsedTime / duration; // Normalized time (0 to 1)
+    const easedTime = easing(normalizedTime); // Apply easing function
+    const currentValue = from + (to - from) * easedTime; // Calculate current value based on easing
+    callback(currentValue); // Update the animation state
+
+    rid = requestAnimationFrame(_run); // Continue the animation loop
+  };
+
+  let rid = requestAnimationFrame(_run); // Start the animation loop
+};
+
+/**
+ * Default linear easing function
+ * @param {number} t - Normalized time (0 to 1)
+ * @returns {number} - Eased time
+ */
+const linear = (t) => t;
+
+// Usage example
+const box = document.querySelector(".box");
+
+animate({
+  from: 0,
+  to: 300,
+  duration: 2000,
+  callback: (val) => {
+    box.style.left = val + "px";
+  },
+  easing: linear, // Optional: can be replaced with any other easing function
+});
+```
+
+### Explanation
+
+- **`requestAnimationFrame`**:
+  - `requestAnimationFrame` calls the specified callback before the next repaint and passes a `DOMHighResTimeStamp` as a parameter.
+  - This timestamp is used to calculate animation progress to ensure smooth animation.
+- **`_run` function**:
+  - The `now` parameter in the `_run` function is the timestamp automatically passed by `requestAnimationFrame`.
+  - `elapsedTime` is the time difference since the animation started, used to calculate the current progress of the animation.
+  - `normalizedTime` is a value between 0 and 1, representing the percentage progress of the animation.
+  - `easedTime` is the time after applying the easing function, used to smooth the animation.
+  - `currentValue` is the current animation value calculated based on the eased time.
+  - The `callback` function updates the animation properties, such as the element's style.
+
+This way, each frame of the animation is calculated and updated based on the current time, ensuring smooth animation effects.
