@@ -1,0 +1,216 @@
+---
+title: Unit Testing
+description: A recap to understanding unit testing.
+date: 2024-06-18
+tags: ["testing", "webdev"]
+published: true
+---
+
+## Unit Testing
+
+Unit testing involves testing individual units or components of a software to ensure they work as expected. It isolates each part of the program and shows that the individual parts are correct.
+
+### Popular Testing Frameworks
+
+- **Jest** (Recommended)
+- Jasmine
+- Mocha (requires additional tools)
+
+### Key Concepts
+
+- **Mocking**: Replace real implementations with mock functions to isolate code from external dependencies.
+- **Balanced Testing**: Tests should be neither too general nor too specific. Overly general tests lack precision, while overly specific tests can be fragile.
+
+### Types of Automated Testing
+
+1. **Unit Testing**:
+
+   - Tests individual components without external resources (e.g., databases).
+   - Example tools: Jest, React Testing Library.
+
+2. **Integration Testing**:
+
+   - Tests how different components work together, including external resources.
+   - Simulates user interactions to verify application behavior.
+
+3. **End-to-End (E2E) Testing**:
+   - Tests the entire application through its UI.
+   - Example tools: Cypress, Selenium.
+   - Ensures critical paths (like user registration) function correctly from start to finish.
+
+### Popular Jest Matchers
+
+```js
+// Equality
+expect(...).toBe();
+expect(...).toEqual();
+// Truthiness
+expect(...).toBeDefined();
+expect(...).toBeNull();
+expect(...).toBeTruthy();
+expect(...).toBeFalsy();
+// Numbers
+expect(...).toBeGreaterThan();
+expect(...).toBeGreaterThanOrEqual();
+expect(...).toBeLessThan();
+expect(...).toBeLessThanOrEqual();
+// Strings
+expect(...).toMatch(/regularExp/);
+// Arrays
+expect(...).toContain();
+// Objects
+expect(...).toBe();
+expect(...).toEqual();
+expect(...).toMatchObject();
+// Exceptions
+expect(() => { someCode }).toThrow();
+```
+
+### Example Unit Tests
+
+```js title="lib.test.js"
+const lib = require("../lib");
+const db = require("../db");
+const mail = require("../mail");
+
+describe("absolute", () => {
+  it("should return a positive number if input is positive", () => {
+    const result = lib.absolute(1);
+    expect(result).toBe(1);
+  });
+
+  it("should return a positive number if input is negative", () => {
+    const result = lib.absolute(-1);
+    expect(result).toBe(1);
+  });
+
+  it("should return 0 if input is 0", () => {
+    const result = lib.absolute(0);
+    expect(result).toBe(0);
+  });
+});
+
+describe("greet", () => {
+  it("should return the greeting message", () => {
+    const result = lib.greet("Mosh");
+    expect(result).toMatch(/Mosh/);
+  });
+});
+
+describe("getCurrencies", () => {
+  it("should return supported currencies", () => {
+    const result = lib.getCurrencies();
+    expect(result).toEqual(expect.arrayContaining(["USD", "AUD", "EUR"]));
+  });
+});
+
+describe("getProduct", () => {
+  it("should return the product with the given id", () => {
+    const result = lib.getProduct(1);
+    expect(result).toMatchObject({ id: 1, price: 10 });
+  });
+});
+
+describe("registerUser", () => {
+  it("should throw if username is falsy", () => {
+    const args = [null, undefined, NaN, "", 0, false];
+    args.forEach((a) => {
+      expect(() => lib.registerUser(a)).toThrow();
+    });
+  });
+
+  it("should return a user object if valid username is passed", () => {
+    const result = lib.registerUser("mosh");
+    expect(result).toMatchObject({ username: "mosh" });
+    expect(result.id).toBeGreaterThan(0);
+  });
+});
+
+describe("applyDiscount", () => {
+  it("should apply 10% discount if customer has more than 10 points", () => {
+    db.getCustomerSync = jest.fn().mockReturnValue({ points: 20 });
+    const order = { customerId: 1, totalPrice: 100 };
+    lib.applyDiscount(order);
+    expect(order.totalPrice).toBe(90);
+  });
+});
+
+describe("notifyCustomer", () => {
+  it("should send an email to the customer", () => {
+    db.getCustomerSync = jest.fn().mockReturnValue({ email: "a" });
+    mail.send = jest.fn();
+
+    lib.notifyCustomer({ customerId: 1 });
+
+    expect(mail.send).toHaveBeenCalled();
+    expect(mail.send.mock.calls[0][0]).toBe("a");
+    expect(mail.send.mock.calls[0][1]).toMatch(/order/);
+  });
+});
+```
+
+```js title="lib.js"
+const db = require("./db");
+const mail = require("./mail");
+
+// Testing numbers
+module.exports.absolute = (number) => {
+  return number >= 0 ? number : -number;
+};
+
+// Testing strings
+module.exports.greet = (name) => {
+  return "Welcome " + name + "!";
+};
+
+// Testing arrays
+module.exports.getCurrencies = () => {
+  return ["USD", "AUD", "EUR"];
+};
+
+// Testing objects
+module.exports.getProduct = (productId) => {
+  return { id: productId, price: 10 };
+};
+
+// Testing exceptions
+module.exports.registerUser = (username) => {
+  if (!username) throw new Error("Username is required.");
+
+  return { id: new Date().getTime(), username };
+};
+
+// Mock functions
+module.exports.applyDiscount = (order) => {
+  const customer = db.getCustomerSync(order.customerId);
+
+  if (customer.points > 10) order.totalPrice *= 0.9;
+};
+
+// Mock functions
+module.exports.notifyCustomer = (order) => {
+  const customer = db.getCustomerSync(order.customerId);
+
+  mail.send(customer.email, "Your order was placed successfully.");
+};
+```
+
+```js title="db.js"
+module.exports.getCustomerSync = (id) => {
+  console.log("Reading a customer from MongoDB...");
+  return { id, points: 11 };
+};
+
+module.exports.getCustomer = async (id) => {
+  return new Promise((resolve) => {
+    console.log("Reading a customer from MongoDB...");
+    resolve({ id, points: 11 });
+  });
+};
+```
+
+```js title="mail.js"
+module.exports.send = (to, subject) => {
+  console.log("Sending an email...");
+};
+```

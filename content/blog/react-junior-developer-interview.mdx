@@ -160,29 +160,40 @@ This approach helps in maintaining a clean and organized codebase, making it eas
 
 ### What is a good way to test your React application?
 
-1. **Unit Testing**:
+1. **Popular Testing Framework**:
+
+   - Jasmine
+   - Mocha ( Need Other tools )
+   - **Jest** (Recommended)
+
+2. **Unit Testing**:
+
+   - Test a unit of application without the external resources (eg db)
    - Use Jest for writing unit tests for individual components.
    - Employ testing libraries like React Testing Library to interact with components as a user would.
-2. **Integration Testing**:
 
+3. **Integration Testing**:
+
+   - Test the application with the external resources.
    - Test how different components work together.
    - Simulate user interactions and verify the application behaves as expected.
 
-3. **End-to-End (E2E) Testing**:
+4. **End-to-End (E2E) Testing**:
 
+   - Test the application through its UI.
    - Use tools like Cypress or Selenium to automate tests that run through the entire application flow.
    - Ensure critical paths (like user registration or checkout processes) function correctly from start to finish.
 
-4. **Static Code Analysis**:
+5. **Static Code Analysis**:
 
    - Implement ESLint and Prettier for maintaining code quality and style consistency.
    - Use TypeScript for static type checking and to catch potential errors early in the development process.
 
-5. **Continuous Integration (CI)**:
+6. **Continuous Integration (CI)**:
 
    - Set up CI pipelines (using tools like GitHub Actions, Travis CI, or Jenkins) to run tests automatically on code commits.
    - Ensure that all tests pass before merging new code into the main branch.
 
-6. **Visual Regression Testing**:
+7. **Visual Regression Testing**:
    - Utilize tools like Storybook and Chromatic to catch visual changes and regressions.
    - Verify that UI components render correctly across different states and screen sizes.
