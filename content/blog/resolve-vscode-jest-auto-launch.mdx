@@ -1,0 +1,63 @@
+---
+title: "Resolving Automatic Jest Terminal Launch in VSCode"
+description: "How to stop Jest from automatically opening in the terminal every time you open a project in VSCode."
+date: 2024-06-20
+tags: ["vscode", "jest", "config"]
+isPublished: true
+---
+
+## Problem Description
+
+While learning unit testing, I followed a tutorial that configured Jest to run in `watch` mode within VSCode. This caused the **terminal to automatically open and run Jest every time I opened my project**, which was quite annoying. I was unsure how to resolve this issue but have finally found a solution.
+
+## Solution Steps
+
+### 1. Open VSCode Settings
+
+1. Launch VSCode.
+2. Click on the gear icon in the bottom left corner and select "Settings".
+3. Alternatively, use the shortcut `Cmd + ,` (Mac) to open the settings.
+
+### 2. Search for Jest Settings
+
+1. In the settings search bar, type `jest`.
+2. Find the settings related to the Jest plugin.
+
+### 3. Modify Jest `runMode` Setting
+
+1. Locate the `Jest: Run Mode` setting in the search results.
+2. From the dropdown menu, select `on-demand` (or choose another mode such as `watch` or `on-save` as needed).
+
+### 4. Directly Edit `settings.json`
+
+1. In the settings page, click on the "Open Settings (JSON)" icon in the top right corner or search for `settings.json` and open it.
+2. Add or modify the following configuration in the `settings.json` file:
+
+   ```json
+   {
+     "jest.runMode": "on-demand" // Options: "on-demand", "watch", "on-save"
+   }
+   ```
+
+3. Save and close the `settings.json` file.
+
+### 5. Check Project Configuration File
+
+1. Open the `.vscode/settings.json` file in the root directory of your project (if it exists).
+2. Add or modify the following configuration:
+
+   ```json
+   {
+     "jest.runMode": "on-demand" // Options: "on-demand", "watch", "on-save"
+   }
+   ```
+
+3. Save and close the `settings.json` file.
+
+## Additional Suggestions
+
+- If the changes do not take effect immediately, try restarting VSCode.
+- Check if there are other plugins or configuration files that might be overriding these settings.
+- Ensure there are no conflicting settings in both the project and global configuration files.
+
+By following these steps, I successfully resolved the issue of VSCode automatically opening Jest in the terminal. I hope these steps are helpful to you. If you encounter any issues or need further assistance, feel free to reach out.
