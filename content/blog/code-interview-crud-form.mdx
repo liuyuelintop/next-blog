@@ -464,40 +464,48 @@ Yes, cross-origin issues (CORS, Cross-Origin Resource Sharing) need to be consid
 
 ### How to Resolve Cross-Origin Issues?
 
-1. **Server-Side CORS Configuration**:
+1.  **Server-Side CORS Configuration**:
 
-   - Configure CORS headers on the server to allow access from specific domains.
+    - Configure CORS headers on the server to allow access from specific domains.
 
-2. **Using Proxy**:
+2.  **Using Proxy**:
 
-   - In the development environment, you can use a proxy server to solve cross-origin issues. For example, in Create React App, you can add a `proxy` field in `package.json`.
-     ```json
-     "proxy": "http://localhost:5000"
-     ```
+    - In the development environment, you can use a proxy server to solve cross-origin issues. For example, in Create React App, you can add a `proxy` field in `package.json`.
+      ```json
+      "proxy": "http://localhost:5000"
+      ```
 
-3. **JSONP**:
+3.  **JSONP**:
 
-   - Suitable for GET requests only. JSONP is a method of loading data via `<script>` tags, but it is not suitable for POST, PUT, DELETE requests.
+    - Suitable for GET requests only. JSONP is a method of loading data via `<script>` tags, but it is not suitable for POST, PUT, DELETE requests.
 
-4. **CORS Middleware** (for Node.js/Express backend):
+4.  **CORS Middleware** (for Node.js/Express backend):
 
-   - Use `cors` middleware to allow cross-origin requests.
+    - Use `cors` middleware to allow cross-origin requests.
 
-     ```javascript
-     const express = require("express");
-     const cors = require("cors");
-     const app = express();
+           ```javascript
+           const express = require("express");
+           const cors = require("cors");
+           const app = express();
 
-     app.use(cors());
+           app.use(cors());
 
-     app.get("/items", (req, res) => {
-       res.json([{ id: 1, name: "Item 1" }]);
-     });
+           app.get("/items", (req, res) => {
+             res.json([{ id: 1, name: "Item 1" }]);
+           });
 
-     app.listen(5000, () => {
-       console.log("Server running on port 5000");
-     });
-     ```
+           app.listen(5000, () => {
+             console.log("Server running on port 5000");
+           });
+           ```
+          In the above configuration, `app.use(cors())` allows requests from all sources by default. If you want to allow only specific sources, you can configure it as follows:
+
+      ```javascript
+      const corsOptions = {
+        origin: "http://localhost:3000", // 允许来自此 URL 的请求
+      };
+      app.use(cors(corsOptions));
+      ```
 
 ### Frontend Code
 
