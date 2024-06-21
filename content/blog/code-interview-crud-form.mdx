@@ -1,0 +1,691 @@
+---
+title: "Code interview: CRUD Form Preparation and Tool Learning Summary"
+description: A comprehensive guide to preparing for interviews with a focus on implementing CRUD forms in React, understanding and using Axios, and managing cross-origin issues.
+date: 2024-06-22
+tags: [react, javascript, typescript, crud, axios, fetch, cors, api]
+published: true
+---
+
+## Table of Contents
+
+### Table of Contents
+
+1. [Motivation Analysis and Learning Objectives](#motivation-analysis-and-learning-objectives)
+2. [Best Practice Method: React CRUD Form](#best-practice-method-react-crud-form)
+   - [Design Approach](#design-approach)
+   - [Code Implementation](#code-implementation)
+   - [Reason for Using react-hook-form and Its Usage](#reason-for-using-react-hook-form-and-its-usage)
+   - [Implementing Form Management Without react-hook-form](#implementing-form-management-without-react-hook-form)
+   - [Design and Development Approach for Time-Limited Tasks](#design-and-development-approach-for-time-limited-tasks)
+3. [Introduction to Axios and Reasons for Use](#introduction-to-axios-and-reasons-for-use)
+4. [Comparison Between Fetch and React Query](#comparison-between-fetch-and-react-query)
+5. [Cross-Origin Issue Resolution](#cross-origin-issue-resolution)
+6. [Implementing CRUD Form with Fetch API](#implementing-crud-form-with-fetch-api)
+7. [Summary](#summary)
+
+---
+
+## Motivation Analysis and Learning Objectives
+
+### Motivation Analysis
+
+1. **Interview Preparation**:
+   - Objective: To master common technical interview questions (such as CRUD forms in React) through repeated practice and best practice learning, ensuring efficient and confident performance during actual interviews.
+2. **Tool Selection and Optimization**:
+   - Objective: To choose and optimize technical tools (such as between fetch and react-query), and learn new tools (like Axios) to enhance the technical stack.
+
+### Learning Objectives
+
+1. **Master CRUD Form Implementation**:
+
+   - To repeatedly practice implementing CRUD forms in React, becoming proficient and able to demonstrate skills to interviewers.
+
+2. **Enhance Tool Usage Skills**:
+
+   - To understand and master the use of Axios as a replacement for fetch, and combine it with react-query to improve development efficiency and code maintainability.
+
+3. **Optimize Code Practices**:
+   - To focus on best practices and optimization strategies in code writing, aiming to create simpler, more efficient, and maintainable code.
+
+---
+
+## Best Practice Method: React CRUD Form
+
+### Design Approach
+
+1. **Project Initialization**:
+
+   - Create a new React application (using Create React App or Vite).
+   - Install necessary dependencies (react-query, axios, react-hook-form, etc.).
+
+2. **File Structure**:
+
+   ```bash
+   src/
+     components/
+       Form.js
+       ItemList.js
+     api/
+       items.js
+     App.js
+   ```
+
+3. **API Layer**:
+
+   - Create an API module (using axios) to handle communication with the backend.
+
+4. **State Management**:
+
+   - Use React Query for data fetching and caching management.
+
+5. **Form Management**:
+   - Use react-hook-form to manage form state and validation.
+
+### Code Implementation
+
+1. **Project Initialization**:
+
+   ```bash
+   npx create-react-app crud-form
+   cd crud-form
+   npm install axios react-query react-hook-form
+   ```
+
+2. **API Module** (`src/api/items.js`):
+
+   ```javascript
+   import axios from "axios";
+
+   const apiClient = axios.create({
+     baseURL: "https://api.example.com",
+   });
+
+   export const getItems = async () => {
+     const response = await apiClient.get("/items");
+     return response.data;
+   };
+
+   export const createItem = async (item) => {
+     const response = await apiClient.post("/items", item);
+     return response.data;
+   };
+
+   export const updateItem = async (id, item) => {
+     const response = await apiClient.put(`/items/${id}`, item);
+     return response.data;
+   };
+
+   export const deleteItem = async (id) => {
+     await apiClient.delete(`/items/${id}`);
+   };
+   ```
+
+3. **React Query Setup** (`src/App.js`):
+
+   ```javascript
+   import React from "react";
+   import { QueryClient, QueryClientProvider } from "react-query";
+   import Form from "./components/Form";
+   import ItemList from "./components/ItemList";
+
+   const queryClient = new QueryClient();
+
+   function App() {
+     return (
+       <QueryClientProvider client={queryClient}>
+         <div className="App">
+           <h1>CRUD Form</h1>
+           <Form />
+           <ItemList />
+         </div>
+       </QueryClientProvider>
+     );
+   }
+
+   export default App;
+   ```
+
+4. **Form Component** (`src/components/Form.js`)
+
+   [Reason for Using react-hook-form and Its Usage](#reason-for-using-react-hook-form-and-its-usage)
+
+   ```javascript
+   import React from "react";
+   import { useForm } from "react-hook-form";
+   import { useMutation, useQueryClient } from "react-query";
+   import { createItem } from "../api/items";
+
+   const Form = () => {
+     const { register, handleSubmit, reset } = useForm();
+     const queryClient = useQueryClient();
+
+     const mutation = useMutation(createItem, {
+       onSuccess: () => {
+         queryClient.invalidateQueries("items");
+         reset();
+       },
+     });
+
+     const onSubmit = (data) => {
+       mutation.mutate(data);
+     };
+
+     return (
+       <form onSubmit={handleSubmit(onSubmit)}>
+         <input {...register("name")} placeholder="Name" />
+         <input {...register("description")} placeholder="Description" />
+         <button type="submit">Create</button>
+       </form>
+     );
+   };
+
+   export default Form;
+   ```
+
+5. **List Component** (`src/components/ItemList.js`):
+
+   ```javascript
+   import React from "react";
+   import { useQuery, useMutation, useQueryClient } from "react-query";
+   import { getItems, deleteItem } from "../api/items";
+
+   const ItemList = () => {
+     const queryClient = useQueryClient();
+     const { data: items, isLoading } = useQuery("items", getItems);
+
+     const mutation = useMutation(deleteItem, {
+       onSuccess: () => {
+         queryClient.invalidateQueries("items");
+       },
+     });
+
+     if (isLoading) {
+       return <div>Loading...</div>;
+     }
+
+     return (
+       <ul>
+         {items.map((item) => (
+           <li key={item.id}>
+             {item.name} - {item.description}
+             <button onClick={() => mutation.mutate(item.id)}>Delete</button>
+           </li>
+         ))}
+       </ul>
+     );
+   };
+
+   export default ItemList;
+   ```
+
+#### Reason for Using react-hook-form and Its Usage
+
+##### Reason for Using
+
+1. **Simplified Form Management**: `react-hook-form` provides a simple and efficient way to manage form state, validation, and submission. It reduces boilerplate code and improves development efficiency.
+2. **Performance Optimization**: `react-hook-form` uses uncontrolled components and local state to manage form state, which is more performant than using controlled components.
+3. **Rich Features**: It offers built-in validation, error handling, and custom validation rules, simplifying the development of complex forms.
+
+#### Implementing Form Management Without react-hook-form
+
+If you cannot use `react-hook-form` during an interview, you can use controlled components to manage form state. Here is an example:
+
+##### Form Component
+
+```javascript
+import React, { useState } from "react";
+import { createItem } from "../api/items";
+
+const Form = ({ onItemCreated }) => {
+  const [formData, setFormData] = useState({ name: "", description: "" });
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      try {
+        const newItem = await createItem(formData);
+        onItemCreated(newItem);
+        setFormData({ name: "", description: "" });
+      } catch (error) {
+        console.error("There was an error!", error);
+      }
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name) errors.name = "Name is required";
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        name="name"
+        value={formData.name}
+        onChange={handleChange}
+        placeholder="Name"
+      />
+      {errors.name && <span>{errors.name}</span>}
+      <input
+        name="description"
+        value={formData.description}
+        onChange={handleChange}
+        placeholder="Description"
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+};
+
+export default Form;
+```
+
+#### Summary
+
+- **Using react-hook-form**: Simplifies form management, provides built-in validation, and optimizes form state management performance.
+- **Without react-hook-form**: Use controlled components to manually manage form state and validation. Although the code is more verbose, it can still achieve the same functionality.
+
+By practicing both methods, you will be able to handle various form management requirements flexibly in interviews.
+
+#### Design and Development Approach for Time-Limited Tasks
+
+When you have only 30 minutes to 1 hour to complete a form, it's crucial to follow a structured design and development approach focusing on essential features.
+
+##### Design and Development Approach
+
+1. **Define Requirements**:
+
+   - Clearly understand the CRUD form's requirements (Create, Read, Update, Delete).
+   - Determine the must-have features and what can be simplified.
+
+2. **Project Initialization**:
+
+   - Quickly set up the React project and install necessary dependencies (axios or fetch, react-hook-form, react-query).
+
+3. **Set Up Basic Structure**:
+
+   - Set up the API layer for backend communication.
+   - Build the basic structure for form and list components.
+
+4. **Implement Core Features**:
+
+   - Implement data fetching and display (list).
+   - Implement data creation (form submission).
+   - Implement data update and deletion (list actions).
+
+5. **Basic Validation and Error Handling**:
+   - Implement basic form validation (frontend).
+   - Implement basic error handling (display error messages).
+
+##### Key Focus Areas
+
+1. **Core Features**:
+
+   - **Data Fetching**: Use react-query or fetch to implement data fetching and display.
+   - **Data Creation**: Use react-hook-form or controlled components to implement form submission.
+   - **Data Update and Deletion**: Add update and delete actions in the list.
+
+2. **Simplified Parts**:
+   - **Form Validation**: Basic frontend validation (e.g., required fields).
+   - **Error Handling**: Simple error message display, without complex logic.
+
+##### Essential Implementations
+
+1. **Project Initialization**:
+
+   - Set up the React project and install dependencies quickly.
+
+2. **API Layer**:
+
+   - Set up basic CRUD operations (GET, POST, PUT, DELETE).
+
+3. **Core Feature Implementation**:
+
+   - Data fetching, display, creation, update, and deletion.
+
+4. **Basic Form Validation**:
+
+   - Implement simple frontend validation, such as required fields.
+
+5. **Error Handling**:
+   - Display simple error messages on the interface.
+
+##### Optional or Simplified Implementations
+
+1. **Complex Form Validation**:
+
+   - Complex validation logic can be omitted, focusing on required field validation.
+
+2. **Backend Validation**:
+
+   - Backend validation can be simplified or omitted in favor of frontend validation.
+
+3. **Advanced Error Handling**:
+   - Complex error handling and user-friendly error messages can be simplified to basic error display.
+
+---
+
+## Introduction to Axios and Reasons for Use
+
+### What is Axios?
+
+Axios is a promise-based HTTP client that works both in the browser and in Node.js.
+
+### Why Use Axios?
+
+1. **Simplified API**: Provides simple and easy-to-use HTTP request methods.
+2. **Automatic JSON Data Conversion**: Automatically handles JSON data conversion for requests and responses.
+3. **Request and Response Interceptors**: Supports interceptors to process requests before they are sent and responses before they are handled.
+4. **Request Cancellation**: Supports request cancellation, providing better control over asynchronous operations.
+5. **Better Error Handling**: Provides detailed error information and handling mechanisms.
+6. **Node.js Support**: Suitable for both browser and Node.js environments.
+
+### Basic Usage of Axios
+
+```javascript
+import axios from "axios";
+
+// Create an axios instance
+const apiClient = axios.create({
+  baseURL: "https://api.example.com",
+  timeout: 1000,
+  headers: { "Content-Type": "application/json" },
+});
+
+// Send a GET request
+apiClient
+  .get("/items")
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    console.error("There was an error!", error);
+  });
+
+// Send a POST request
+apiClient
+  .post("/items", { name: "New Item", description: "Item description" })
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    console.error("There was an error!", error);
+  });
+
+// Send a PUT request
+apiClient
+  .put("/items/1", { name: "Updated Item", description: "Updated description" })
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    console.error("There was an error!", error);
+  });
+
+// Send a DELETE request
+apiClient
+  .delete("/items/1")
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    console.error("There was an error!", error);
+  });
+```
+
+---
+
+## Comparison Between Fetch and React Query
+
+1. **Fetch**:
+
+   - Advantages: Native and simple, easy to get started with.
+   - Disadvantages: Requires manual handling of state, caching, and error handling, leading to verbose and complex code.
+
+2. **React Query**:
+   - Advantages: Provides out-of-the-box state management, caching, and synchronization mechanisms, simplifying data fetching and management.
+   - Disadvantages: Higher learning curve, but powerful and suitable for medium to large applications.
+
+---
+
+## Cross-Origin Issue Resolution
+
+### Do We Need to Consider Cross-Origin Issues When Building CRUD Forms with Axios During Interviews?
+
+Yes, cross-origin issues (CORS, Cross-Origin Resource Sharing) need to be considered. When you send requests to a different domain in the browser, the browser checks whether such cross-origin requests are allowed. This issue usually needs to be resolved on the server side.
+
+### How to Resolve Cross-Origin Issues?
+
+1. **Server-Side CORS Configuration**:
+
+   - Configure CORS headers on the server to allow access from specific domains.
+
+2. **Using Proxy**:
+
+   - In the development environment, you can use a proxy server to solve cross-origin issues. For example, in Create React App, you can add a `proxy` field in `package.json`.
+     ```json
+     "proxy": "http://localhost:5000"
+     ```
+
+3. **JSONP**:
+
+   - Suitable for GET requests only. JSONP is a method of loading data via `<script>` tags, but it is not suitable for POST, PUT, DELETE requests.
+
+4. **CORS Middleware** (for Node.js/Express backend):
+
+   - Use `cors` middleware to allow cross-origin requests.
+
+     ```javascript
+     const express = require("express");
+     const cors = require("cors");
+     const app = express();
+
+     app.use(cors());
+
+     app.get("/items", (req, res) => {
+       res.json([{ id: 1, name: "Item 1" }]);
+     });
+
+     app.listen(5000, () => {
+       console.log("Server running on port 5000");
+     });
+     ```
+
+### Frontend Code
+
+No special configuration is needed on the frontend. Just ensure that the `BASE_URL` points to the correct backend server address.
+
+Assuming your backend is running at `http://localhost:5000`, the frontend `BASE_URL` should be set as:
+
+```javascript
+const API_BASE_URL = "http://localhost:5000";
+```
+
+Then, the frontend API module can use this `BASE_URL`:
+
+```javascript
+const API_BASE_URL = "http://localhost:5000";
+
+export const getItems = async () => {
+  const response = await fetch(`${API_BASE_URL}/items`);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+// Other CRUD operation functions follow the same pattern
+```
+
+---
+
+## Implementing CRUD Form with Fetch API
+
+If Axios cannot be used, the same functionality can be implemented with the native Fetch API. Below is the corresponding code implementation:
+
+### Project Initialization
+
+```bash
+npx create-react-app crud-form
+cd crud-form
+npm install react-hook-form
+```
+
+### API Module
+
+`src/api/items.js`
+
+```javascript
+const API_BASE_URL = "http://localhost:5000";
+
+export const getItems = async () => {
+  const response = await fetch(`${API_BASE_URL}/items`);
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+export const createItem = async (item) => {
+  const response = await fetch(`${API_BASE_URL}/items`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(item),
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+export const updateItem = async (id, item) => {
+  const response = await fetch(`${API_BASE_URL}/items/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(item),
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
+export const deleteItem = async (id) => {
+  const response = await fetch(`${API_BASE_URL}/items/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+};
+```
+
+### Form Component
+
+`src/components/Form.js`
+
+```javascript
+import React from "react";
+import { useForm } from "react-hook-form";
+import { createItem } from "../api/items";
+
+const Form = ({ onItemCreated }) => {
+  const { register, handleSubmit, reset } = useForm();
+
+  const onSubmit = async (data) => {
+    try {
+      const newItem = await createItem(data);
+      onItemCreated(newItem);
+      reset();
+    } catch (error) {
+      console.error("There was an error!", error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register("name")} placeholder="Name" />
+      <input {...register("description")} placeholder="Description" />
+      <button type="submit">Create</button>
+    </form>
+  );
+};
+
+export default Form;
+```
+
+### List Component
+
+`src/components/ItemList.js`
+
+```javascript
+import React, { useEffect, useState } from "react";
+import { getItems, deleteItem } from "../api/items";
+
+const ItemList = () => {
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const data = await getItems();
+        setItems(data);
+      } catch (error) {
+        console.error("There was an error!", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteItem(id);
+      setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("There was an error!", error);
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>
+          {item.name} - {item.description}
+          <button onClick={() => handleDelete(item.id)}>Delete</button>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+export default ItemList;
+```
+
+---
+
+## Summary
+
+- **Cross-Origin Issues**: Consider cross-origin issues during interviews. These can be solved by configuring CORS on the server or using a proxy.
+- **Using Fetch API**: If Axios cannot be used, the same CRUD functionality can be implemented using the native Fetch API.
+
+With these insights and sample codes, you can confidently handle cross-origin issues in interviews and choose the right tools for implementing CRUD functionalities. Continuous practice and code optimization will enable you to showcase your professional skills and best practices during interviews.
