@@ -1,0 +1,604 @@
+---
+title: "Design of a MovieSlider Component"
+description: Design of a MovieSlider Component
+date: 2024-07-28
+tags: ["react", "webdev", "component"]
+published: true
+---
+
+# MovieSlider 技术文档
+
+## 目录
+
+1. [**概述**](#概述)
+2. [**依赖和引入**](#依赖和引入)
+3. [**组件结构**](#组件结构)
+4. [**状态管理**](#状态管理)
+5. [**数据获取**](#数据获取)
+6. [**滑动功能**](#滑动功能)
+7. [**响应式设计**](#响应式设计)
+8. [**用户体验优化**](#用户体验优化)
+9. [**学习资源**](#学习资源)
+10. [**示例代码**](#示例代码)
+11. [**代码拓展**](#代码拓展)
+
+---
+
+## 概述
+
+`MovieSlider` 组件展示一个水平滚动的电影或电视节目列表，支持动态数据获取、左右滚动、响应式设计和用户交互优化。
+
+## 依赖和引入
+
+组件需要以下依赖：
+
+- React
+- React Router
+- Axios
+- Zustand（用于全局状态管理）
+- Tailwind CSS（用于样式）
+- Lucide-react（图标库）
+
+## 组件结构
+
+以下是 `MovieSlider` 组件的完整代码结构，包括必要的依赖和主要功能实现：
+
+```javascript
+import { useEffect, useRef, useState } from "react";
+import { useContentStore } from "../store/content";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import { SMALL_IMG_BASE_URL } from "../utils/constants";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const MovieSlider = ({ category }) => {
+  const { contentType } = useContentStore();
+  const [content, setContent] = useState([]);
+  const [showArrows, setShowArrows] = useState(false);
+
+  const sliderRef = useRef(null);
+
+  const formattedCategoryName =
+    category.replaceAll("_", " ")[0].toUpperCase() +
+    category.replaceAll("_", " ").slice(1);
+  const formattedContentType = contentType === "movie" ? "Movies" : "TV Shows";
+
+  useEffect(() => {
+    const getContent = async () => {
+      const res = await axios.get(`/api/v1/${contentType}/${category}`);
+      setContent(res.data.content);
+    };
+
+    getContent();
+  }, [contentType, category]);
+
+  const scrollLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({
+        left: -sliderRef.current.offsetWidth,
+        behavior: "smooth",
+      });
+    }
+  };
+  const scrollRight = () => {
+    sliderRef.current.scrollBy({
+      left: sliderRef.current.offsetWidth,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <div
+      className="bg-black text-white relative px-5 md:px-20"
+      onMouseEnter={() => setShowArrows(true)}
+      onMouseLeave={() => setShowArrows(false)}
+    >
+      <h2 className="mb-4 text-2xl font-bold">
+        {formattedCategoryName} {formattedContentType}
+      </h2>
+
+      <div
+        className="flex space-x-4 overflow-x-scroll scrollbar-hide"
+        ref={sliderRef}
+      >
+        {content.map((item) => (
+          <Link
+            to={`/watch/${item.id}`}
+            className="min-w-[250px] relative group"
+            key={item.id}
+          >
+            <div className="rounded-lg overflow-hidden">
+              <img
+                src={SMALL_IMG_BASE_URL + item.backdrop_path}
+                alt="Movie image"
+                className="transition-transform duration-300 ease-in-out group-hover:scale-125"
+              />
+            </div>
+            <p className="mt-2 text-center">{item.title || item.name}</p>
+          </Link>
+        ))}
+      </div>
+
+      {showArrows && (
+        <>
+          <button
+            className="absolute top-1/2 -translate-y-1/2 left-5 md:left-24 flex items-center justify-center
+            size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10
+            "
+            onClick={scrollLeft}
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <button
+            className="absolute top-1/2 -translate-y-1/2 right-5 md:right-24 flex items-center justify-center
+            size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10
+            "
+            onClick={scrollRight}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default MovieSlider;
+```
+
+## 状态管理
+
+- **内容类型**：从全局状态 `useContentStore` 获取当前内容类型。
+- **内容数据**：使用 `useState` 存储获取的内容数据。
+- **箭头显示**：使用 `useState` 控制滑动箭头的显示状态。
+
+以下代码展示了如何使用 `useState` 管理内容数据和箭头显示状态：
+
+```javascript
+const { contentType } = useContentStore();
+const [content, setContent] = useState([]);
+const [showArrows, setShowArrows] = useState(false);
+```
+
+## 数据获取
+
+通过 `useEffect` 钩子和 `axios` 库从 API 获取数据，并根据内容类型和分类的变化动态更新：
+
+```javascript
+useEffect(() => {
+  const getContent = async () => {
+    const res = await axios.get(`/api/v1/${contentType}/${category}`);
+    setContent(res.data.content);
+  };
+
+  getContent();
+}, [contentType, category]);
+```
+
+## 滑动功能
+
+以下代码实现了左右滑动功能，使用 `scrollBy` 方法来移动内容：
+
+```javascript
+const scrollLeft = () => {
+  if (sliderRef.current) {
+    sliderRef.current.scrollBy({
+      left: -sliderRef.current.offsetWidth,
+      behavior: "smooth",
+    });
+  }
+};
+const scrollRight = () => {
+  sliderRef.current.scrollBy({
+    left: sliderRef.current.offsetWidth,
+    behavior: "smooth",
+  });
+};
+```
+
+## 响应式设计
+
+- **使用 Tailwind CSS 类**：确保在不同设备上有合适的内边距和间距。
+- **最小宽度**：确保每个内容项在不同屏幕尺寸下都有最小宽度。
+
+```javascript
+className = "bg-black text-white relative px-5 md:px-20";
+className = "flex space-x-4 overflow-x-scroll scrollbar-hide";
+className = "min-w-[250px] relative group";
+```
+
+## 用户体验优化
+
+- **悬停动画**：在图片上添加悬停动画效果。
+- **箭头显示控制**：在鼠标悬停时显示箭头，提高用户导航的直观性。
+
+以下代码通过悬停动画和箭头显示控制优化了用户体验
+
+```javascript
+className='transition-transform duration-300 ease-in-out group-hover:scale-125'
+onMouseEnter={() => setShowArrows(true)}
+onMouseLeave={() => setShowArrows(false)}
+```
+
+## 学习资源
+
+- **MDN Web Docs: Element.scrollBy()**:
+  - [Element.scrollBy() - MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollBy)
+- **MDN Web Docs: HTMLElement.offsetWidth**:
+  - [HTMLElement.offsetWidth - MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetWidth)
+- **React Docs: Refs and the DOM**:
+  - [Refs and the DOM - React Docs](https://reactjs.org/docs/refs-and-the-dom.html)
+
+## 示例代码
+
+以下示例代码展示了如何使用 `offsetWidth`来获取元素的宽度：
+
+```javascript
+import React, { useRef } from "react";
+
+const OffsetWidthExample = () => {
+  const boxRef = useRef(null);
+
+  useEffect(() => {
+    if (boxRef.current) {
+      console.log("offsetWidth:", boxRef.current.offsetWidth);
+    }
+  }, []);
+
+  return (
+    <div
+      ref={boxRef}
+      style={{
+        width: "200px",
+        padding: "20px",
+        border: "10px solid black",
+        margin: "10px",
+      }}
+    >
+      Hello, World!
+    </div>
+  );
+};
+
+export default OffsetWidthExample;
+```
+
+## 代码拓展
+
+要设计一个更加通用和可复用的 `MovieSlider` 组件，我们需要遵循最佳的设计模式和代码实践。以下是一些关键点：
+
+1. **组件参数化**：使组件接受更多参数以便更灵活地控制其行为和外观。
+2. **代码解耦**：将数据获取逻辑和渲染逻辑分离，以提高代码的可维护性和可测试性。
+3. **类型检查**：使用 TypeScript 或 PropTypes 进行类型检查，以确保组件的正确使用。
+4. **可扩展性**：考虑未来可能的扩展需求，使组件易于扩展和修改。
+5. **最佳实践**：遵循现代 React 开发的最佳实践，如使用函数组件、React Hooks 和自定义 Hooks。
+
+### 详细设计说明
+
+#### 1. 组件参数化
+
+我们可以通过接受更多的 props 来使 `MovieSlider` 更加通用。例如，允许传入自定义的 API 端点、滑动距离、是否显示箭头等。
+
+#### 2. 代码解耦
+
+使用自定义 Hook 将数据获取逻辑抽离到组件外部。这样可以使组件更加专注于渲染逻辑，并且更容易进行单元测试。
+
+#### 3. 类型检查
+
+使用 TypeScript 或 PropTypes 进行类型检查，确保组件的正确使用。
+
+#### 4. 可扩展性
+
+考虑到未来的需求，如添加更多的滑动方向、不同的布局方式等，使组件易于扩展。
+
+#### 示例代码
+
+以下是一个重构后的、更加通用的 `MovieSlider` 组件示例：
+
+```javascript
+import React, { useEffect, useRef, useState } from "react";
+import PropTypes from "prop-types";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { SMALL_IMG_BASE_URL } from "../utils/constants";
+
+// 自定义 Hook 用于获取数据
+const useFetchContent = (endpoint) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(endpoint);
+        setData(response.data.content);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [endpoint]);
+
+  return { data, loading };
+};
+
+const MovieSlider = ({ endpoint, title, showArrows, scrollAmount }) => {
+  const { data: content, loading } = useFetchContent(endpoint);
+  const sliderRef = useRef(null);
+
+  const scrollLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="bg-black text-white relative px-5 md:px-20">
+      <h2 className="mb-4 text-2xl font-bold">{title}</h2>
+      <div
+        className="flex space-x-4 overflow-x-scroll scrollbar-hide"
+        ref={sliderRef}
+      >
+        {content.map((item) => (
+          <Link
+            to={`/watch/${item.id}`}
+            className="min-w-[250px] relative group"
+            key={item.id}
+          >
+            <div className="rounded-lg overflow-hidden">
+              <img
+                src={SMALL_IMG_BASE_URL + item.backdrop_path}
+                alt={item.title || item.name}
+                className="transition-transform duration-300 ease-in-out group-hover:scale-125"
+              />
+            </div>
+            <p className="mt-2 text-center">{item.title || item.name}</p>
+          </Link>
+        ))}
+      </div>
+      {showArrows && (
+        <>
+          <button
+            className="absolute top-1/2 -translate-y-1/2 left-5 md:left-24 flex items-center justify-center
+                        size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10"
+            onClick={scrollLeft}
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            className="absolute top-1/2 -translate-y-1/2 right-5 md:right-24 flex items-center justify-center
+                        size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10"
+            onClick={scrollRight}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+// 使用 PropTypes 进行类型检查
+MovieSlider.propTypes = {
+  endpoint: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  showArrows: PropTypes.bool,
+  scrollAmount: PropTypes.number,
+};
+
+// 默认 props
+MovieSlider.defaultProps = {
+  showArrows: true,
+  scrollAmount: 300,
+};
+
+export default MovieSlider;
+```
+
+### 组件参数解释
+
+- `endpoint`: API 端点，用于获取内容数据。
+- `title`: 滑动组件的标题。
+- `showArrows`: 是否显示左右滑动箭头。
+- `scrollAmount`: 每次滑动的距离。
+
+### 如何使用
+
+```javascript
+import React from "react";
+import MovieSlider from "./components/MovieSlider";
+
+const App = () => {
+  return (
+    <div>
+      <MovieSlider
+        endpoint="/api/v1/movies/popular"
+        title="Popular Movies"
+        showArrows={true}
+        scrollAmount={500}
+      />
+      <MovieSlider
+        endpoint="/api/v1/tv/top_rated"
+        title="Top Rated TV Shows"
+        showArrows={false}
+        scrollAmount={400}
+      />
+    </div>
+  );
+};
+
+export default App;
+```
+
+上面的代码示例使用的是 JavaScript。如果你更熟悉 TypeScript，也可以用 TypeScript 来实现类型检查。下面我将分别说明如何在 JavaScript 和 TypeScript 中进行类型检查。
+
+### JavaScript 中的类型检查
+
+在 JavaScript 中，我们通常使用 `PropTypes` 来进行类型检查。`PropTypes` 是 React 内置的一个库，它允许你定义组件 props 的类型，并在开发过程中进行检查。
+
+#### 代码解释
+
+1. **PropTypes**:
+
+   - `PropTypes` 用于定义组件的 prop 类型。例如，`PropTypes.string` 表示该 prop 应该是一个字符串类型。
+   - `PropTypes.string.isRequired` 表示该 prop 是必须的，如果未提供将会发出警告。
+   - `PropTypes.bool` 表示布尔类型的 prop。
+   - `PropTypes.number` 表示数字类型的 prop。
+
+2. **defaultProps**:
+   - `defaultProps` 用于定义组件 prop 的默认值。如果未提供该 prop，组件将使用默认值。
+
+```javascript
+import PropTypes from "prop-types";
+
+const MovieSlider = ({ endpoint, title, showArrows, scrollAmount }) => {
+  // ... 组件实现
+};
+
+MovieSlider.propTypes = {
+  endpoint: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
+  showArrows: PropTypes.bool,
+  scrollAmount: PropTypes.number,
+};
+
+MovieSlider.defaultProps = {
+  showArrows: true,
+  scrollAmount: 300,
+};
+
+export default MovieSlider;
+```
+
+### TypeScript 中的类型检查
+
+在 TypeScript 中，我们通过接口或类型别名来定义 props 的类型，并在函数组件中使用这些类型。
+
+#### 代码示例
+
+1. **定义接口**:
+
+   - 使用 `interface` 定义组件的 props 类型。
+
+2. **在组件中使用类型**:
+   - 在函数组件的参数中使用定义好的接口类型。
+
+```typescript
+import React, { useEffect, useRef, useState } from "react";
+
+interface MovieSliderProps {
+  endpoint: string;
+  title: string;
+  showArrows?: boolean;
+  scrollAmount?: number;
+}
+
+const MovieSlider: React.FC<MovieSliderProps> = ({
+  endpoint,
+  title,
+  showArrows = true,
+  scrollAmount = 300,
+}) => {
+  const [content, setContent] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const getContent = async () => {
+      try {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        setContent(data.content);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getContent();
+  }, [endpoint]);
+
+  const scrollLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  const scrollRight = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="bg-black text-white relative px-5 md:px-20">
+      <h2 className="mb-4 text-2xl font-bold">{title}</h2>
+      <div
+        className="flex space-x-4 overflow-x-scroll scrollbar-hide"
+        ref={sliderRef}
+      >
+        {content.map((item) => (
+          <a
+            href={`/watch/${item.id}`}
+            className="min-w-[250px] relative group"
+            key={item.id}
+          >
+            <div className="rounded-lg overflow-hidden">
+              <img
+                src={`https://image.tmdb.org/t/p/w200${item.backdrop_path}`}
+                alt={item.title || item.name}
+                className="transition-transform duration-300 ease-in-out group-hover:scale-125"
+              />
+            </div>
+            <p className="mt-2 text-center">{item.title || item.name}</p>
+          </a>
+        ))}
+      </div>
+      {showArrows && (
+        <>
+          <button
+            className="absolute top-1/2 -translate-y-1/2 left-5 md:left-24 flex items-center justify-center
+                        size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10"
+            onClick={scrollLeft}
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            className="absolute top-1/2 -translate-y-1/2 right-5 md:right-24 flex items-center justify-center
+                        size-12 rounded-full bg-black bg-opacity-50 hover:bg-opacity-75 text-white z-10"
+            onClick={scrollRight}
+          >
+            <ChevronRight size={24} />
+          </button>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default MovieSlider;
+```
+
+### 总结
+
+通过重构后的 `MovieSlider` 组件，我们实现了一个更加通用和可复用的组件。该组件通过自定义 Hook 进行数据获取，接受多个参数以便灵活控制其行为和外观，并使用 PropTypes 进行类型检查。这种设计模式和代码实践提高了组件的可维护性和可扩展性，便于在不同项目中复用。
