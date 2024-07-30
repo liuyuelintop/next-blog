@@ -1,0 +1,91 @@
+---
+title: "Resolving Cookie Transmission Issue in a MERN Application Deployed on AWS EC2"
+description: A comprehensive guide on diagnosing and resolving cookie transmission issues in a MERN stack application deployed on AWS EC2, focusing on proper cookie attribute settings and cross-origin configurations.
+date: 2024-07-30
+tags: [webdev, mern, aws, ec2, cookies, jwt, secure]
+published: true
+---
+
+### README
+
+# Resolving Cookie Transmission Issue in a MERN Application Deployed on AWS EC2
+
+## Problem Description
+
+After deploying a MERN stack application on an AWS EC2 instance, the following issue was encountered:
+
+1. Upon successful user login, the server correctly sets a JWT cookie. However, during subsequent requests to protected routes, the browser fails to send these cookies.
+2. This results in the server not receiving the required authentication information and responding with a `401 Unauthorized` error.
+
+## Problem Analysis
+
+Upon investigation, it was determined that the issue stemmed from the `Secure` attribute of the cookie. When the `Secure` attribute is set to `true`, cookies are only sent over HTTPS connections. Since the AWS EC2 instance was being accessed over HTTP instead of HTTPS, the cookies were not transmitted.
+
+### Cookie Attribute Overview
+
+- **[Secure](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#secure)**: Ensures that the cookie is only sent over HTTPS.
+- **[HttpOnly](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#httponly)**: Prevents the cookie from being accessed via JavaScript, mitigating XSS attacks.
+- **[SameSite](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#samesitesamesite-value)**: Controls whether the cookie is sent with cross-site requests, preventing CSRF attacks.
+
+## Resolution Process
+
+1. **Initial Debugging**:
+
+   - Added debug statements in the `protectRoute` middleware to check if the server received cookies and tokens from the client.
+   - The output showed that `req.cookies` and `token` were `undefined`, confirming that the cookies were not being sent.
+
+2. **Review Cookie Settings**:
+
+   - Examined the server-side code responsible for setting the cookie and noted that the `Secure` attribute was set to `true`.
+
+3. **Adjust Secure Attribute**:
+
+   - Since the current environment used HTTP, the `Secure` attribute was set to `false` to allow cookies to be sent over HTTP.
+
+   ```javascript
+   res.cookie("jwt-netflix", token, {
+     maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+     httpOnly: true,
+     secure: false, // Allow HTTP transmission
+     sameSite: "lax", // Or "none" if cross-site requests are needed
+   });
+   ```
+
+4. **Verification**:
+   - After making the adjustments, a test was conducted by logging in and accessing protected routes. It was confirmed that the browser successfully sent the cookies, and the server properly authenticated the requests, resolving the issue.
+
+## Solution
+
+### Temporary Solution (Development Environment)
+
+In the development environment, since the AWS EC2 instance is accessed via HTTP, ensure the `Secure` attribute is set to `false`. This allows the browser to send cookies over HTTP.
+
+```javascript
+res.cookie("jwt-netflix", token, {
+  maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+  httpOnly: true,
+  secure: false, // Allow HTTP transmission
+  sameSite: "lax", // Or "none" for cross-site requests
+});
+```
+
+### Long-term Solution (Production Environment)
+
+For production, it is recommended to configure the AWS EC2 instance to use HTTPS to ensure secure data transmission. The steps include:
+
+1. Obtain an SSL certificate via AWS Certificate Manager (ACM) or another third-party provider.
+2. Configure a reverse proxy server (e.g., Nginx or Apache) to handle HTTPS and forward traffic to the application.
+3. Set the `Secure` attribute to `true` to ensure cookies are only sent over HTTPS.
+
+```javascript
+res.cookie("jwt-netflix", token, {
+  maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+  httpOnly: true,
+  secure: true, // Enabled for HTTPS
+  sameSite: "lax", // Or "none"
+});
+```
+
+## Conclusion
+
+By correctly configuring the cookie attributes, especially setting the `Secure` attribute appropriately for the environment, the issue of the browser not sending cookies has been resolved. For production environments, it is crucial to use HTTPS for enhanced security and ensure the safe transmission of cookies.
