@@ -1,0 +1,74 @@
+---
+title: "Deployment of MERN Netflix-Clone Application on AWS EC2"
+description: A detailed guide on deploying a MERN stack application on AWS EC2, covering server setup, environment configuration, HTTPS implementation using Caddy, and automated deployment via GitHub Actions.
+date: 2024-07-31
+tags: [mern, webdev, aws, ec2, deployment, ssl, https, caddy]
+published: true
+---
+
+# Deployment of MERN Netflix-Clone Application on AWS EC2
+
+## Overview
+
+This document outlines the process of deploying a MERN stack application, specifically a Netflix-Clone, on an AWS EC2 instance. The deployment process includes setting up the server environment, configuring the database, managing environment variables, and securing the application using HTTPS. The deployment was guided by various tutorials and resources to ensure a smooth and secure setup.
+
+## Resources Referenced
+
+- **Video Tutorial on Full Stack Node.js Deployment**: A comprehensive guide that walks through the deployment of a Node.js application on AWS EC2, covering essential setup steps [View on YouTube](https://www.youtube.com/watch?v=nQdyiK7-VlQ)
+  - [Deploying Full Stack Apps to AWS EC2 with SQL Databases](https://www.sammeechward.com/deploying-full-stack-js-to-aws-ec2)
+  - [AWS Route 53 Domain Name](https://www.sammeechward.com/aws-route-53-domain-name)
+- **Deploy MERN Stack App with AWS EC2**: A detailed tutorial focusing on deploying a MERN stack application, with a focus on configuration and best practices [View on YouTube](https://www.youtube.com/watch?v=P05__K0-4bg)
+- **GitHub Actions for MERN Deployment**: Utilized GitHub Actions for CI/CD pipeline setup, facilitating automated deployment processes [View on YouTube](https://www.youtube.com/watch?v=MmidULYvjYE)
+- **FullStack React App Deployment Guide**: A tutorial that provided insights into setting up the front-end and back-end environments on AWS [View on YouTube](https://www.youtube.com/watch?v=FHn8c4Rk_yo)
+- **General MERN Stack Deployment**: Covered aspects of deploying a MERN stack application, including securing the application with HTTPS and handling environment variables [View on YouTube](https://www.youtube.com/watch?v=FanoTGjkxhQ)
+
+## Deployment Steps
+
+### 1. **Provisioning AWS EC2 Instance**
+
+- **Instance Type**: Chose a t2.micro instance (free tier eligible).
+- **Operating System**: Ubuntu 20.04 LTS was used for its stability and support.
+- **Security Group**: Configured inbound rules to allow HTTP (80), HTTPS (443), and SSH (22) access.
+
+### 2. **Server Setup**
+
+- **Create SSH Key**
+- **SSH Access**: Connected to the EC2 instance using SSH.
+- **Environment Setup**:
+  - Installed Node.js (Install MongoDB if you need. I use Mongo Altas )
+- **Code Deployment**: Rsync Code from your device
+
+### 3. **App Setup**
+
+- Created a `.env` file to manage sensitive information such as database URIs and API keys.
+- Installed dependencies using `npm run build`.
+  - `"build" : "npm install && npm install --prefix frontend && npm run build --prefix frontend"`
+
+### 4. **SystemD Setup**
+
+- **Create the Enviroenment file**
+- **Create the systemd Service file**
+
+### 5. **Security and HTTPS Configuration**
+
+- **Caddy as Web Server**: Used Caddy to handle HTTPS redirection and SSL certificate management.
+- **SSL/TLS Certificates**: Caddy automatically obtained and renewed SSL certificates from Let's Encrypt.
+- **Configuration**:
+  - Redirected all HTTP traffic to HTTPS.
+  - Ensured secure cookie transmission by setting the `Secure` flag to `true`.
+
+### 6. **CI/CD Pipeline** (optional)
+
+- Set up GitHub Actions to automate testing and deployment.
+- Configured workflows to automatically deploy updates to the EC2 instance upon commits to the main branch.
+
+## Issues Encountered and Solutions
+
+### Issue: Secure Cookie Transmission
+
+**Problem**: The application was unable to transmit cookies when `Secure` was set to `true` due to the lack of HTTPS.
+**Solution**: Implemented Caddy to handle HTTPS, and updated cookie settings to use `Secure: true` once HTTPS was enabled.
+
+## Conclusion
+
+The deployment of the MERN Netflix-Clone application on AWS EC2 was successfully completed by setting up a secure and scalable environment. The use of Caddy for automatic HTTPS ensured secure data transmission. This deployment setup serves as a fundamental solution for production environments, ensuring security and efficiency.
