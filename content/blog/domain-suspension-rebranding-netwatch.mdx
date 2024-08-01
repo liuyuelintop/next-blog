@@ -1,0 +1,82 @@
+---
+title: Resolving Domain Suspension and Rebranding Project
+description: This document details the challenges faced, solutions implemented, and steps taken to resolve a domain suspension issue and rebrand a project for compliance with trademark laws.
+date: 2024-08-01
+tags:
+  [
+    AWS,
+    Caddy,
+    Domain Management,
+    Legal Compliance,
+    Rebranding,
+    Technical Documentation,
+  ]
+published: true
+---
+
+## Introduction
+
+This technical documentation outlines the challenges faced and the steps taken to resolve domain suspension issues, rebrand a project, and ensure compliance with trademark laws. The project involved deploying a Netflix clone application using AWS, Caddy for reverse proxying, and Namecheap for domain registration. The original domain `netflix-clone.liuyuelin.xyz` was suspended due to potential trademark violations, necessitating a rebranding to `netwatch.liuyuelin.xyz`.
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Issues Encountered](#issues-encountered)
+3. [Key Problems and Solutions](#key-problems-and-solutions)
+4. [Detailed Steps Taken](#detailed-steps-taken)
+5. [Conclusion](#conclusion)
+
+## Overview
+
+The project faced issues related to domain accessibility and legal concerns regarding the use of the "Netflix" trademark. The goal was to resolve these issues by rebranding the project and ensuring compliance with relevant legal and technical requirements.
+
+## Issues Encountered
+
+1. **Domain Inaccessibility**: The domain `netflix-clone.liuyuelin.xyz` became inaccessible, prompting an investigation.
+2. **Domain Suspension**: The domain was suspended by Namecheap due to an abuse report, indicating potential trademark violations.
+
+## Key Problems and Solutions
+
+1. **SSL/TLS Configuration Issues**:
+
+   - **Problem**: Automatic redirection from HTTP to HTTPS was occurring, even when not desired.
+   - **Solution**: Configured SSL/TLS settings in Caddy to allow HTTP access without forced HTTPS redirection.
+
+2. **Namecheap Suspension Notice**:
+
+   - **Problem**: Unauthorized use of the "Netflix" trademark led to domain suspension.
+   - **Solution**: Contacted Namecheap support and agreed to re-register the domain under a different name to comply with their Terms of Service.
+
+3. **Rebranding and Compliance**:
+   - **Problem**: The project needed to avoid any references to the "Netflix" trademark.
+   - **Solution**: Rebranded the project to "NetWatch" and updated the domain to `netwatch.liuyuelin.xyz`.
+
+## Detailed Steps Taken
+
+1. **Initial Investigation**:
+
+   - Used `dig` and `nslookup` to verify domain settings and identified issues with DNS configurations and SSL/TLS setup.
+
+2. **Handling Domain Suspension**:
+
+   - Communicated with Namecheap’s Legal & Abuse Department, explaining the educational purpose of the project. Agreed to re-register the domain with a different name to resolve the issue.
+
+3. **Rebranding Process**:
+
+   - **Renamed Project**: Changed all references in the codebase and project documentation from "Netflix Clone" to "NetWatch".
+   - **Updated Domain**: Registered the new domain `netwatch.liuyuelin.xyz`.
+   - **Codebase Changes**: Updated project metadata, configuration files, and user interface to reflect the new branding.
+
+4. **Caddy Configuration Update**:
+
+   - Updated the Caddy configuration to serve the new domain and set up the necessary reverse proxy rules.
+   - Restarted the Caddy service and the application backend to apply the changes.
+
+5. **Verification and Testing**:
+   - Verified that the new domain resolved correctly and that the application was accessible. Ensured that no forced HTTPS redirection occurred unless explicitly configured.
+
+## Conclusion
+
+The domain `netwatch.liuyuelin.xyz` is now successfully deployed, with all trademark issues resolved and compliance ensured. The rebranding process and domain update were necessary to avoid legal complications and provide a seamless user experience. This documentation serves as a reference for handling similar issues in the future, emphasizing the importance of legal compliance and thorough technical verification.
+
+---
