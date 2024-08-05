@@ -72,3 +72,124 @@ This document outlines the process of deploying a MERN stack application, specif
 ## Conclusion
 
 The deployment of the MERN Netflix-Clone application on AWS EC2 was successfully completed by setting up a secure and scalable environment. The use of Caddy for automatic HTTPS ensured secure data transmission. This deployment setup serves as a fundamental solution for production environments, ensuring security and efficiency.
+
+---
+
+## Detailed Full Steps
+
+### Setup EC2 Instance
+
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
+### Install Node.js
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+### rsync codes from your device
+
+```bash
+rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
+-e "ssh -i ~/.ssh/your-key.pem" \
+. ubuntu@ip-address:~/app
+```
+
+<Callout type="warning">
+  Name your key using `<Location>-<Username>-<Device>`,
+  
+  For example: melbourne-yuelin-m1
+</Callout>
+
+### App Setup
+
+- Created a `.env` file to manage sensitive information such as database URIs and API keys.
+- Installed dependencies using npm run build.
+  - `"build" : "npm install && npm install --prefix frontend && npm run build --prefix frontend"`
+
+### systemd
+
+`sudo vim /etc/netflix-clone.env`
+
+<Callout type="warning">This environment file is for SystemD to use</Callout>
+
+#### Restrict the file permissions for security
+
+```bash
+sudo chmod 600 /etc/netflx-clone.env
+sudo chown ubuntu:ubuntu /etc/netflix-clone.env
+```
+
+#### Create and Configure SystemD Service File
+
+`sudo vim /etc/systemd/system/netflix-clone.service`
+
+```vim
+[Unit]
+Description=Netflix Clone MERN  App
+After=network.target multi-user.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/app
+ExecStart=/usr/bin/npm start
+Restart=always
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/netflix-clone.env
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=netflix_clone_app
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Reload systemd and start the service
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable netflix-clone.service
+sudo systemctl start netflix-clone.service
+```
+
+#### Verify the service running status
+
+`sudo systemctl status netflix-clone.service`
+
+### View logs
+
+`sudo journalctl -u netflix-clone.service`
+
+tail logs:
+`sudo journalctl -fu netflix-clone.service`
+
+### Caddy
+
+#### Install
+
+```bash
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update
+sudo apt install caddy
+sudo vim /etc/caddy/Caddyfile
+:80 {
+    reverse_proxy localhost:5001
+}
+sudo systemctl restart caddy
+```
+
+#### Configure Caddy to Use HTTPS
+
+```bash
+sudo vim /etc/caddy/Caddyfile
+netwatch.liuyuelin.xyz {
+    reverse_proxy localhost:5001
+}
+sudo systemctl restart caddy
+```
