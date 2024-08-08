@@ -1,0 +1,54 @@
+---
+title: Resolving Stripe Webhook Signature Verification Error
+description: A step-by-step guide to identifying and resolving the Stripe webhook signature verification error caused by an extra newline character in the environment variable.
+date: 2024-08-08
+tags: [stripe, webhooks, next.js, vercel]
+published: true
+slug: resolving-stripe-webhook-signature-verification-error
+---
+
+## Introduction
+
+This document provides a comprehensive guide on resolving the Stripe webhook signature verification error that occurred in a Next.js project deployed on Vercel, using Caddy for reverse proxy. The error was due to an extra newline character in the `STRIPE_WEBHOOK_SECRET` environment variable. By following this guide, you can troubleshoot similar issues and ensure smooth operation of your Stripe webhooks.
+
+## Problem Description
+
+The application encountered an error with Stripe webhook integration where the signature verification was failing. The specific error message indicated:
+
+```
+Webhook Error: No signatures found matching the expected signature for payload. Are you passing the raw request body you received from Stripe? If a webhook request is being forwarded by a third-party tool, ensure that the exact request body, including JSON formatting and new line style, is preserved.
+Note: The provided signing secret contains whitespace. This often indicates an extra newline or space is in the value.
+```
+
+## Root Cause
+
+Upon investigation, it was discovered that the `STRIPE_WEBHOOK_SECRET` environment variable in Vercel had an extra newline character at the end. This extra character caused the signature verification to fail as it did not match the expected signature format.
+
+## Solution
+
+### Step 1: Identify the Extra Character
+
+1. **Check Environment Variable**: Inspect the `STRIPE_WEBHOOK_SECRET` environment variable in Vercel's dashboard.
+2. **Remove Whitespace**: Ensure that there are no extra spaces or newline characters at the end of the secret.
+
+### Step 2: Update Environment Variable in Vercel
+
+1. **Navigate to Environment Variables**:
+
+   - Go to your project in the Vercel dashboard.
+   - Click on the "Settings" tab.
+   - Scroll down to "Environment Variables".
+
+2. **Edit the Variable**:
+   - Locate the `STRIPE_WEBHOOK_SECRET` variable.
+   - Remove any extra whitespace or newline characters.
+   - Save the changes.
+
+### Step 3: Redeploy
+
+1. **Restart Services**:
+   - After updating the environment variable, redeploy your application to apply the changes.
+
+## Conclusion
+
+By ensuring the `STRIPE_WEBHOOK_SECRET` does not contain any extra whitespace or newline characters and properly handling the raw request body, the Stripe webhook signature verification error was resolved. This guide provides a detailed approach to identifying and fixing such issues, ensuring reliable and secure webhook integration.
