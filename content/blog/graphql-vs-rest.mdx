@@ -1,0 +1,81 @@
+---
+title: Difference between GraphQL and REST
+description: Difference between GraphQL and REST (Representational  State Transfer)
+date: 2024-09-24
+tags: ["webdev", "interview"]
+published: true
+---
+
+![mind map](https://cdn.jsdelivr.net/gh/liuyuelintop/PicGo@main/GraphQL%20vs%20REST.png)
+
+## 1. Data Fetching
+
+- **REST**: Uses multiple endpoints for different resources. Each resource (e.g., /users, /posts) has its own endpoint, and to get data from multiple resources, you may need to make multiple requests.
+- **GraphQL**: Uses a single endpoint for all requests. You can fetch exactly what you need in a single query, even if the data comes from multiple resources.
+
+Example:
+
+- **REST**: You may need to call /users and /posts separately to get data about users and their posts.
+- **GraphQL**: A single query can fetch both users and their posts simultaneously.
+
+## 2. Over-fetching and Under-fetching
+
+- **REST**: Often leads to over-fetching or under-fetching. Over-fetching occurs when more data than necessary is retrieved, while under-fetching happens when you don't get enough data in one request, requiring additional requests.
+- **GraphQL**: Minimizes over-fetching and under-fetching because you specify exactly the data fields you need in your query.
+
+Example:
+
+- **REST**: If you need only a user’s name but the /users endpoint returns name, email, and age, you get unwanted data.
+- **GraphQL**: You can request only the name field.
+
+## 3. Flexibility and Versioning
+
+- **REST**: Typically requires versioning (/v1/users, /v2/users) as APIs evolve, which can lead to multiple endpoints for different versions.
+- **GraphQL**: Doesn’t require versioning because the schema can evolve. New fields can be added without affecting existing queries.
+
+## 4. Performance
+
+- **REST**: Multiple round trips to the server may be needed to gather all necessary data, which can lead to slower performance.
+- **GraphQL**: Typically faster for complex data fetching, as it reduces the number of requests by aggregating all needed data in one request.
+
+**Note**: However, **GraphQL** can be less performant for simple, one-resource fetches because the server needs to parse and resolve a more complex query structure.
+
+## 5. Error Handling
+
+- **REST**: Uses HTTP status codes (e.g., 404, 500) to handle errors.
+- **GraphQL**: Always returns a 200 OK status for queries but includes error details in the response’s error object, making it more uniform but less integrated with HTTP status codes.
+
+## 6. Caching
+
+- **REST**: Has better caching at the HTTP level because each endpoint corresponds to a specific resource that can be cached using standard techniques.
+- **GraphQL**: More challenging to cache, as all requests go through a single endpoint, making it harder to leverage traditional HTTP caching mechanisms.
+
+## 7. Tooling and Ecosystem
+
+- **REST**: Is widely adopted with many mature libraries, frameworks, and built-in browser tools.
+- **GraphQL**: Has a growing ecosystem with modern tools (e.g., Apollo Client), but requires more setup and learning, especially for caching and error handling.
+
+## 8. Real-Time Data
+
+- **REST**: Not natively designed for real-time data. Requires polling or additional tools (e.g., WebSockets) for real-time capabilities.
+- **GraphQL**: Offers built-in support for real-time data through subscriptions.
+
+## Concise Summary:
+
+| Aspect              | **REST**                             | **GraphQL**                    |
+| ------------------- | ------------------------------------ | ------------------------------ |
+| Data Fetching       | Multiple endpoints                   | Single endpoint                |
+| Over/Under Fetching | Common problem                       | Rare due to selective querying |
+| Versioning          | Requires versioning                  | No versioning needed           |
+| Performance         | Slower for complex data              | Faster for complex data        |
+| Error Handling      | HTTP status codes                    | Custom error objects           |
+| Caching             | Easier with HTTP caching             | More challenging               |
+| Real-Time Data      | Needs extra tools (e.g., WebSockets) | Supports subscriptions         |
+
+## Test Questions
+
+- How does GraphQL handle over-fetching and under-fetching differently from REST?
+- Why might GraphQL be less suitable for simple data-fetching tasks compared to REST?
+- How does error handling differ between REST and GraphQL?
+- In what scenarios would REST’s versioning be a disadvantage compared to GraphQL?
+- By understanding these points, you can decide which approach—GraphQL or REST—best suits different requirements in API design and data fetching scenarios.
