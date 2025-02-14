@@ -1,0 +1,154 @@
+---
+title: "Understanding LRU Cache in JavaScript and React"
+description: "Exploring a functional approach to implement an LRU Cache using closures, reflecting modern coding practices in ES6+."
+date: "2025-05-01"
+tags: ["lru cache", "javascript", "react", "functional programming"]
+isPublished: true
+---
+
+# Introduction
+
+As web applications become increasingly complex, efficient state management and performance optimizations have become vital. One common strategy for enhancing performance is caching, with the **Least Recently Used (LRU) Cache** being a popular approach. In this article, we'll explore how to implement an LRU Cache using functional programming principles and closures in JavaScript. This approach not only aligns with modern ES6+ trends but also offers a cleaner and more maintainable alternative to traditional class-based implementations.
+
+# Background and Motivation
+
+Caching helps applications avoid redundant computations or network requests by storing recent results for quick retrieval. The LRU Cache is particularly effective because it automatically discards the least recently accessed data when the cache reaches its capacity. This ensures that:
+
+- **Memory Usage is Optimized:** Only the most relevant data is retained.
+- **Performance is Enhanced:** Frequently accessed data is quickly available.
+- **Code Remains Concise and Maintainable:** Leveraging functional programming can lead to more predictable, testable, and easily refactored code.
+
+With ES6 and beyond, functional programming has gained prominence in the JavaScript community. Functions, immutability, and closures help developers write code that is both robust and easy to understand, reducing reliance on mutable state and class hierarchies.
+
+# Functional Implementation of LRU Cache
+
+Instead of using a class, we can use a factory function that returns an object with cache operations. This design encapsulates the cache state within a closure, ensuring that it remains private and only accessible via our defined methods.
+
+Below is an implementation of an LRU Cache using a closure and functional programming principles:
+
+```js
+const createLRUCache = (limit) => {
+  // The cache is maintained as a Map, preserving insertion order.
+  let cache = new Map();
+
+  // Retrieve a value from the cache.
+  const get = (key) => {
+    if (!cache.has(key)) return -1;
+    // Move the accessed item to the end to mark it as most recently used.
+    const value = cache.get(key);
+    cache.delete(key);
+    cache.set(key, value);
+    return value;
+  };
+
+  // Insert or update a key-value pair in the cache.
+  const put = (key, value) => {
+    // If the key exists, remove it to update its position.
+    if (cache.has(key)) {
+      cache.delete(key);
+    } else if (cache.size >= limit) {
+      // Evict the least recently used item (the first key in the Map).
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    cache.set(key, value);
+  };
+
+  // Expose a function to inspect current cache entries (for debugging).
+  const entries = () => Array.from(cache.entries());
+
+  // Return the public API of the cache.
+  return { get, put, entries };
+};
+
+// Example usage:
+const cache = createLRUCache(3);
+cache.put("a", 1);
+cache.put("b", 2);
+cache.put("c", 3);
+console.log(cache.get("a")); // Output: 1, 'a' is now the most recently used.
+cache.put("d", 4); // Evicts the least recently used item ('b').
+console.log(cache.entries()); // Logs current cache state.
+```
+
+### Why Functional and Closure-Based?
+
+- **Encapsulation:** The internal `cache` variable is private and can only be modified through the exposed functions.
+- **Immutability:** Although `Map` is mutable, using functional practices encourages controlled state changes.
+- **Simplicity:** The code is modular and easier to test and reason about, aligning with modern development trends.
+
+# Integrating the Functional LRU Cache with React
+
+React's functional component paradigm fits perfectly with our functional LRU Cache. We can integrate the cache into a React component to manage state or cache API responses.
+
+Below is a sample React component demonstrating how to use the functional LRU Cache:
+
+```jsx
+import React, { useState, useEffect } from "react";
+
+// Factory function to create an LRU Cache.
+const createLRUCache = (limit) => {
+  let cache = new Map();
+
+  const get = (key) => {
+    if (!cache.has(key)) return -1;
+    const value = cache.get(key);
+    cache.delete(key);
+    cache.set(key, value);
+    return value;
+  };
+
+  const put = (key, value) => {
+    if (cache.has(key)) {
+      cache.delete(key);
+    } else if (cache.size >= limit) {
+      const firstKey = cache.keys().next().value;
+      cache.delete(firstKey);
+    }
+    cache.set(key, value);
+  };
+
+  const entries = () => Array.from(cache.entries());
+
+  return { get, put, entries };
+};
+
+function FunctionalCacheExample() {
+  // Initialize the cache only once using a functional approach.
+  const [cache] = useState(() => createLRUCache(3));
+  const [output, setOutput] = useState([]);
+
+  // Simulate cache operations when the component mounts.
+  useEffect(() => {
+    cache.put("x", "Value X");
+    cache.put("y", "Value Y");
+    cache.put("z", "Value Z");
+    cache.get("x"); // Mark 'x' as recently used.
+    cache.put("w", "Value W"); // This should evict the least recently used item.
+    setOutput(cache.entries());
+  }, [cache]);
+
+  return (
+    <div>
+      <h2>Functional LRU Cache in React</h2>
+      <pre>{JSON.stringify(output, null, 2)}</pre>
+    </div>
+  );
+}
+
+export default FunctionalCacheExample;
+```
+
+### Key Points in the React Integration
+
+- **Initialization with useState:** The cache is instantiated once, ensuring its state persists across component re-renders.
+- **Side Effects with useEffect:** Cache operations are triggered within `useEffect`, simulating real-world scenarios where data is fetched or processed.
+- **Declarative Rendering:** The component renders the cache state, illustrating the dynamic behavior of our functional LRU Cache.
+
+# Conclusion
+
+The functional approach to building an LRU Cache with closures aligns with the modern trends of JavaScript development, emphasizing simplicity, encapsulation, and maintainability. By moving away from class-based structures and leveraging ES6+ features, developers can write code that is not only clean and efficient but also easier to integrate with contemporary frameworks like React.
+
+This method allows you to harness the benefits of functional programming—such as better state management and modular design—while keeping performance optimizations at the forefront of application development. Whether caching API responses or managing state in a complex application, adopting functional practices can lead to more robust and future-proof code.
+
+Happy coding, and may your applications be both efficient and elegantly designed!
