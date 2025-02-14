@@ -37,3 +37,25 @@
 .subheading-anchor {
   @apply no-underline hover:underline;
 }
+
+.figure[data-rehype-pretty-code-figure] {
+  position: relative;
+}
+
+figure[data-rehype-pretty-code-figure] {
+  position: relative;
+}
+
+figure[data-rehype-pretty-code-figure] pre {
+  overflow: auto; /* 或者保持默认 */
+  margin: 0; /* 避免重复的 margin */
+  padding: 1rem; /* 你喜欢的内边距 */
+}
+
+.copy-button {
+  @apply absolute top-2 right-2 
+         bg-gray-700 text-white 
+         rounded px-2 py-1 text-sm 
+         opacity-0 group-hover:opacity-100 
+         transition;
+}

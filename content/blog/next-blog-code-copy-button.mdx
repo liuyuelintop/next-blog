@@ -8,27 +8,69 @@ isPublished: true
 
 # Implementing a One-Click Copy Button for MDX Code Blocks
 
-This document describes how to add a one-click copy button to code blocks in an MDX technical documentation blog.
+This document describes how to add a one-click copy button to code blocks in an MDX technical documentation blog built with Next.js.
 
 ## Background
 
 In many blogs, code blocks are typically wrapped with triple backticks and rendered as `<pre><code>` elements. To enhance user experience, we aim to place a copy button at the top-right corner of each code block, enabling users to copy the code with a single click.
 
-## Implementation Process
+## Initial Approach
 
-1. **Minimal Change Approach**  
-   Initially, we used a `useEffect` hook on the client side to scan all `<pre>` elements and dynamically inject the copy button. This required minimal changes to the existing code structure.
+Initially, we used a `useEffect` hook (or custom hook) on the client side to scan all `<pre>` elements and dynamically inject the copy button. This required minimal changes to the existing code structure.
 
-2. **Encapsulation into a Custom Hook**  
-   To maintain a clean and reusable code structure, we encapsulated the button injection logic into a custom hook (`useInjectCopyButtons`) and invoked it within the MDX rendering component. This approach kept the main codebase concise and maintainable.
+## Improved Approach: Using `<figure>` as the Positioning Container
 
-3. **Detail Optimization**
-   - Ensure the copy action executes after the DOM is mounted.
-   - Add a "Copied!" feedback message to improve user experience.
-   - Address dynamic Tailwind CSS class injection to ensure proper styling of the button.
+When using tools like `rehype-pretty-code`, code blocks are often wrapped in a `<figure data-rehype-pretty-code-figure>` element. Instead of inserting the copy button directly into `<pre>`, we can place it inside `<figure>`. This avoids potential layout issues such as scrollbars or overflow on `<pre>`.
+
+1. **Target `<figure>` Instead of `<pre>`**  
+   Search for:
+
+   ```tsx
+   const figures = rootElement.querySelectorAll(
+     "figure[data-rehype-pretty-code-figure]"
+   );
+   ```
+
+   and append the button to the `<figure>` element rather than the `<pre>` element.
+
+2. **Set `<figure>` to `position: relative;`**  
+   In your global CSS (e.g., `globals.css`), add:
+
+   ```css
+   figure[data-rehype-pretty-code-figure] {
+     position: relative;
+   }
+   ```
+
+   This ensures that the button, with absolute positioning, will be positioned relative to the `<figure>`.
+
+3. **Define a `.copy-button` Class with Tailwind's `@apply`**  
+   To avoid issues with Tailwind Purge, define the button styles in your global CSS:
+   ```css
+   .copy-button {
+     @apply absolute top-2 right-2 bg-gray-700 text-white rounded px-2 py-1 text-sm opacity-0 group-hover:opacity-100 transition;
+   }
+   ```
+   Then, in your JavaScript/TypeScript code, simply add the class to the button:
+   ```ts
+   button.classList.add("copy-button");
+   ```
+
+## Handling Style Conflicts
+
+If other plugins or global styles interfere with the button’s positioning:
+
+- Use browser DevTools to ensure that the `<figure>` element has `position: relative;` and that the button receives the correct computed styles (e.g., `position: absolute; top: 0.5rem; right: 0.5rem;`).
+- Adjust the styles on the `<pre>` element if necessary. For example:
+  ```css
+  figure[data-rehype-pretty-code-figure] pre {
+    overflow: auto;
+    margin: 0;
+    padding: 1rem;
+  }
+  ```
+- Verify that the Tailwind classes are not purged by using the defined `.copy-button` class with `@apply`.
 
 ## Conclusion
 
-With this implementation, we successfully added a one-click copy feature to the code blocks in our MDX documents while maintaining modular and clean components. This approach aligns with modern best practices in React and Next.js, laying a solid foundation for future enhancements.
-
----
+By injecting the copy button into the `<figure>` element and ensuring it has a proper positioning context and dedicated styling, we can achieve a clean, one-click copy solution for MDX code blocks. This approach aligns with modern React and Next.js best practices, providing a solid foundation for future enhancements.
