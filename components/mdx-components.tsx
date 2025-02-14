@@ -1,7 +1,10 @@
-import Image from "next/image";
+"use client";
+
+import React, { useRef } from "react";
 import * as runtime from "react/jsx-runtime";
+import { useInjectCopyButtons } from "@/hooks/useInjectCopyButtons"; // 根据你的目录结构
+import Image from "next/image";
 import { Callout } from "./callout";
-import { cn } from "@/lib/utils";
 import CollapsibleCodeBlock from "./collapsible-codeblock";
 
 const useMDXComponent = (code: string) => {
@@ -21,5 +24,14 @@ interface MdxProps {
 
 export function MDXContent({ code }: MdxProps) {
   const Component = useMDXComponent(code);
-  return <Component components={components} />;
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // 这里传入 ref 对象，让 Hook 内部检测到挂载后的元素
+  useInjectCopyButtons(contentRef);
+
+  return (
+    <div ref={contentRef}>
+      <Component components={components} />
+    </div>
+  );
 }

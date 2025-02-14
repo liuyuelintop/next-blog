@@ -1,0 +1,34 @@
+---
+title: "Implementing a One-Click Copy Button for MDX Code Blocks in Next.js"
+description: "A detailed guide on adding a copy button to MDX code blocks in your technical blog using React and modern best practices."
+date: "2025-02-14"
+tags: ["mdx", "react", "code-copy", "frontend", "clipboard", "user-experience"]
+isPublished: true
+---
+
+# Implementing a One-Click Copy Button for MDX Code Blocks
+
+This document describes how to add a one-click copy button to code blocks in an MDX technical documentation blog.
+
+## Background
+
+In many blogs, code blocks are typically wrapped with triple backticks and rendered as `<pre><code>` elements. To enhance user experience, we aim to place a copy button at the top-right corner of each code block, enabling users to copy the code with a single click.
+
+## Implementation Process
+
+1. **Minimal Change Approach**  
+   Initially, we used a `useEffect` hook on the client side to scan all `<pre>` elements and dynamically inject the copy button. This required minimal changes to the existing code structure.
+
+2. **Encapsulation into a Custom Hook**  
+   To maintain a clean and reusable code structure, we encapsulated the button injection logic into a custom hook (`useInjectCopyButtons`) and invoked it within the MDX rendering component. This approach kept the main codebase concise and maintainable.
+
+3. **Detail Optimization**
+   - Ensure the copy action executes after the DOM is mounted.
+   - Add a "Copied!" feedback message to improve user experience.
+   - Address dynamic Tailwind CSS class injection to ensure proper styling of the button.
+
+## Conclusion
+
+With this implementation, we successfully added a one-click copy feature to the code blocks in our MDX documents while maintaining modular and clean components. This approach aligns with modern best practices in React and Next.js, laying a solid foundation for future enhancements.
+
+---
