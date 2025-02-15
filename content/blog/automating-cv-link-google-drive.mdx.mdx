@@ -1,0 +1,184 @@
+---
+title: "Optimizing Google Drive CV Link for Portfolio"
+date: "2025-02-15"
+tags: [google drive, api, react, portfolio, performance, security]
+description: "How I optimized the Google Drive CV link in my portfolio to improve loading speed, security, and user experience."
+---
+
+# Optimizing Google Drive CV Link for Portfolio 🚀
+
+When I initially integrated my resume (CV) into my portfolio, I faced several frustrating issues:
+
+## **🛑 The Problems I Faced**
+
+1. **Manual URL Updates**: Every time I updated my CV, Google Drive assigned a new file ID, requiring manual updates to my portfolio and redeployment.
+2. **Slow API Response**: Every time someone clicked the CV button, it triggered a Google Drive API call, taking 3-4 seconds to fetch the latest file.
+3. **Forced Download**: Using `export=download` in the URL made the file download automatically, rather than opening in a viewable format.
+4. **Security Risk**: My **Google API key was exposed in the code**, creating a major security vulnerability.
+
+## **🔍 Solutions Explored**
+
+### **❌ Initial Approach (export=download)**
+
+I initially used the following Google Drive link:
+
+```js
+return `https://drive.google.com/uc?export=download&id=${latestFileId}`;
+```
+
+🔴 **Issue**: This forced a download, which was disruptive for users who just wanted to view my CV.
+
+### **✅ Solution 1: Use `preview` Mode (Faster but Full-Screen Display Issue)**
+
+Instead of downloading, I switched to `preview` mode:
+
+```js
+return `https://drive.google.com/file/d/${latestFileId}/preview`;
+```
+
+✅ **Fixed slow API response** (faster loading)  
+❌ **Problem**: Opened the PDF in full-screen mode, which didn’t look great.
+
+### **🎯 Final Solution: Use `view` Mode**
+
+The best solution was using `view` mode:
+
+```js
+return `https://drive.google.com/file/d/${latestFileId}/view`;
+```
+
+✅ **Fast loading** 🚀  
+✅ **Does not force download** 📄  
+✅ **Displays the CV in a clean Google Drive preview UI**  
+✅ **Automatically fetches the latest file without needing to redeploy the portfolio**
+
+---
+
+## **🔐 Security Fix: Preventing API Key Exposure**
+
+During this optimization, I **accidentally leaked my API key** in the source code. Here's how I **fixed it** and ensured it won’t happen again:
+
+### **1️⃣ Storing API Keys Securely in `.env`**
+
+Instead of hardcoding the API key, I stored it in an **environment variable**:
+
+```env
+VITE_GOOGLE_API_KEY=your-new-api-key
+VITE_GOOGLE_FOLDER_ID=your-folder-id
+```
+
+And **updated my code** to use `import.meta.env`:
+
+```javascript
+const folderId = import.meta.env.VITE_GOOGLE_FOLDER_ID;
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+```
+
+### **2️⃣ Ensuring `.env` is Ignored by Git**
+
+I added `.env` to `.gitignore` to **prevent accidental commits**:
+
+```bash
+echo ".env" >> .gitignore
+git add .gitignore
+git commit -m "Ignore .env to prevent API key leaks"
+git push origin main
+```
+
+### **3️⃣ Setting Environment Variables in Deployment Platform**
+
+If you're using **Vercel / Netlify**, you must **manually add environment variables**:
+
+#### **For Vercel**
+
+1. Navigate to **Project → Settings → Environment Variables**.
+2. Add:
+   ```
+   VITE_GOOGLE_API_KEY = your-new-api-key
+   VITE_GOOGLE_FOLDER_ID = your-folder-id
+   ```
+3. Redeploy your project.
+
+#### **For Netlify**
+
+1. Go to **Site Settings → Build & Deploy → Environment Variables**.
+2. Add the same environment variables.
+
+---
+
+## **🚀 Implementing the Final Solution in React (Vite Project)**
+
+### **1️⃣ Updating `getLatestCV()` in `utils/api.js`**
+
+```javascript
+export async function getLatestCV() {
+  const folderId = import.meta.env.VITE_GOOGLE_FOLDER_ID;
+  const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+  const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&orderBy=modifiedTime+desc&key=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+    const data = await response.json();
+    if (!data.files || data.files.length === 0) {
+      console.error("No CV file found in the Google Drive folder.");
+      return "#";
+    }
+
+    return `https://drive.google.com/file/d/${data.files[0].id}/view`;
+  } catch (error) {
+    console.error("Error fetching latest CV:", error);
+    return "#";
+  }
+}
+```
+
+### **2️⃣ Preloading the CV URL in Navbar**
+
+```jsx
+import React, { useEffect, useState } from "react";
+import { getLatestCV } from "../utils/api";
+import { HiOutlineDocumentDownload } from "react-icons/hi";
+
+export default function Navbar() {
+  const [cvUrl, setCvUrl] = useState("#");
+
+  useEffect(() => {
+    getLatestCV().then((url) => setCvUrl(url));
+  }, []); // Preloads CV link on page load
+
+  return (
+    <nav className="flex items-center justify-between py-6">
+      <div className="flex items-center">
+        <a
+          href={cvUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center"
+        >
+          <HiOutlineDocumentDownload /> CV
+        </a>
+      </div>
+    </nav>
+  );
+}
+```
+
+---
+
+## **💡 Key Takeaways**
+
+- **Avoid `export=download`** → Forces download, which is not ideal.
+- **Use `view` instead of `preview`** → Improves layout and keeps the PDF readable.
+- **Preload the CV link on page load** → Faster user experience.
+- **Secure API keys using `.env` and ignore them in Git** → Prevent security risks.
+- **Set environment variables in deployment platforms** → Ensures proper API key management.
+
+---
+
+## **✨ Final Thoughts**
+
+This simple optimization **improved performance, security, and usability**. Now, my portfolio’s **CV button loads much faster**, and I never have to manually update my CV link again. If you're using Google Drive for hosting documents, this approach can help **enhance speed, usability, and maintainability**. 🚀
+
+---
