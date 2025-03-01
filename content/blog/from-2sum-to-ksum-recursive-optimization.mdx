@@ -1,0 +1,239 @@
+---
+title: "From 2Sum to KSum: A Journey Through Algorithmic Problem Solving"
+description: "Explore the evolution of sum problems from 2Sum to generalized KSum through real-world analogies, code evolution, and optimization techniques."
+date: "2025-03-01"
+tags:
+  ["algorithm", "2Sum", "3Sum", "4Sum", "KSum", "JavaScript", "problem-solving"]
+isPublished: true
+---
+
+## Introduction: Shopping Cart Combinations
+
+Imagine you're in a grocery store trying to hit a discount threshold by selecting the right combination of items. Some combinations perfectly match the discount requirement, while others exceed or fall short. This scenario is an excellent analogy for sum problems in algorithmic problem solving, where we search for numbers that add up to a specific target.
+
+In this blog post, we'll explore how sum problems evolve from **2Sum** to **KSum**, demonstrating how solutions progress from **hash maps** and **two pointers** to **recursive backtracking with pruning**. Each step includes problem statements, solution narratives, JavaScript code snippets, complexity analysis, and common pitfalls.
+
+---
+
+## 2Sum: Hash Map vs. Two Pointers
+
+### Problem Statement
+
+Given an array of integers and a target sum, find the indices of the two numbers that add up to the target.
+
+**Example:**  
+For `nums = [2, 7, 11, 15]` and `target = 9`, the solution is `[0, 1]` because `2 + 7 = 9`.
+
+### Solution Evolution
+
+The most efficient approach is using a **hash map**, which allows a single pass through the array.
+
+#### JavaScript Code Snippet (Hash Map Approach)
+
+```javascript
+// 2Sum Hash Map Example
+function twoSum(nums, target) {
+  const map = new Map();
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (map.has(complement)) {
+      return [map.get(complement), i];
+    }
+    map.set(nums[i], i);
+  }
+  return [];
+}
+```
+
+**Complexity Analysis:**
+
+- **Time:** O(n)
+- **Space:** O(n)
+
+#### Common Pitfalls
+
+- ❌ _Iterating with nested loops instead of a hash map_
+- ✅ _Using a hash map allows O(1) lookups for quick complement checks_
+
+---
+
+## 3Sum: Sorting + Two Pointers Breakthrough
+
+### Problem Statement
+
+Find all unique triplets in an array that sum up to zero.
+
+**Example:**  
+For `nums = [-1, 0, 1, 2, -1, -4]`, the solution is `[[-1, -1, 2], [-1, 0, 1]]`.
+
+### Solution Evolution
+
+After sorting the array, the **two-pointer** technique is applied to efficiently check possible sums while avoiding duplicates.
+
+#### JavaScript Code Snippet (Sorting + Two Pointers)
+
+```javascript
+// 3Sum Example: Sorting + Two Pointers
+function threeSum(nums) {
+  nums.sort((a, b) => a - b);
+  const result = [];
+  for (let i = 0; i < nums.length - 2; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue; // Skip duplicates
+    let left = i + 1,
+      right = nums.length - 1;
+    while (left < right) {
+      const sum = nums[i] + nums[left] + nums[right];
+      if (sum === 0) {
+        result.push([nums[i], nums[left], nums[right]]);
+        left++;
+        right--;
+        while (left < right && nums[left] === nums[left - 1]) left++;
+        while (left < right && nums[right] === nums[right + 1]) right--;
+      } else if (sum < 0) {
+        left++;
+      } else {
+        right--;
+      }
+    }
+  }
+  return result;
+}
+```
+
+**Complexity Analysis:**
+
+- **Time:** O(n²)
+- **Space:** O(1)
+
+#### Common Pitfalls
+
+- ❌ _Forgetting to skip duplicate elements, causing redundant results_
+- ✅ _Always check and skip duplicate values after moving pointers_
+
+---
+
+## 4Sum: Extending 3Sum with Recursion
+
+### Problem Statement
+
+Find all unique quadruplets in an array that sum up to a target value.
+
+**Example:**  
+For `nums = [1, 0, -1, 0, -2, 2]` and `target = 0`, the valid quadruplets are `[[-2, -1, 1, 2], [-2, 0, 0, 2], [-1, 0, 0, 1]]`.
+
+### Solution Evolution
+
+By extending the **two-pointer** approach from 3Sum, we can use **recursion** to reduce 4Sum into a series of 3Sum problems.
+
+#### JavaScript Code Snippet (Basic KSum using Only Duplicate Skipping)
+
+```javascript
+const kSum = (nums, target, k) => {
+  nums.sort((a, b) => a - b);
+  const res = [];
+
+  const dfs = (start, path, currentTarget, k) => {
+    if (k === 2) {
+      // Two-pointer approach for 2Sum
+      let left = start,
+        right = nums.length - 1;
+      while (left < right) {
+        const sum = nums[left] + nums[right];
+        if (sum === currentTarget) {
+          res.push([...path, nums[left], nums[right]]);
+          while (left < right && nums[left] === nums[left + 1]) left++;
+          while (left < right && nums[right] === nums[right - 1]) right--;
+          left++;
+          right--;
+        } else if (sum < currentTarget) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      return;
+    }
+
+    for (let i = start; i < nums.length - k + 1; i++) {
+      if (i > start && nums[i] === nums[i - 1]) continue; // Skip duplicates
+      dfs(i + 1, [...path, nums[i]], currentTarget - nums[i], k - 1);
+    }
+  };
+
+  dfs(0, [], target, k);
+  return res;
+};
+```
+
+---
+
+## Generalized KSum: Optimized with Pruning
+
+For more advanced cases, applying **pruning** helps eliminate unnecessary recursive calls early.
+
+#### JavaScript Code Snippet (Optimized KSum with Pruning)
+
+```javascript
+const kSum = (nums, target, k) => {
+  nums.sort((a, b) => a - b);
+  const res = [];
+
+  const dfs = (start, path, currentTarget, k) => {
+    // Pruning 1: Insufficient elements remaining
+    if (nums.length - start < k) return;
+
+    // Pruning 2: Average value filtering
+    const avg = currentTarget / k;
+    if (nums[start] > avg || nums[nums.length - 1] < avg) return;
+
+    if (k === 2) {
+      // Two-pointer approach for 2Sum
+      let left = start,
+        right = nums.length - 1;
+      while (left < right) {
+        const sum = nums[left] + nums[right];
+        if (sum === currentTarget) {
+          res.push([...path, nums[left], nums[right]]);
+          while (left < right && nums[left] === nums[left + 1]) left++;
+          while (left < right && nums[right] === nums[right - 1]) right--;
+          left++;
+          right--;
+        } else if (sum < currentTarget) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      return;
+    }
+
+    // Recursive case for k > 2
+    for (let i = start; i < nums.length - k + 1; i++) {
+      // Pruning 3: Skip duplicates
+      if (i > start && nums[i] === nums[i - 1]) continue;
+      // Pruning 4: Early exit if smallest possible sum exceeds target
+      if (nums[i] * k > currentTarget) break;
+      // Pruning 5: Early continue if largest possible sum is too small
+      if (nums[i] + nums[nums.length - 1] * (k - 1) < currentTarget) continue;
+      dfs(i + 1, [...path, nums[i]], currentTarget - nums[i], k - 1);
+    }
+  };
+
+  dfs(0, [], target, k);
+  return res;
+};
+```
+
+---
+
+## **Conclusion**
+
+We explored **2Sum** to **KSum**, demonstrating:
+
+- **Hash maps and two-pointers**
+- **Recursive DFS for KSum**
+- **When pruning optimizations are useful**
+
+For **entry-level interviews**, mastering **duplicate skipping** in KSum is enough. For **more advanced roles**, adding **pruning techniques** can optimize performance.
+
+---
