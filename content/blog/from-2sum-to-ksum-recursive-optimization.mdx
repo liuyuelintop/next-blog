@@ -224,6 +224,106 @@ const kSum = (nums, target, k) => {
 };
 ```
 
+## **Performance Testing Insights: When Does Pruning Actually Help?**
+
+To validate the effectiveness of pruning in our generalized `KSum` solution, we designed a performance comparison experiment. The results surprised us initially but ultimately revealed critical insights into optimization tradeoffs.
+
+---
+
+### **Unexpected Initial Results**
+
+We tested two versions of the `KSum` function:
+
+- **Pruned Version**: With all 5 pruning conditions.
+- **Non-Pruned Version**: Only duplicate skipping, no early termination.
+
+**Initial Test Results (100-element random array):**
+
+```
+With Pruning: 8.203ms
+Without Pruning: 3.637ms
+```
+
+The pruned version was consistently _slower_—a paradox contradicting algorithmic theory.
+
+---
+
+### **Root Cause Investigation**
+
+#### **1. Overhead of Pruning Conditions**
+
+Small datasets magnify the cost of condition checks:
+
+```javascript
+// Pruning 2: Average value filtering (costly for small N)
+const avg = currentTarget / k;
+if (nums[start] > avg || nums[len - 1] < avg) return;
+```
+
+#### **2. Data Distribution Matters**
+
+Randomly generated data (`Math.random()*100-50`) created sparse solution spaces where pruning conditions rarely triggered.
+
+---
+
+### **The Fixes That Revealed Truth**
+
+#### **1. Scale Up Input Size**
+
+```javascript
+const largeNums = generateArray(200); // 200+ elements
+```
+
+With 200 elements, pruning became 40% faster by avoiding deep recursion branches.
+
+#### **2. Use Targeted Data**
+
+Dense data with intentional duplicates:
+
+```javascript
+// High collision potential
+Array.from({ length: 200 }, () => Math.floor(Math.random() * 10));
+```
+
+Pruned version now outperformed by 60% due to frequent early exits.
+
+```
+With Pruning: 127ms
+Without Pruning: 298ms
+```
+
+---
+
+### **Key Takeaways**
+
+1. **Pruning is Context-Dependent**:
+
+   ```text
+   Effective When:
+   - N ≥ 200 elements
+   - Data has clusters/duplicates
+   Useless When:
+   - N < 50 (overhead dominates)
+   - Data is uniformly random
+   ```
+
+2. **Test with Production-like Data**:
+
+   ```javascript
+   // Bad test data (unrealistic distribution):
+   Array(100)
+     .fill(0)
+     .map(() => Math.random() * 1000 - 500);
+
+   // Good test data (matching real use cases):
+   Array(200)
+     .fill(0)
+     .map(() => Math.floor(Math.random() * 20 - 10));
+   ```
+
+3. **Beware of Hidden Variables**:  
+   Even minor code differences (like loop ranges) can invalidate benchmarks.
+
 ---
 
 ## **Conclusion**
@@ -233,7 +333,8 @@ We explored **2Sum** to **KSum**, demonstrating:
 - **Hash maps and two-pointers**
 - **Recursive DFS for KSum**
 - **When pruning optimizations are useful**
+- **The art of performance testing**
 
-For **entry-level interviews**, mastering **duplicate skipping** in KSum is enough. For **more advanced roles**, adding **pruning techniques** can optimize performance.
+For **entry-level interviews**, mastering **duplicate skipping** in KSum is enough. For **more advanced roles**, understanding **pruning tradeoffs** and **performance testing methodology** becomes critical.
 
 ---
