@@ -1,0 +1,129 @@
+---
+title: Understanding Docker Port Mapping for a Next.js Application
+description: Learn how ports work in a Dockerised Next.js setup with package.json, Dockerfile, and docker-compose.
+date: 2025-04-05
+tags: ["docker", "nextjs", "devops"]
+published: true
+---
+
+## 🔍 Overview
+
+This guide explains how port configurations work in a Dockerised Next.js project. You'll understand the relationship between:
+
+- The port defined in `package.json`
+- The internal port exposed via the `Dockerfile`
+- The host-to-container mapping in `docker-compose`
+
+Getting these right ensures smooth development and debugging experiences.
+
+---
+
+## ✅ Key Components and Their Roles
+
+| Component        | Example                         | Role                                           | Must Match?           |
+| ---------------- | ------------------------------- | ---------------------------------------------- | --------------------- |
+| `package.json`   | `"start": "next start -p 3001"` | Defines internal port Next.js listens to       | ✅ Yes                |
+| `Dockerfile`     | `EXPOSE 3001`                   | Declares internal port for documentation/tools | ⚠️ Recommended only   |
+| `docker-compose` | `ports: ["4001:3001"]`          | Maps host (4001) → container (3001)            | ❌ No — host flexible |
+
+---
+
+## 🧠 How It Works (Step-by-Step)
+
+1. **Next.js starts inside the container**
+
+```json
+"start": "next start -p 3001"
+```
+
+This defines the internal port your app binds to.
+
+2. Dockerfile declares EXPOSE 3001
+   `EXPOSE 3001`
+   This is only for documentation/tooling purposes. It does not affect the app’s behaviour.
+3. docker-compose maps host to container
+
+```yaml
+ports:
+  - "4001:3001"
+```
+
+Requests to `http://localhost:4001` on the host are forwarded to port 3001 inside the container.
+
+## Example Scenario
+
+package.json
+
+```json
+"start": "next start -p 3001"
+```
+
+Dockerfile
+
+```dockerfile
+EXPOSE 3001
+```
+
+ocker-compose.dev.yaml
+
+```yaml
+ports:
+  - "4001:3001"
+```
+
+### Behaviour
+
+| Access Point     | What It Does                   |
+| ---------------- | ------------------------------ |
+| `localhost:4001` | Entry point on host            |
+| `container:3001` | Where app is actually running  |
+| → Result         | Docker forwards → App responds |
+
+---
+
+## 📌 Note on `NEXT_PUBLIC_PORT`
+
+- `NEXT_PUBLIC_PORT` is **for frontend/browser use only**.
+- It does **not** affect backend/server port binding.
+- Always use `-p` flag in `next start` to control server port.
+
+---
+
+## 🧪 Common Pitfall
+
+| Configuration                               | Result                      |
+| ------------------------------------------- | --------------------------- |
+| `next start -p 3002` + `ports: "4001:3001"` | ❌ Mismatch — Browser fails |
+| `next start -p 3002` + `ports: "4001:3002"` | ✅ Works                    |
+
+---
+
+## ✅ Recommended Best Practices
+
+- Use a consistent internal port across the stack:
+
+```json
+"start": "next start -p 3001"
+```
+
+```Dockerfile
+EXPOSE 3001
+```
+
+```yaml
+ports:
+  - "${HOST_PORT:-4001}:3001"
+```
+
+- Inject `NEXT_PUBLIC_PORT=${HOST_PORT}` into `.env` to let your frontend build dynamic URLs correctly.
+
+---
+
+## 🧾 Conclusion
+
+- `next start -p xxx`: Defines app's internal port
+- `EXPOSE xxx`: Optional for documentation/tooling
+- `docker-compose ports`: Maps host ↔ container
+- `NEXT_PUBLIC_PORT`: Only for frontend use
+
+With this knowledge, you'll avoid misconfigurations and ensure consistent behaviour across environments.

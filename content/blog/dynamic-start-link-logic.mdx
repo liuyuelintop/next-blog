@@ -1,0 +1,104 @@
+---
+title: Dynamic App Link Printing for Dockerised Environments
+description: Improve developer experience by printing the correct local app URL dynamically at startup.
+date: 2025-04-05
+tags: ["docker", "devex", "nodejs", "automation"]
+published: true
+---
+
+## 🔗 Purpose
+
+In containerised development environments, it's easy to lose track of what port an app is running on — especially when host-to-container port mappings differ.
+
+To solve this, we introduce a simple pattern that **dynamically prints the correct app link (e.g. `http://localhost:4001`) when the server starts**, based on the current environment variable (e.g. `HOST_PORT`).
+
+This reduces guesswork and ensures developers always know exactly where to access the application — whether it's running locally or inside Docker.
+
+---
+
+## ⚙️ High-Level Approach
+
+1. **Keep the app startup script clean and reusable**
+
+   Define your actual server start command in a dedicated script (e.g. `start-server.sh`):
+
+   ```bash
+   next start -p 3001
+   ```
+
+   This script contains no logging or environment logic and can be reused in CI, production, or other automation.
+
+2. **Add a dynamic wrapper**
+
+   Create a wrapper script (e.g. `start.ts` or `start.js`) that:
+
+   - Spawns the actual start script
+   - Waits for the server "ready" signal
+   - Detects the port from the environment (e.g. `HOST_PORT`)
+   - Prints the resolved URL like:
+
+   ```
+   App ready — visit: http://localhost:4001
+   ```
+
+---
+
+## ✅ Why This Matters
+
+- 🧭 **Instant feedback**: Clear startup logs help devs find the running app without searching Docker configs or port mappings.
+- 💻 **Portable setup**: Works the same in Docker, local dev, or cloud shell environments.
+- 🔄 **DRY principle**: Keeps logic clean and reusable across environments.
+- 🧪 **CI/CD friendly**: Start logic remains testable and scriptable.
+
+---
+
+## 🧪 Example Output
+
+**In Docker:**
+
+```
+> App starting...
+> App ready — visit: http://localhost:4001
+```
+
+**Locally:**
+
+```
+> App ready — visit: http://localhost:3001
+```
+
+---
+
+## 🗂️ Suggested File Structure
+
+```
+scripts/
+├── start-server.sh      # Minimal entry point (no logs, no logic)
+└── start.js or start.ts # Dynamic wrapper (prints resolved URL)
+.env                     # Defines HOST_PORT or fallback
+package.json
+```
+
+---
+
+## ✨ Tip
+
+Inject `HOST_PORT` into your environment via Docker or shell:
+
+```bash
+HOST_PORT=4001 node scripts/start.js
+```
+
+This makes it easy to reuse across local and containerised setups.
+
+---
+
+## 🧾 Summary
+
+This simple pattern helps teams:
+
+- Remove confusion around Docker port mapping
+- Improve developer onboarding and DX
+- Maintain clean separation of concerns between start logic and messaging
+
+Feel free to adapt it to your own stack — whether you're using Node.js, Python, or any web server.
