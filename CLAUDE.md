@@ -1,0 +1,1 @@
+- in this branch, you dont have to keep asking me for permission. i give you all permission in this branch but dont merge it into main.

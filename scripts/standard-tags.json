@@ -1,0 +1,41 @@
+{
+  "languages": [
+    { "name": "JavaScript", "slug": "javascript", "category": "language", "count": 23 },
+    { "name": "TypeScript", "slug": "typescript", "category": "language", "count": 5 }
+  ],
+  "frameworks": [
+    { "name": "React", "slug": "react", "category": "framework", "count": 18 },
+    { "name": "Next.js", "slug": "nextjs", "category": "framework", "count": 2 },
+    { "name": "Node.js", "slug": "nodejs", "category": "framework", "count": 3 },
+    { "name": "Express", "slug": "express", "category": "framework", "count": 1 },
+    { "name": "MERN", "slug": "mern", "category": "framework", "count": 3 }
+  ],
+  "tools": [
+    { "name": "AWS", "slug": "aws", "category": "tool", "count": 3 },
+    { "name": "Docker", "slug": "docker", "category": "tool", "count": 2 },
+    { "name": "Git", "slug": "git", "category": "tool", "count": 1 },
+    { "name": "VSCode", "slug": "vscode", "category": "tool", "count": 1 },
+    { "name": "Stripe", "slug": "stripe", "category": "tool", "count": 1 },
+    { "name": "Vercel", "slug": "vercel", "category": "tool", "count": 1 },
+    { "name": "AI/ML", "slug": "ai-ml", "category": "tool", "count": 2 }
+  ],
+  "concepts": [
+    { "name": "API", "slug": "api", "category": "concept", "count": 6 },
+    { "name": "Testing", "slug": "testing", "category": "concept", "count": 3 },
+    { "name": "Performance", "slug": "performance", "category": "concept", "count": 3 },
+    { "name": "Security", "slug": "security", "category": "concept", "count": 2 },
+    { "name": "Algorithms", "slug": "algorithms", "category": "concept", "count": 2 },
+    { "name": "State Management", "slug": "state-management", "category": "concept", "count": 3 },
+    { "name": "File Handling", "slug": "file-handling", "category": "concept", "count": 3 },
+    { "name": "Animation", "slug": "animation", "category": "concept", "count": 2 },
+    { "name": "Data Types", "slug": "data-types", "category": "concept", "count": 4 },
+    { "name": "UI/UX", "slug": "ui-ux", "category": "concept", "count": 3 }
+  ],
+  "industry": [
+    { "name": "Interview", "slug": "interview", "category": "industry", "count": 4 },
+    { "name": "Tutorial", "slug": "tutorial", "category": "industry", "count": 2 },
+    { "name": "Best Practices", "slug": "best-practices", "category": "industry", "count": 7 },
+    { "name": "Career", "slug": "career", "category": "industry", "count": 3 },
+    { "name": "Blogging", "slug": "blogging", "category": "industry", "count": 5 }
+  ]
+}
