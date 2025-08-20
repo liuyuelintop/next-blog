@@ -1,14 +1,14 @@
 export const siteConfig = {
   name: "YuelinBlog",
-  url: "https://next-blog-alpha-sable-40.vercel.app/",
-  description: "Nextjs 14 blog using velite, tailwind and shadcn",
+  url: "https://blog.liuyuelin.dev/",
+  description: "A blog about web development, programming, and technology.",
   author: "Yuelin Liu",
   email: "https://liuyuelintop@gmail.com",
   links: {
-    instagram: "https://www.instagram.com",
+    instagram: "https://www.instagram.com/yuelin_liu_98/",
     github: "https://github.com/liuyuelintop",
-    linkedin: "https://www.linkedin.com/in/yuelin-liu-867ab6259/",
-    portfolio: "https://react-portfolio-tau-eight-56.vercel.app/",
+    linkedin: "https://www.linkedin.com/in/liuyuelintop/",
+    portfolio: "https://liuyuelin.dev/",
   },
 };
 

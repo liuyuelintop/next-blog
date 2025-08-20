@@ -20,31 +20,53 @@ export function PostItem({
   tags,
 }: PostItemProps) {
   return (
-    <article className="flex flex-col gap-2 border-border border-b py-3">
-      <div>
-        <h2 className="text-2xl font-bold">
-          <Link href={"/" + slug}>{title}</Link>
-        </h2>
+    <article className="flex flex-col gap-4 group">
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <time dateTime={date}>{formatDate(date)}</time>
+        </div>
+        
+        <div>
+          <h2 className="text-xl font-bold group-hover:text-primary transition-colors">
+            <Link href={"/" + slug} className="hover:underline">
+              {title}
+            </Link>
+          </h2>
+        </div>
+        
+        {description && (
+          <p className="text-muted-foreground leading-relaxed line-clamp-2">
+            {description}
+          </p>
+        )}
+        
+        {tags && tags.length > 0 && (
+          <div className="flex gap-2 flex-wrap">
+            {tags.slice(0, 4).map((tag) => (
+              <Tag tag={tag} key={tag} />
+            ))}
+            {tags.length > 4 && (
+              <span className="text-sm text-muted-foreground px-2 py-1">
+                +{tags.length - 4} more
+              </span>
+            )}
+          </div>
+        )}
       </div>
-      <div className="flex gap-2 flex-wrap">
-        {tags?.map((tag) => (
-          <Tag tag={tag} key={tag} />
-        ))}
-      </div>
-      <div className="max-w-none text-muted-foreground">{description}</div>
-      <div className="flex justify-between items-center">
-        <dl>
-          <dt className="sr-only">Published On</dt>
-          <dd className="text-sm sm:text-base font-medium flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <time dateTime={date}>{formatDate(date)}</time>
-          </dd>
-        </dl>
+      
+      <div className="flex justify-between items-center pt-2 border-t border-border/50">
+        <div className="text-sm text-muted-foreground">
+          {Math.ceil((description?.length || 0) / 200)} min read
+        </div>
         <Link
           href={slug}
-          className={cn(buttonVariants({ variant: "link" }), "py-0")}
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }), 
+            "group-hover:bg-primary/10 transition-colors"
+          )}
         >
-          Read more →
+          Read article →
         </Link>
       </div>
     </article>
