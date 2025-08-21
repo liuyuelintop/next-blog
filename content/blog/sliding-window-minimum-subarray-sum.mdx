@@ -1,0 +1,122 @@
+---
+title: "Mastering Sliding Window: Solving Minimum Size Subarray Sum with Two Pointers"
+description: "Learn the sliding window technique through the classic Minimum Size Subarray Sum problem. Understand how two pointers can optimize O(n²) brute force to O(n) efficiency."
+date: 2025-08-21
+tags: ["Algorithms", "Two Pointers", "JavaScript", "Interview"]
+published: true
+---
+
+The **Minimum Size Subarray Sum** problem is one of the classic "sliding window" questions in algorithm design. It asks us to find the smallest subarray whose sum is greater than or equal to a given target.
+
+This problem is deceptively simple, but solving it efficiently requires a clever use of the **two-pointer sliding window** technique.
+
+## Problem Statement
+
+Given an array of positive integers `nums` and a target integer `target`, return the minimal length of a subarray whose sum is greater than or equal to `target`. If no such subarray exists, return `0`.
+
+**Example:**
+
+```js
+Input: (target = 7), (nums = [2, 3, 1, 2, 4, 3]);
+Output: 2; // [4,3] has the minimal length
+```
+
+## Naïve Approach: Brute Force
+
+The straightforward approach would be to:
+- Check all subarrays
+- Compute their sums  
+- Track the shortest valid one
+
+But this costs **O(n²)** time complexity, which is too slow for large inputs.
+
+## Optimized Approach: Sliding Window
+
+The key insight that makes sliding window possible:
+
+- The array contains **only positive integers**
+- This means if you add more numbers, the sum increases. If you remove numbers, the sum decreases
+- That makes it possible to use a moving "window" instead of recalculating from scratch
+
+### Algorithm Explanation
+
+We maintain two pointers:
+
+- **right** → expands the window by including new numbers
+- **left** → shrinks the window from the left once the sum reaches or exceeds `target`
+
+**Steps:**
+
+1. Start with an empty window (`left = 0, right = 0, sum = 0`)
+2. Expand `right` until `sum >= target`
+3. Then shrink from the left (`left++`) as much as possible while keeping `sum >= target`
+   - Update `minLen` at each shrink
+4. Continue until `right` reaches the end
+
+### Code Implementation
+
+```js
+var minSubArrayLen = function (target, nums) {
+  let left = 0,
+    sum = 0,
+    minLen = Infinity;
+
+  for (let right = 0; right < nums.length; right++) {
+    sum += nums[right];
+
+    while (sum >= target) {
+      minLen = Math.min(minLen, right - left + 1);
+      sum -= nums[left];
+      left++;
+    }
+  }
+
+  return minLen === Infinity ? 0 : minLen;
+};
+```
+
+### Walkthrough Example
+
+**Input:** `target = 7, nums = [2,3,1,2,4,3]`
+
+1. **Expand until sum ≥ 7** → `[2,3,1,2]`, sum = 8
+   - minLen = 4
+   - Shrink → remove 2 → `[3,1,2]`, sum = 6 (< 7)
+
+2. **Expand** → `[3,1,2,4]`, sum = 10
+   - minLen = 4 → 4
+   - Shrink → `[1,2,4]` sum = 7 → minLen = 3
+   - Shrink → `[2,4]` sum = 6 (< 7)
+
+3. **Expand** → `[2,4,3]`, sum = 9
+   - minLen = 3 → 2 (`[4,3]`)
+
+**Answer = 2**
+
+## Time and Space Complexity
+
+- **Time Complexity:** O(n) - Each element is visited at most twice (once by right pointer, once by left pointer)
+- **Space Complexity:** O(1) - Only using constant extra space
+
+## Key Takeaways
+
+- **Sliding window works because the array contains positive integers only**
+- Two pointers let us expand and shrink efficiently in **O(n)** time
+- If negatives were allowed, this approach would break (we'd need prefix sums or other methods)
+
+✅ **Lesson:** Always check if "sliding window" is possible by looking for **monotonic properties** (e.g., sum increases with window size here).
+
+## When to Use Sliding Window
+
+The sliding window technique is applicable when:
+
+1. **Problem involves contiguous subarrays/substrings**
+2. **There's a monotonic relationship** (like sum increases with size)
+3. **You need to optimize from O(n²) to O(n)**
+
+Common patterns include:
+- Maximum/minimum subarray with certain property
+- Longest substring with at most K distinct characters
+- Fixed-size window problems
+
+This problem perfectly demonstrates how understanding the underlying properties of your data (positive integers → monotonic sums) can lead to elegant algorithmic optimizations.
