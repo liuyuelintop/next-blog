@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Fuse from "fuse.js";
+import Fuse, { FuseResult } from "fuse.js";
 import { posts } from "#site/content";
 
 export interface SearchResult {
   item: typeof posts[0];
-  matches?: Fuse.FuseResultMatch[];
+  matches?: FuseResult<typeof posts[0]>["matches"];
 }
 
 export function useSearch() {
