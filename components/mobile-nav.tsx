@@ -8,6 +8,7 @@ import Link, { LinkProps } from "next/link";
 import { useRouter } from "next/navigation";
 import { Icons } from "./icons";
 import { siteConfig } from "@/config/site";
+import { SearchInput } from "./search-input";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -30,6 +31,9 @@ export function MobileNav() {
           <span className="font-bold">{siteConfig.name}</span>
         </MobileLink>
         <div className="flex flex-col gap-3 mt-3">
+          <div className="mb-3">
+            <SearchInput onResultSelect={() => setOpen(false)} />
+          </div>
           <MobileLink onOpenChange={setOpen} href="/blog">
             Blog
           </MobileLink>
