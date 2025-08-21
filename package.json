@@ -1,7 +1,30 @@
 {
-  "name": "next-blog",
-  "version": "0.1.0",
-  "private": true,
+  "name": "yuelin-blog",
+  "version": "1.0.0",
+  "description": "A modern, fast, and feature-rich blog platform built with Next.js 14+, TypeScript, and MDX",
+  "author": {
+    "name": "Yuelin Liu",
+    "email": "liuyuelintop@gmail.com",
+    "url": "https://liuyuelin.dev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liuyuelintop/next-blog.git"
+  },
+  "homepage": "https://blog.liuyuelin.dev",
+  "keywords": [
+    "blog",
+    "nextjs",
+    "typescript",
+    "mdx",
+    "tailwind",
+    "shadcn-ui",
+    "velite",
+    "search",
+    "static-site"
+  ],
+  "private": false,
   "scripts": {
     "dev": "next dev",
     "build": "next build",

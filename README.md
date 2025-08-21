@@ -1,243 +1,271 @@
-## NextJS 14, Tailwind, Shadcn UI, MDX and Velite Blog Templat
+# YuelinBlog - Modern Developer Blog Platform
 
-In this repo is a simple implementation of a markdown static blog, a demo can be seen [here](https://next-blog-alpha-sable-40.vercel.app/), Features include:
+<div align="center">
 
-- MDX Components
-- Shadcn UI
-- Pagination
-- Dynamic Open Graph Image
-- Syntax Highlighting in code block
+![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)
+![Velite](https://img.shields.io/badge/Velite-MDX-orange?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-### Learning Points
+**A modern, fast, and feature-rich blog platform built with Next.js 14+, TypeScript, and MDX**
 
-Hopefully, from this project and the video, you can learn:
+[🚀 **Live Demo**](https://blog.liuyuelin.dev/) • [📚 **Documentation**](#documentation) • [🎯 **Features**](#features) • [🛠️ **Quick Start**](#quick-start)
 
-- NextJS 14 basics (layouts, app router etc)
-- NextJS SEO
-- NextJS Dynamic Graph Images
-- [Velite](https://velite.js.org/) Setup and usage
-- [Shadcn/ui](https://ui.shadcn.com/) setup and usage
-- Custom components in MDX
-- Tailwind styling
-
-## Credits
-
-### Youtube
-
-You can follow along with [Jolly Coding ](https://www.youtube.com/@JollyCoding)as we build this on YouTube.
-[![YouTube video](https://img.youtube.com/vi/tSI98g3PDyE/0.jpg)](<[https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE](https://youtu.be/tSI98g3PDyE)>)
-
-### Design
-
-Much of the design of this project is taken from shadcn in his projects, such as [shadcn/ui](https://ui.shadcn.com/) and [Taxonomy](https://tx.shadcn.com/)
+</div>
 
 ---
 
-# Getting Started
+## ✨ Features
 
-## 1. Installing shadcn/ui
+### 🔍 **Advanced Search**
 
-### `npx shadcn-ui@latest init`
+- **Real-time fuzzy search** across all content with Fuse.js
+- **Keyboard shortcuts** (⌘K / Ctrl+K) for quick access
+- **Smart suggestions** with highlighted matches
+- **Mobile-optimized** search experience
+
+### 📝 **Content Management**
+
+- **MDX support** with custom components
+- **Syntax highlighting** with multiple themes
+- **Auto-generated** table of contents
+- **Tag-based** content organization (29 curated categories)
+- **Dynamic Open Graph** images
+
+### 🎨 **Modern Design**
+
+- **Responsive design** with mobile-first approach
+- **Dark/Light theme** toggle with system preference detection
+- **Shadcn/ui components** for consistent design system
+- **Tailwind CSS** for rapid styling
+- **Professional typography** with @tailwindcss/typography
+
+### ⚡ **Performance**
+
+- **Static site generation** for lightning-fast loading
+- **Image optimization** with Next.js Image component
+- **SEO optimized** with proper meta tags and structured data
+- **Lighthouse score**: 95+ performance rating
+
+### 🛠️ **Developer Experience**
+
+- **TypeScript** for type safety
+- **ESLint & Prettier** for code quality
+- **Git hooks** for automated checks
+- **Hot reload** in development
+- **One-click deployment** to Vercel
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- npm, yarn, or pnpm
+
+### 1. Clone & Install
 
 ```bash
-✔ Which style would you like to use? › Default
-✔ Which color would you like to use as base color? › Slate
-✔ Would you like to use CSS variables for colors? … no / yes
+git clone https://github.com/liuyuelintop/next-blog.git
+cd next-blog
+npm install
 ```
 
-```typescript
-// app/layout.tsx
-import { cn } from "@/lib/utils";
-<body
-  className={cn(
-    "min-h-screen bg-background font-sans antialiased",
-    inter.variable
-  )}
->
-  {children}
-</body>;
+### 2. Development
+
+```bash
+npm run dev
 ```
 
-```typescript
-// tailwind.config.ts
-import { fontFamily } from "tailwindcss/defaultTheme";
-...
-extend: {
-	fontFamily: {
-        	sans: ["var(--font-sans)", ...fontFamily.sans],
-      	},
-...
+Open [http://localhost:3000](http://localhost:3000) to see your blog running locally.
+
+### 3. Create Your First Post
+
+Create a new MDX file in `content/blog/`:
+
+```markdown
+---
+title: "My First Post"
+description: "This is my first blog post"
+date: 2024-01-20
+tags: ["tutorial", "getting-started"]
+published: true
+---
+
+# Welcome to My Blog
+
+This is my first post using **YuelinBlog**!
 ```
 
-### `npx shadcn-ui@latest add button`
+### 4. Deploy to Vercel
 
-## 2. Install and Config Velite
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/liuyuelintop/next-blog)
 
-### `npm install velite -D`
+---
+
+## 📖 Documentation
+
+### Tech Stack
+
+| Technology       | Purpose                               | Version    |
+| ---------------- | ------------------------------------- | ---------- |
+| **Next.js**      | React framework with App Router       | 15.5+      |
+| **TypeScript**   | Type safety and developer experience  | 5.0+       |
+| **Velite**       | Content management and MDX processing | 0.1.0-rc.3 |
+| **Tailwind CSS** | Utility-first CSS framework           | 3.4+       |
+| **Shadcn/ui**    | React component library               | Latest     |
+| **Fuse.js**      | Fuzzy search functionality            | 7.1+       |
+
+### Project Structure
+
+```
+├── app/                 # Next.js App Router pages
+│   ├── blog/           # Blog post pages
+│   ├── tags/           # Tag-based filtering
+│   └── search/         # Search functionality
+├── components/         # Reusable React components
+├── content/           # MDX blog posts
+│   └── blog/          # Individual post files
+├── hooks/             # Custom React hooks
+├── lib/               # Utility functions
+├── styles/            # CSS and styling
+└── public/            # Static assets
+```
+
+### Configuration
+
+#### Site Configuration
+
+Edit `config/site.ts` to customize your blog:
 
 ```typescript
-// vilite.config.ts
-import { defineConfig, defineCollection, s } from "velite";
-
-const computedFields = <T extends { slug: string }>(data: T) => ({
-  ...data,
-  slugAsParams: data.slug.split("/").slice(1).join("/"),
-});
-
-const posts = defineCollection({
-  name: "Post",
-  pattern: "blog/**/*.mdx",
-  schema: s
-    .object({
-      slug: s.path(),
-      title: s.string().max(99),
-      description: s.string().max(999).optional(),
-      date: s.isodate(),
-      published: s.boolean().default(true),
-      body: s.mdx(),
-    })
-    .transform(computedFields),
-});
-
-export default defineConfig({
-  root: "content",
-  output: {
-    data: ".velite",
-    assets: "public/static",
-    base: "/static/",
-    name: "[name]-[hash:6].[ext]",
-    clean: true,
+export const siteConfig = {
+  name: "Your Blog Name",
+  url: "https://yourblog.com",
+  description: "Your blog description",
+  author: "Your Name",
+  links: {
+    github: "https://github.com/yourusername",
+    linkedin: "https://linkedin.com/in/yourprofile",
   },
-  collections: { posts },
-  mdx: {
-    rehypePlugins: [],
-    remarkPlugins: [],
-  },
+};
+```
+
+#### Content Schema
+
+Blog posts use the following frontmatter:
+
+```yaml
+---
+title: string (max 99 chars)
+description: string (max 999 chars, optional)
+date: ISO date string
+tags: array of strings (optional)
+published: boolean (default: true)
+---
+```
+
+### Customization
+
+#### Adding Custom Components
+
+Create components in `components/` and register them in `mdx-components.tsx`:
+
+```typescript
+const components = {
+  CustomComponent,
+  // Add your components here
+};
+```
+
+#### Styling
+
+- Global styles: `app/globals.css`
+- Component styles: Use Tailwind classes
+- Custom MDX styles: `styles/mdx.css`
+
+#### Search Configuration
+
+Modify search behavior in `hooks/use-search.ts`:
+
+```typescript
+const fuse = new Fuse(posts, {
+  keys: [
+    { name: "title", weight: 0.4 },
+    { name: "description", weight: 0.3 },
+    // Customize search fields and weights
+  ],
+  threshold: 0.4, // Adjust search sensitivity
 });
 ```
 
 ---
 
-```javascript
-// next.config.mjs
-import { build } from "velite";
+## 🤝 Contributing
 
-/** @type {import('next').NextConfig} */
-export default {
-  // othor next config here...
-  webpack: (config) => {
-    config.plugins.push(new VeliteWebpackPlugin());
-    return config;
-  },
-};
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-class VeliteWebpackPlugin {
-  static started = false;
-  apply(/** @type {import('webpack').Compiler} */ compiler) {
-    // executed three times in nextjs
-    // twice for the server (nodejs / edge runtime) and once for the client
-    compiler.hooks.beforeCompile.tapPromise("VeliteWebpackPlugin", async () => {
-      if (VeliteWebpackPlugin.started) return;
-      VeliteWebpackPlugin.started = true;
-      const dev = compiler.options.mode === "development";
-      await build({ watch: dev, clean: !dev });
-    });
-  }
-}
-```
+### Development Workflow
 
-## 4. Moblie Menu
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and add tests
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
 
-`npx shadcn-ui@latest add sheet`
+### Reporting Issues
 
-## 5. Theme toggle
+Found a bug or have a feature request? Please [open an issue](https://github.com/liuyuelintop/next-blog/issues) with:
 
-### `npm i next-themes`
+- Clear description of the problem/feature
+- Steps to reproduce (for bugs)
+- Expected vs actual behavior
+- Environment details
 
-### `npx shadcn-ui@latest add dropdown-menu`
+---
 
-## 6. Setup Blog Page
+## 📝 License
 
-## 7. Setup Post Page (Difficult)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### `npm install -D @tailwindcss/typography`
+---
 
-```typescript
-// tailwind.config.ts
- plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+## 🙏 Acknowledgments
 
-```
+### Design Inspiration
 
-## 8. Custom Components in MDX
+- [Shadcn](https://ui.shadcn.com/) - For the beautiful component design system
+- [Taxonomy](https://tx.shadcn.com/) - For layout and structure inspiration
 
-```typescript
-//mdx-components.tsx
-const components = {
-  Image,
-  Callout,
-};
-```
+### Community
 
-## 9. Code block styling & mdx plugins
+- [Velite.js](https://velite.js.org/) - Excellent content management solution
+- [Next.js](https://nextjs.org/) - The React framework that powers this blog
+- [Vercel](https://vercel.com/) - For seamless deployment and hosting
 
-### `npm i rehype-autolink-headings rehype-pretty-code rehype-slug`
+### Special Thanks
 
-```typescript
-import rehypeSlug from "rehype-slug";
-import rehypePrettyCode from "rehype-pretty-code";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-...
-mdx: {
-    rehypePlugins: [
-      rehypeSlug,
-      [rehypePrettyCode, { theme: "github-dark" }],
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: "wrap",
-          properties: {
-            className: ["subheading-anchor"],
-            ariaLabel: "Link to section",
-          },
-        },
-      ],
-    ],
-    remarkPlugins: [],
-  },
-```
+- [Jolly Coding](https://www.youtube.com/@JollyCoding) - For the initial tutorial foundation
+- All contributors who have helped improve this project
 
-## 10. Pagination
+---
 
-### `npx shadcn-ui@latest add pagination`
+## 🔗 Links
 
-## 11. Home Page Changes
+- **Live Demo**: [blog.liuyuelin.dev](https://blog.liuyuelin.dev/)
+- **Author Portfolio**: [liuyuelin.dev](https://liuyuelin.dev/)
+- **Author GitHub**: [@liuyuelintop](https://github.com/liuyuelintop)
+- **Author LinkedIn**: [liuyuelintop](https://www.linkedin.com/in/liuyuelintop/)
 
-## 12. About page & FIx z-index header
+---
 
-### `npx shadcn-ui@latest add avatar`
+<div align="center">
 
-## 13. Dynamic graph page
+**Built with ❤️ by [Yuelin Liu](https://liuyuelin.dev)**
 
-[customize your own og playgroud](https://og-playground.vercel.app/)
+If this project helped you, please consider giving it a ⭐️!
 
-## 14. SEO and Favicon
-
-## 15. Site Footer
-
-## 16. Setup Tags
-
-`npm install github-slugger`
-
-`npx shadcn-ui@latest add badge`
-
-`npx shadcn-ui@latest add card`
-
-## 17. Add tags to post items
-
-## 18. Add tag cards
-
-## 19. Add tags pages
-
-## 20. Deploy to Vercel
-
-[My Blog](https://next-blog-alpha-sable-40.vercel.app/)
+</div>
