@@ -167,7 +167,7 @@ export function SearchInput({ className, onResultSelect }: SearchInputProps) {
             </div>
           ) : query.trim() ? (
             <div className="p-4 text-center text-muted-foreground">
-              No posts found for "{query}"
+              No posts found for &ldquo;{query}&rdquo;
             </div>
           ) : null}
         </div>
