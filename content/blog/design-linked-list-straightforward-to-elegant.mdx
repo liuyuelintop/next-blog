@@ -1,0 +1,211 @@
+---
+title: "Design Linked List: From Straightforward to Elegant"
+description: "Learn to implement a clean, maintainable linked list in JavaScript using the dummy head pattern. Compare straightforward vs elegant approaches, understand sentinel design principles, and discover when to apply this powerful technique across algorithms and data structures."
+date: 2025-08-22T00:00:00.000Z
+tags:
+  - JavaScript
+  - Data Structures
+  - Algorithms
+  - Best Practices
+published: true
+---
+
+**Key insight:** Implementing a linked list is not just about passing test cases. It's an exercise in designing clean, extensible data structures. One powerful technique that simplifies the design is the *dummy head node*.
+
+## Problem Statement
+
+**[LeetCode 707. Design Linked List](https://leetcode.com/problems/design-linked-list/)**
+
+> Design your implementation of the linked list. You can choose to use a singly or doubly linked list.
+> A node in a singly linked list has two attributes: `val` and `next`.
+> Implement the following methods (0-indexed):
+>
+> - `get(index)`
+> - `addAtHead(val)`
+> - `addAtTail(val)`
+> - `addAtIndex(index, val)`
+> - `deleteAtIndex(index)`
+
+## My Straightforward Approach
+
+### Implementation
+
+```javascript
+var ListNode = function (val) {
+  this.val = val;
+  this.next = null;
+};
+
+var MyLinkedList = function () {
+  this.head = null;
+  this.size = 0;
+};
+
+MyLinkedList.prototype.get = function (index) {
+  if (index < 0 || index >= this.size) return -1;
+  let cur = this.head;
+  for (let i = 0; i < index; i++) cur = cur.next;
+  return cur.val;
+};
+
+MyLinkedList.prototype.addAtHead = function (val) {
+  let newNode = new ListNode(val);
+  newNode.next = this.head;
+  this.head = newNode;
+  this.size++;
+};
+
+MyLinkedList.prototype.addAtTail = function (val) {
+  let newNode = new ListNode(val);
+  if (this.head === null) {
+    this.head = newNode;
+  } else {
+    let cur = this.head;
+    while (cur.next) cur = cur.next;
+    cur.next = newNode;
+  }
+  this.size++;
+};
+
+MyLinkedList.prototype.addAtIndex = function (index, val) {
+  if (index < 0 || index > this.size) return;
+  if (index === 0) {
+    this.addAtHead(val);
+    return;
+  }
+  let newNode = new ListNode(val);
+  let cur = this.head;
+  for (let i = 0; i < index - 1; i++) cur = cur.next;
+  newNode.next = cur.next;
+  cur.next = newNode;
+  this.size++;
+};
+
+MyLinkedList.prototype.deleteAtIndex = function (index) {
+  if (index < 0 || index >= this.size) return;
+  if (index === 0) {
+    this.head = this.head.next;
+  } else {
+    let cur = this.head;
+    for (let i = 0; i < index - 1; i++) cur = cur.next;
+    cur.next = cur.next.next;
+  }
+  this.size--;
+};
+```
+
+### Characteristics
+
+- **Direct but repetitive:** I had to treat `index === 0` separately in both `addAtIndex` and `deleteAtIndex`.
+- **Head is fragile:** Manipulating the head requires special handling, which makes the code slightly harder to maintain.
+- **Works fine:** The logic passes all tests, but it leaves room for cleaner design.
+
+## The Dummy Head Approach
+
+Here's the refinement: use a _dummy head node_.
+
+### Implementation
+
+```javascript
+var ListNode = function (val) {
+  this.val = val;
+  this.next = null;
+};
+
+var MyLinkedList = function () {
+  this.head = null;
+  this.size = 0;
+};
+
+MyLinkedList.prototype.get = function (index) {
+  if (index < 0 || index >= this.size) return -1;
+  let cur = this.head;
+  for (let i = 0; i < index; i++) cur = cur.next;
+  return cur.val;
+};
+
+MyLinkedList.prototype.addAtHead = function (val) {
+  this.addAtIndex(0, val);
+};
+
+MyLinkedList.prototype.addAtTail = function (val) {
+  this.addAtIndex(this.size, val);
+};
+
+MyLinkedList.prototype.addAtIndex = function (index, val) {
+  if (index < 0 || index > this.size) return;
+
+  const dummy = new ListNode(0);
+  dummy.next = this.head;
+
+  let prev = dummy;
+  for (let i = 0; i < index; i++) prev = prev.next;
+
+  const node = new ListNode(val);
+  node.next = prev.next;
+  prev.next = node;
+
+  this.head = dummy.next;
+  this.size++;
+};
+
+MyLinkedList.prototype.deleteAtIndex = function (index) {
+  if (index < 0 || index >= this.size) return;
+
+  const dummy = new ListNode(0);
+  dummy.next = this.head;
+
+  let prev = dummy;
+  for (let i = 0; i < index; i++) prev = prev.next;
+
+  prev.next = prev.next ? prev.next.next : null;
+
+  this.head = dummy.next;
+  this.size--;
+};
+```
+
+### Why It's Better
+
+- **Unified logic:** No need to handle `index === 0` separately.
+- **Simpler invariant:** Always move `prev` to the node before the one you want to change.
+- **Head is stable:** `this.head` is re-anchored from the dummy every time, no fragile updates.
+
+## Deeper Reflection
+
+### The Essence of Dummy Head
+
+The dummy head (sentinel node) is not just a hack; it's a design principle:
+
+- **Uniformity:** Head and non-head operations follow the same logic.
+- **Invariant maintenance:** You always have a safe predecessor node to work with.
+- **Robustness:** Fewer branches → less chance of subtle bugs.
+
+For a comprehensive exploration of this pattern beyond linked lists, see [The Dummy Head Design Pattern: Beyond Linked Lists](/blog/dummy-head-design-pattern).
+
+### How to Build This Skill
+
+- **Ask the edge-case question early:** "What happens at the head?" If the answer is "special handling," consider a dummy.
+- **Favor invariants:** "My pointer always sits on the node before the one I want to modify."
+- **Generalize the technique:** Once you see how dummy heads simplify linked lists, you'll notice similar patterns in trees (dummy roots), dynamic programming (extra padding), and parsing (sentinel characters).
+
+### Related Problems Where Dummy Helps
+
+The dummy head pattern is particularly useful in these LeetCode problems:
+
+- **[203. Remove Linked List Elements](/blog/remove-linked-list-elements)** - Classic dummy head application
+- **19. Remove Nth Node from End**
+- **21. Merge Two Sorted Lists**
+- **92. Reverse Linked List II**
+- **86. Partition List**
+- **83/82. Remove Duplicates**
+
+For different implementation approaches and patterns, also check out [JavaScript LinkedList Implementation: Classes vs Factories](/blog/javascript-linkedlist-classes-vs-factories).
+
+## Takeaway
+
+- The **straightforward implementation** works but requires extra edge handling.
+- The **dummy head design** produces cleaner, more uniform code, and is widely considered best practice for linked list problems.
+- The broader lesson: **sentinel design** is a powerful mindset for engineering away special cases, whether in lists, trees, or DP grids.
+
+👉 So: start straightforward to build understanding, but level up with the dummy head for elegance and maintainability.
