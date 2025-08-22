@@ -24,7 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved blog page layout with card-based post display
 - **Content Standards System**: Modular tagging system with automated validation
 - **Claude Code Integration**: Automated content standards for consistent tagging across sessions
+- **Claude Code Commands**: Custom automation commands for blog transformation workflow
 - New blog post: "JavaScript LinkedList Implementation: Classes vs Factories (2025 Guide)"
+- New blog post: "LeetCode 203: Remove Linked List Elements - Mastering the Dummy Head Pattern"
+- New blog post: "The Dummy Head Design Pattern: Beyond Linked Lists"
 
 ### Changed
 - **BREAKING**: Consolidated tag system from 92 chaotic tags to 29 strategic categories:
@@ -72,6 +75,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Modular Content Standards**: Created `/lib/content/` directory structure for tagging system
 - **Automated Standards Enforcement**: CLAUDE.md integration ensures consistent tagging across all Claude Code sessions
 - **Validation System**: JSON-based validation rules for automated tag compliance checking
+- **Blog Automation Workflow**: Created `.claude/commands/` directory with custom Claude Code commands
+- **Systematic Blog Transformation**: Automated draft markdown to MDX conversion with proper frontmatter
 - Added "Data Structures" tag category for algorithm and data structure content
 
 ### Content Updates

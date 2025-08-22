@@ -1,0 +1,108 @@
+---
+title: "LeetCode 203: Remove Linked List Elements - Mastering the Dummy Head Pattern"
+description: "A deep dive into solving linked list deletion problems, comparing approaches with and without dummy head nodes, including my mistakes and key takeaways."
+date: 2025-08-22T00:00:00.000Z
+tags:
+  - JavaScript
+  - Data Structures
+  - Algorithms
+  - Best Practices
+published: true
+---
+
+The most important concept in this problem is understanding how to use a _dummy head node_. It is a powerful technique for linked list problems, because it simplifies edge cases and unifies the logic.
+
+## Problem Statement
+
+Given the head of a singly linked list and an integer `val`, remove all the nodes of the linked list that have `val` equal to the given value, and return the new head.
+
+## Approach 1: Without Dummy Head (Straightforward but More Complex)
+
+```js
+var removeElements = function (head, val) {
+  while (head !== null && head.val === val) {
+    head = head.next;
+  }
+  let cur = head;
+  while (cur !== null && cur.next !== null) {
+    cur.next.val === val ? (cur.next = cur.next.next) : (cur = cur.next);
+  }
+  return head;
+};
+```
+
+### Thought Process
+
+- Start by removing leading nodes that match the target value.
+- Then traverse the list with a pointer `cur`.
+- At each step, check `cur.next`. If it matches the value, skip it; otherwise, advance.
+
+### Characteristics
+
+- Correct and intuitive, but **requires separate handling for the head node(s)**.
+- Slightly less elegant because of the special-case loop at the beginning.
+
+## Approach 2: With Dummy Head (Cleaner and Uniform)
+
+```js
+var removeElements = function (head, val) {
+  let dummyHead = new ListNode(0, head);
+  let cur = dummyHead;
+  while (cur.next !== null) {
+    cur.next.val === val ? (cur.next = cur.next.next) : (cur = cur.next);
+  }
+  return dummyHead.next;
+};
+```
+
+### Thought Process
+
+- Create a dummy head pointing to the original `head`.
+- Use a pointer `cur` starting from the dummy head.
+- Always check `cur.next`: if it matches, skip it; if not, move forward.
+- Finally, return `dummyHead.next` as the new head.
+
+### Characteristics
+
+- No special treatment for the head node.
+- Unified logic for head, middle, and tail.
+- This pattern is widely considered the _canonical solution_ for linked list deletion problems.
+
+## My Mistaken Attempt
+
+```js
+var removeElements = function (head, val) {
+  let dummyHead = new ListNode(0, head);
+  let cur = head;
+  while (cur !== null) {
+    cur.val === val ? (dummyHead.next = cur.next) : (cur = cur.next);
+  }
+  return dummyHead.next;
+};
+```
+
+### What I Was Thinking
+
+- I believed that since `dummyHead` already connects to `head`, I could always handle deletions by simply reassigning `dummyHead.next`.
+- I therefore set `cur = head` and attempted to modify `dummyHead.next` whenever a match was found.
+
+### Why This Was Wrong
+
+1. **Lost the predecessor:** `dummyHead` can only help when deleting the actual head. For middle nodes, you must reconnect from their immediate predecessor.
+2. **Infinite loop risk:** In the delete branch, `cur` did not advance, so the loop could get stuck.
+3. **Over-reliance on dummyHead:** I misunderstood its role. A dummy node does not "delete everything for you"; it just provides a consistent starting point.
+
+## Reflection
+
+- My error came from a **misconception about dummy head usage**. I thought it could act as a universal pointer for all deletions, when in reality, it only ensures we have a safe and consistent starting node.
+- The correction was simple but fundamental: move the traversal pointer to start at `dummyHead`, always check `cur.next`, and advance correctly.
+- Once I applied this, the logic became uniform and robust, handling head, middle, and tail cases seamlessly.
+
+## Key Takeaways
+
+1. **Without dummy head:** The solution works but requires special handling of the head node.
+2. **With dummy head:** The solution is more elegant, with a unified approach that removes all edge cases.
+3. **Personal lesson:** A dummy head is not magic. It is a _tool_ that simplifies pointer management — but only if you maintain the correct predecessor during traversal.
+4. **Best practice:** In linked list problems involving insertion or deletion, **always consider introducing a dummy head**. It makes the code cleaner and reduces the chance of subtle bugs.
+
+For a deeper understanding of the dummy head pattern and how it applies to many other algorithmic problems, check out [The Dummy Head Design Pattern: Beyond Linked Lists](/blog/dummy-head-design-pattern).
