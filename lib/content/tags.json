@@ -1,0 +1,81 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-08-22",
+  "description": "Authoritative tag categories for blog content",
+  "categories": {
+    "languages": {
+      "description": "Programming languages discussed in posts",
+      "limit": 1,
+      "tags": [
+        "JavaScript",
+        "TypeScript"
+      ]
+    },
+    "frameworks": {
+      "description": "Web frameworks, libraries, or major development platforms",
+      "limit": 1,
+      "tags": [
+        "React",
+        "Next.js",
+        "Node.js",
+        "Express",
+        "MERN"
+      ]
+    },
+    "tools": {
+      "description": "Development tools, services, platforms, or utilities",
+      "limit": 1,
+      "tags": [
+        "AWS",
+        "Docker",
+        "Git",
+        "VSCode",
+        "Stripe",
+        "Vercel",
+        "AI/ML"
+      ]
+    },
+    "concepts": {
+      "description": "Technical concepts, methodologies, or programming paradigms",
+      "limit": 2,
+      "tags": [
+        "API",
+        "Testing",
+        "Performance",
+        "Security",
+        "Algorithms",
+        "Data Structures",
+        "State Management",
+        "File Handling",
+        "Animation",
+        "Data Types",
+        "UI/UX"
+      ]
+    },
+    "industry": {
+      "description": "Context about content application or target audience",
+      "limit": 1,
+      "tags": [
+        "Interview",
+        "Tutorial",
+        "Best Practices",
+        "Career",
+        "Blogging"
+      ]
+    }
+  },
+  "rules": {
+    "maxTags": 4,
+    "requiredCategories": {
+      "description": "At least one of these categories must be present",
+      "oneOf": ["languages", "frameworks", "concepts"]
+    },
+    "priorityOrder": [
+      "languages",
+      "concepts",
+      "frameworks",
+      "tools",
+      "industry"
+    ]
+  }
+}

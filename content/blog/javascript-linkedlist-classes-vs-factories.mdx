@@ -1,0 +1,246 @@
+---
+title: "JavaScript LinkedList Implementation: Classes vs Factories (2025 Guide)"
+description: "Master LinkedList implementation in JavaScript with classes vs factories. Complete guide to constructor, this, and choosing the right approach for algorithms vs production."
+date: 2025-08-22
+tags: ["JavaScript", "Data Structures", "Algorithms", "Best Practices"]
+published: true
+---
+
+Linked lists are fundamental to algorithm practice, yet JavaScript lacks a built-in `ListNode`. On LeetCode and in interviews, developers create their own implementations. In 2025, you have a choice: object-oriented `class` style or functional factory style. This guide clarifies `constructor` and `this`, compares four approaches, and shows when to use each.
+
+## TL;DR
+
+- `constructor` runs when you call `new`. Inside, `this` points to the new object instance
+- **Class** and **function constructor** both use `new` + `this`. Class is the modern syntax
+- **Factory** and **typed factory** return plain objects without `new`/`this`
+- Use **class** for algorithms/interviews. Use **factory (typed if possible)** in production
+
+## Understanding `new`, `constructor`, and `this`
+
+When you call `new ListNode(5)`:
+
+1. A new empty object is created
+2. Its prototype is set to `ListNode.prototype`
+3. The constructor executes with `this` bound to that object
+4. Unless another object is returned, the new object becomes the result
+
+**`this` is the new instance**, and properties like `this.val` and `this.next` are created at that moment.
+
+## Four Implementation Approaches
+
+### 1. Class (Modern OOP)
+
+```js
+class ListNode {
+  constructor(val, next = null) {
+    this.val = val;
+    this.next = next;
+  }
+}
+```
+
+**Best for:** algorithms and interviews. Clean, modern, widely recognized.
+
+### 2. Function Constructor (Legacy)
+
+```js
+function ListNode(val, next = null) {
+  this.val = val;
+  this.next = next;
+}
+```
+
+**Best for:** backward compatibility with pre-ES6 code. Rare in new projects.
+
+### 3. Factory Function (Functional)
+
+```js
+const createListNode = (val, next = null) => ({ val, next });
+```
+
+**Best for:** React/FP codebases. Simple, no `new` or `this`.
+
+### 4. TypeScript Factory (Typed FP)
+
+```ts
+type ListNode = { val: number; next: ListNode | null };
+const createListNode = (
+  val: number,
+  next: ListNode | null = null
+): ListNode => ({ val, next });
+```
+
+**Best for:** professional React/TS apps. Type-safe, ergonomic, functional.
+
+## Decision Matrix
+
+| Scenario | Choose | Why |
+|----------|--------|-----|
+| LeetCode/interviews | Class | Matches expected template |
+| Legacy pre-ES6 code | Function constructor | Backward compatibility |
+| Modern JS apps | Factory | Plain data, no `new` complexity |
+| React/TypeScript apps | TypeScript factory | Type safety + functional style |
+
+## Essential Utilities
+
+Most algorithms only need `{ val, next }`. You can mix and match styles if you keep that shape.
+
+**Build from array:**
+
+```js
+const fromArray = (arr) => {
+  let dummy = createListNode(0);
+  let curr = dummy;
+  for (const x of arr) {
+    curr.next = createListNode(x);
+    curr = curr.next;
+  }
+  return dummy.next;
+};
+```
+
+**Convert to array:**
+
+```js
+const toArray = (head) => {
+  const result = [];
+  for (let node = head; node; node = node.next) {
+    result.push(node.val);
+  }
+  return result;
+};
+```
+
+## Common Algorithms
+
+These work with any implementation style since they only use `.val` and `.next`.
+
+**Reverse a linked list:**
+
+```js
+const reverseList = (head) => {
+  let prev = null;
+  let curr = head;
+  
+  while (curr) {
+    const next = curr.next;
+    curr.next = prev;
+    prev = curr;
+    curr = next;
+  }
+  
+  return prev;
+};
+```
+
+**Merge two sorted lists:**
+
+```js
+const mergeTwoLists = (l1, l2) => {
+  const dummy = { val: 0, next: null };
+  let tail = dummy;
+  
+  while (l1 && l2) {
+    if (l1.val <= l2.val) {
+      tail.next = l1;
+      l1 = l1.next;
+    } else {
+      tail.next = l2;
+      l2 = l2.next;
+    }
+    tail = tail.next;
+  }
+  
+  tail.next = l1 || l2;
+  return dummy.next;
+};
+```
+
+## Best Practices & Pitfalls
+
+- ✅ **Always provide defaults:** Use `next = null` parameter defaults
+- ✅ **Remember `new`:** Forgetting `new` with classes causes runtime errors
+- ✅ **Keep shape consistent:** Maintain `{ val, next }` structure for performance
+- ✅ **Prefer iteration:** Avoid recursion to prevent call stack overflow
+- ✅ **Consider immutability:** In production FP code, treat nodes as immutable
+
+## Reference Implementations
+
+### Class-Based Utilities
+
+```js
+function fromArrayClass(arr) {
+  let dummy = new ListNode(0);
+  let curr = dummy;
+  for (const x of arr) {
+    curr.next = new ListNode(x);
+    curr = curr.next;
+  }
+  return dummy.next;
+}
+
+function toArrayClass(head) {
+  const result = [];
+  let curr = head;
+  while (curr) {
+    result.push(curr.val);
+    curr = curr.next;
+  }
+  return result;
+}
+```
+
+### TypeScript Generic Helpers
+
+```ts
+type ListNode<T> = { val: T; next: ListNode<T> | null };
+
+const fromArrayGeneric = <T>(arr: T[]): ListNode<T> | null => {
+  if (!arr.length) return null;
+  
+  let head: ListNode<T> | null = null;
+  let tail: ListNode<T> | null = null;
+  
+  for (const val of arr) {
+    const node: ListNode<T> = { val, next: null };
+    if (!head) {
+      head = tail = node;
+    } else {
+      tail!.next = node;
+      tail = node;
+    }
+  }
+  
+  return head;
+};
+
+const toArrayGeneric = <T>(head: ListNode<T> | null): T[] => {
+  const result: T[] = [];
+  for (let node = head; node; node = node.next) {
+    result.push(node.val);
+  }
+  return result;
+};
+```
+
+### Append Helper
+
+```js
+function append(head, val, createNode = createListNode) {
+  if (!head) return createNode(val);
+  
+  let current = head;
+  while (current.next) current = current.next;
+  current.next = createNode(val);
+  
+  return head;
+}
+```
+
+## Summary
+
+- **Algorithms/interviews:** Use class-based ListNode
+- **Modern JS/React:** Use factory functions
+- **Professional TypeScript apps:** Use typed factories
+
+**Key insight:** The implementation style doesn't matter as long as nodes have the shape `{ val, next }`. Choose what fits your context and team preferences.

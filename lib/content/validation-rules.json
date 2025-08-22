@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-08-22",
+  "description": "Validation rules for blog post tagging",
+  "rules": {
+    "maxTags": {
+      "value": 4,
+      "description": "Maximum number of tags per post"
+    },
+    "categoryLimits": {
+      "languages": 1,
+      "frameworks": 1,
+      "tools": 1,
+      "concepts": 2,
+      "industry": 1
+    },
+    "requiredContent": {
+      "description": "Tag must represent >20% of post content",
+      "threshold": 0.2
+    },
+    "forbiddenCombinations": [
+      {
+        "tags": ["JavaScript", "TypeScript"],
+        "reason": "Use only one primary language per post"
+      },
+      {
+        "tags": ["React", "Next.js", "Node.js"],
+        "reason": "Use only one primary framework per post",
+        "maxAllowed": 1
+      }
+    ],
+    "namingConventions": {
+      "languages": {
+        "format": "PascalCase",
+        "examples": ["JavaScript", "TypeScript"]
+      },
+      "frameworks": {
+        "format": "Official branding",
+        "examples": ["React", "Next.js", "Node.js"]
+      },
+      "tools": {
+        "format": "Official branding",
+        "examples": ["AWS", "VSCode", "AI/ML"]
+      },
+      "concepts": {
+        "format": "Title Case",
+        "examples": ["Data Structures", "State Management"]
+      },
+      "industry": {
+        "format": "Title Case",
+        "examples": ["Best Practices", "UI/UX"]
+      }
+    }
+  },
+  "selectionCriteria": {
+    "include": [
+      "Post dedicates significant content to the topic",
+      "Readers would search for this tag to find content",
+      "Tag represents a key learning outcome",
+      "Concept is central to understanding the post"
+    ],
+    "exclude": [
+      "Brief mentions or passing references",
+      "Basic prerequisites (e.g., HTML for web dev posts)",
+      "Overly specific subtopics without broader appeal",
+      "Personal opinions without technical substance"
+    ]
+  },
+  "decisionMatrix": {
+    "step1": {
+      "question": "What's the primary programming language?",
+      "category": "languages",
+      "action": "Select if language-specific content >50%"
+    },
+    "step2": {
+      "question": "What's the main concept readers will learn?",
+      "category": "concepts",
+      "action": "Select primary concept (required)"
+    },
+    "step3": {
+      "question": "What's the secondary concept OR primary tool?",
+      "category": ["concepts", "frameworks", "tools"],
+      "action": "Select if significant to post (>20% content)"
+    },
+    "step4": {
+      "question": "What's the context/audience?",
+      "category": "industry",
+      "action": "Select if provides important context"
+    }
+  }
+}
