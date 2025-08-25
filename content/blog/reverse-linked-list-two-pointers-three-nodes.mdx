@@ -1,0 +1,97 @@
+---
+title: "Reverse Linked List: Two Pointers, Three Nodes, One Edge"
+description: "Master the two-pointer technique for reversing linked lists. Learn how each step involves three nodes and one edge flip, with iterative implementation and common pitfalls."
+date: 2025-08-25T18:30:00.000Z
+tags:
+  - JavaScript
+  - Data Structures
+  - Algorithms
+  - Best Practices
+published: true
+---
+
+Reversing a linked list looks simple—_just flip the arrows_—but the trick is to do it without losing the rest of the list. The reliable pattern is:
+
+- Use **two pointers**: `prev` (already reversed part) and `cur` (node being processed)
+- Each step involves **three nodes**: `prev`, `cur`, and `cur.next` (saved as `next`)
+- Flip **one edge per step**: `cur.next = prev`
+
+This small, local operation gradually inverts the entire list.
+
+If you're working with linked lists in JavaScript, check out our guide on [JavaScript LinkedList Implementation: Classes vs Factories](/blog/javascript-linkedlist-classes-vs-factories) to understand different node construction approaches.
+
+---
+
+## Iterative Solution (Clean & Idiomatic)
+
+```js
+/**
+ * Reverse a singly linked list (iterative).
+ *
+ * @param {ListNode} head - The head of the original linked list
+ * @return {ListNode} - The new head of the reversed linked list
+ */
+var reverseList = function (head) {
+  let prev = null;
+  let cur = head;
+
+  while (cur !== null) {
+    const next = cur.next; // save the rest
+    cur.next = prev; // flip the arrow
+    prev = cur; // move prev forward
+    cur = next; // move cur forward
+  }
+
+  return prev; // new head
+};
+```
+
+### Why This Works (Quick Intuition)
+
+- **Loop invariant:** Before each iteration, `prev` is the head of the already-reversed prefix; `cur` is the head of the remaining suffix.
+- **Maintenance:** `cur.next = prev` flips one edge while keeping the list connected via `next`.
+- **Termination:** When `cur === null`, everything has been flipped; `prev` is the new head.
+
+This pattern is fundamental to many linked list operations. For more complex cases like removing specific elements, see our guide on [Remove Linked List Elements - Mastering the Dummy Head Pattern](/blog/remove-linked-list-elements).
+
+### Complexity
+
+- **Time:** O(n) — each node processed once
+- **Space:** O(1) — constant extra pointers
+
+---
+
+## About the "Optional" Early Return
+
+You'll often see an extra guard:
+
+```js
+// Optional early return for readability (redundant for correctness):
+// if (!head || !head.next) return head;
+```
+
+- **What it does:** Immediately returns for empty lists `[]` and single-node lists `[x]`.
+- **Why it's optional:** The main loop already handles these naturally:
+  - `head === null` ⇒ loop never runs ⇒ returns `prev (null)`.
+  - single node ⇒ one iteration ⇒ returns that node.
+- **Why keep it anyway:** Some developers prefer the explicit guard for **readability** ("trivial cases: return early"). It avoids entering the loop when the answer is obvious, though the performance impact is negligible.
+
+If you prefer to show both styles, you can present two versions labeled **"with early return (readability)"** and **"minimal version (no early return)"**. Otherwise, keep the clean version above and include the commented line with this explanation.
+
+---
+
+## Common Pitfall (and How This Code Avoids It)
+
+- **Losing the list:** Reassigning `cur.next` before saving `cur.next` causes the rest of the list to be lost.
+  - We prevent this by **saving `next = cur.next` first**, then flipping the edge.
+
+This is a common mistake in linked list manipulation. For more patterns that help avoid such issues, explore our [Design Linked List: From Straightforward to Elegant](/blog/design-linked-list-straightforward-to-elegant) guide.
+
+---
+
+## Takeaway
+
+- **Two pointers, three nodes, one edge** is the reusable pattern behind reversing sub-lists and k-group reversals.
+- Keep the implementation minimal; add the optional early return only if it helps your personal readability or aligns with your style guide.
+
+This technique forms the foundation for more advanced linked list algorithms and is essential knowledge for technical interviews and algorithm practice.

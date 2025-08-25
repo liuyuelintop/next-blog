@@ -1,0 +1,135 @@
+---
+title: "LeetCode 24: Swap Nodes in Pairs - Iterative Solutions and Pointer Management"
+description: "Master two iterative approaches for swapping adjacent nodes in linked lists: straightforward pointer manipulation vs elegant dummy head technique for cleaner code."
+date: 2025-08-25T19:15:00.000Z
+tags:
+  - JavaScript
+  - Data Structures
+  - Algorithms
+  - Best Practices
+published: true
+---
+
+Swapping adjacent nodes in a linked list demonstrates the importance of careful pointer management and the elegance of the dummy head pattern. This problem offers two iterative approaches that showcase different levels of complexity in handling edge cases.
+
+## Problem Statement
+
+Given a linked list, swap every two adjacent nodes and return its head. Values must not be modified; only pointers may change.
+
+---
+
+## Approach 1: Straightforward Iterative (No Dummy Head)
+
+Handle the head swap separately, then process remaining pairs. This version minimizes allocations but requires careful edge case handling.
+
+```js
+var swapPairs = function(head) {
+  if (!head || !head.next) return head;
+
+  // After the first swap, this becomes the final head
+  let newHead = head.next;
+
+  let prevTail = null;   // tail of the processed part
+  let cur = head;        // start from the original head
+
+  while (cur && cur.next) {
+    const first = cur;
+    const second = cur.next;
+
+    // Swap the pair
+    first.next = second.next;
+    second.next = first;
+
+    // Connect the previous tail to the new pair head
+    if (prevTail) prevTail.next = second;
+
+    // Advance pointers to the next pair
+    prevTail = first;
+    cur = first.next;
+  }
+  return newHead;
+};
+```
+
+**Loop Invariant:** `prevTail` is always the last node of the processed segment  
+**Critical Step:** Reconnecting `prevTail` after each swap prevents losing the connection  
+**Complexity:** Time O(n), Space O(1)
+
+---
+
+## Approach 2: Elegant Iterative with Dummy Head
+
+Use a sentinel node to eliminate head edge cases and maintain uniform loop logic. This is the most readable and robust approach for production code.
+
+```js
+var swapPairs = function(head) {
+  const dummyHead = new ListNode(0, head);
+  let beforePair = dummyHead;                // was: temp
+
+  while (beforePair.next && beforePair.next.next) {
+    const first  = beforePair.next;         // was: prev
+    const second = beforePair.next.next;    // was: cur
+
+    // Rewire pointers for the swap
+    first.next = second.next;               // detach first
+    second.next = first;                    // link second -> first
+    beforePair.next = second;               // bridge previous segment
+
+    beforePair = first;                     // stand before the next pair
+  }
+  return dummyHead.next;
+};
+```
+
+### Pointer Choreography Per Iteration:
+
+1. **Identify**: `first = beforePair.next`, `second = beforePair.next.next`
+2. **Detach**: `first.next = second.next`
+3. **Link**: `second.next = first`
+4. **Bridge**: `beforePair.next = second`
+5. **Advance**: `beforePair = first`
+
+**Why Dummy Head Wins:** Removes special cases and keeps the loop uniform
+
+This approach exemplifies the [dummy head design pattern](/blog/dummy-head-design-pattern), which is particularly powerful for linked list manipulations.
+
+---
+
+## Comparison: Direct vs Dummy Head
+
+| Aspect | Direct Approach | Dummy Head Approach |
+|--------|----------------|-------------------|
+| **Edge Cases** | Manual head handling | Unified logic |
+| **Code Clarity** | More complex flow | Clean, uniform loop |
+| **Memory** | No extra allocation | One dummy node |
+| **Maintenance** | Higher cognitive load | Easier to debug |
+
+The dummy head approach connects to other linked list techniques you might find useful:
+- [Remove Nth Node from End](/blog/remove-nth-node-from-end-two-approaches) - Another dummy head application
+- [Remove Linked List Elements](/blog/remove-linked-list-elements) - Classic dummy head use case
+
+---
+
+## Common Pitfalls and Solutions
+
+**Pitfall 1:** Forgetting to reconnect `prevTail` after each swap  
+**Solution:** Always maintain the connection between processed and current segments
+
+**Pitfall 2:** Losing track of the new head in direct approach  
+**Solution:** Store `newHead` immediately after first swap, or use dummy head to avoid the issue entirely
+
+**Pitfall 3:** Incorrect pointer advancement  
+**Solution:** Ensure `beforePair` advances to the last node of the current pair (`first`)
+
+---
+
+## Key Takeaways
+
+- **Dummy head pattern** eliminates special cases and creates uniform logic flow
+- **Pointer choreography** requires careful sequencing: detach, link, bridge, advance
+- **Loop invariants** help maintain correctness: "beforePair stands before the next pair to process"
+- Choose dummy head approach for cleaner, more maintainable code in production
+
+This problem demonstrates fundamental linked list manipulation techniques that appear in many advanced algorithms. The dummy head pattern, in particular, is a cornerstone technique for linked list problems.
+
+For more examples of two-pointer techniques in linked lists, explore [Two Pointers Techniques](/blog/two-pointers) and [Reverse Linked List](/blog/reverse-linked-list-two-pointers-three-nodes).

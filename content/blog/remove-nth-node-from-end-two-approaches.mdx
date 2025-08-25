@@ -1,0 +1,111 @@
+---
+title: "LeetCode 19: Remove Nth Node from End - Two-Pass vs Two-Pointer Solutions"
+description: "Compare two approaches to removing the nth node from the end of a linked list: explicit length counting versus elegant two-pointer technique with dummy head pattern."
+date: 2025-08-25T19:00:00.000Z
+tags:
+  - JavaScript
+  - Data Structures
+  - Algorithms
+  - Best Practices
+published: true
+---
+
+Removing the nth node from the end of a linked list presents an interesting choice between explicit calculation and elegant pointer manipulation. This problem showcases two fundamental approaches that highlight different algorithmic thinking patterns.
+
+## Problem Statement
+
+Given the head of a linked list, remove the nth node from the end and return its head.
+
+---
+
+## Approach A: Length-First Method (Two Passes)
+
+Count the list length first, then remove the target node. This approach is explicit and straightforward to understand.
+
+```js
+function removeNthFromEnd(head, n) {
+  let curNode = head;
+  let listSize = 0;
+
+  // First pass: count nodes
+  while (curNode) {
+    curNode = curNode.next;
+    listSize++;
+  }
+
+  // Special case: removing the head
+  if (listSize === n) {
+    return head ? head.next : null;
+  }
+
+  // Second pass: find and remove target
+  curNode = head;
+  for (let i = 0; i < listSize - n - 1; i++) {
+    curNode = curNode.next;
+  }
+  curNode.next = curNode.next.next;
+  return head;
+}
+```
+
+**Pros:** Very explicit logic, easy to understand and debug  
+**Cons:** Requires two passes through the list; special case handling for head removal
+
+---
+
+## Approach B: Two-Pointer Technique with Dummy Head (One Pass After Offset)
+
+Use two pointers with a fixed offset to identify the target node in a single traversal. This approach demonstrates the power of the [dummy head design pattern](/blog/dummy-head-design-pattern).
+
+```js
+function removeNthFromEnd(head, n) {
+  const dummyHead = { val: 0, next: head };
+  let fast = dummyHead;
+  let slow = dummyHead;
+
+  // Move fast pointer n steps ahead
+  for (let i = 0; i < n; i++) fast = fast.next;
+
+  // Move both pointers until fast reaches the end
+  while (fast.next) {
+    fast = fast.next;
+    slow = slow.next;
+  }
+
+  // Remove slow.next (the nth node from end)
+  slow.next = slow.next.next;
+
+  return dummyHead.next;
+}
+```
+
+**Loop Invariant:** The `fast` pointer is always `n` nodes ahead of `slow`  
+**Why Dummy Head:** Removing the actual head becomes just another case—no special branch needed  
+**Complexity:** Time O(n), Space O(1)
+
+This technique is part of the broader [two-pointer family](/blog/two-pointers) of algorithms and shares similarities with other linked list problems that use offset positioning.
+
+---
+
+## When to Choose Which Approach
+
+- **Choose Length-First** for ultra-explicit logic and when debugging clarity is paramount
+- **Choose Two-Pointer** for elegance, uniformity, and reusability across many linked list tasks
+
+The two-pointer technique with dummy head is particularly valuable because it:
+- Eliminates special case handling
+- Demonstrates a reusable pattern for "nth from end" problems
+- Connects to other advanced linked list algorithms like cycle detection
+
+For more examples of how dummy head patterns simplify linked list operations, see our guide on [Remove Linked List Elements](/blog/remove-linked-list-elements).
+
+---
+
+## Key Takeaways
+
+- **Two approaches, different trade-offs:** Explicitness vs. elegance
+- **Dummy head pattern** removes edge cases and unifies logic
+- **Two-pointer technique** with offset is a fundamental pattern for relative positioning in linked lists
+- Both solutions achieve O(n) time complexity, but the two-pointer approach demonstrates more advanced algorithmic thinking
+
+This problem serves as an excellent introduction to the two-pointer technique, which appears in many advanced linked list algorithms including cycle detection and list merging.

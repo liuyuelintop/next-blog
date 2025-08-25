@@ -1,0 +1,221 @@
+---
+title: "LeetCode 142: Detect Cycle Start with Floyd's Tortoise & Hare Algorithm"
+description: "Master Floyd's cycle detection algorithm for finding cycle entry points in linked lists. Covers both compact interview solution and teaching-friendly implementation with mathematical intuition."
+date: 2025-08-25T19:30:00.000Z
+tags:
+  - JavaScript
+  - Data Structures
+  - Algorithms
+  - Best Practices
+published: true
+---
+
+Detecting cycle existence and locating the cycle entry point in linked lists is a classic problem that showcases the elegance of Floyd's Tortoise & Hare algorithm. This two-phase approach demonstrates sophisticated pointer manipulation and mathematical insights.
+
+## Problem Statement
+
+Detect whether a cycle exists in a linked list. If so, return the node where the cycle begins; otherwise return `null`.
+
+---
+
+## Compact Interview Solution
+
+Interview-ready, single function that handles both detection and entry finding:
+
+```js
+var detectCycle = function(head) {
+  if (!head || !head.next) return null;
+
+  let slow = head;
+  let fast = head;
+
+  // Phase 1: detect cycle (Floyd's Tortoise & Hare)
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) break; // meeting point found
+  }
+
+  // No cycle (loop ended because fast ran off the list)
+  if (!fast || !fast.next) return null;
+
+  // Phase 2: locate entry
+  slow = head;
+  while (slow !== fast) {
+    slow = slow.next;
+    fast = fast.next;
+  }
+  return slow;
+};
+```
+
+**Why the Guard Works:**  
+The Phase-1 loop can end for two reasons:
+1. `slow === fast` → cycle exists → continue to Phase 2
+2. `fast` or `fast.next` is `null` → **no cycle** → return `null`
+
+That single `if (!fast || !fast.next)` check cleanly distinguishes between these two exit conditions.
+
+---
+
+## Teaching Version with Helper Functions
+
+For clarity in explanations and educational contexts:
+
+```js
+function getMeetingPoint(head) {
+  let slow = head, fast = head;
+  while (fast && fast.next) {
+    slow = slow.next;
+    fast = fast.next.next;
+    if (slow === fast) return slow;  // cycle detected
+  }
+  return null; // no cycle
+}
+
+function detectCycle(head) {
+  if (!head || !head.next) return null;
+
+  const meeting = getMeetingPoint(head);
+  if (!meeting) return null;  // Scenario A: no cycle
+
+  // Scenario B: cycle exists → find entry
+  let slow = head, fast = meeting;
+  while (slow !== fast) {
+    slow = slow.next;
+    fast = fast.next;
+  }
+  return slow;
+}
+```
+
+**Narrative Clarity:**
+- **Phase A** returns either a meeting node or `null`
+- **Phase B** starts only when Phase A proved a cycle exists
+
+This separation makes the algorithm's two distinct phases more explicit for teaching purposes.
+
+---
+
+## Mathematical Intuition
+
+Let's define the key distances:
+- `x` = distance from head to cycle entry
+- `y` = distance from entry to meeting point (measured forward along the cycle)
+- `L` = cycle length
+
+```
+head --(x)--> [entry] --(y)--> [meeting] --(L-y)--> back to [entry]
+```
+
+### Step-by-Step Mathematical Proof
+
+**Step 1:** When slow and fast meet, let `t` be the steps slow has taken:
+- Slow's total distance: `t = x + y + k·L` (where `k` = number of complete cycles slow made)
+- Fast's total distance: `2t` (twice as many steps)
+
+**Step 2:** Since they meet at the same node, the difference in their steps (`t`) must equal a whole number of cycle lengths:
+```
+t = m·L  for some integer m
+```
+This is because on a circular track, when two runners meet, the faster one has completed exactly some number of extra full laps.
+
+**Step 3:** Equate the two expressions for `t`:
+```
+x + y + k·L = m·L
+⇒ x = (m - k)·L - y
+⇒ x = (m - k - 1)·L + (L - y)
+```
+
+**Key Insight:** This shows that `x` equals `(L - y)` plus some whole number of full cycles.
+
+### What This Means Practically
+
+The distance from head to entry (`x`) is the same as the distance from meeting point back to entry (`L - y`), **up to full cycles**. 
+
+In modular arithmetic: `x ≡ (L - y) (mod L)`
+
+### Why Phase 2 Works
+
+- Pointer A starts at head: needs `x` steps to reach entry
+- Pointer B starts at meeting point: needs `(L - y)` steps to reach entry
+
+Since `x = (L - y) + q·L` for some integer `q`, after exactly `x` steps:
+- Pointer A reaches the entry (by definition)  
+- Pointer B moves `x` steps = `(L - y)` steps to entry + `q` full cycles around = **also at entry**
+
+**Memory Hook:** *The gap back to entry equals the distance from head to entry, up to full cycles.*
+
+This mathematical property connects to other [two-pointer techniques](/blog/two-pointers) and demonstrates the power of relative positioning in algorithmic problem-solving.
+
+---
+
+## Why Fast Moves 2x Speed?
+
+Any speed difference greater than slow (e.g., 3x) guarantees meeting in a finite cycle due to the relative speed being `fast - slow` on a closed loop. We choose **2x** because:
+
+- **Minimal gap:** Smallest speed difference that guarantees progress
+- **Efficiency:** Minimizes pointer hops per iteration
+- **Standard:** Universally recognized and easy to reason about
+
+**Critical:** Phase 2 must use equal speed (1 step each) to preserve equal remaining distance to the entry point.
+
+---
+
+## Algorithm Phases and Invariants
+
+### Phase 1 (Detection)
+**Invariant:** While `fast && fast.next`, move slow by 1 and fast by 2  
+**Outcomes:** If they meet, cycle exists; if fast reaches `null`, no cycle
+
+### Phase 2 (Entry Location)
+**Invariant:** After meeting, `slow` at head and `fast` at meeting point are equidistant from entry  
+**Process:** Moving both by 1 preserves this equality until they meet at the entry
+
+**Complexity:** Time O(n), Space O(1)
+
+---
+
+## Common Pitfall and Solution
+
+**Pitfall:** Using `slow !== fast` as the **loop condition** when both start at `head`
+
+```js
+// WRONG: Loop never runs because slow === fast initially
+while (slow !== fast) {
+  slow = slow.next;
+  fast = fast.next.next;
+}
+```
+
+**Solution:** Always check equality **inside** the loop _after_ advancing pointers:
+
+```js
+// CORRECT: Advance first, then check
+while (fast && fast.next) {
+  slow = slow.next;
+  fast = fast.next.next;
+  if (slow === fast) break;
+}
+```
+
+---
+
+## Connection to Other Algorithms
+
+This technique shares patterns with other linked list problems:
+- [Remove Nth Node from End](/blog/remove-nth-node-from-end-two-approaches) - Uses offset positioning
+- [Reverse Linked List](/blog/reverse-linked-list-two-pointers-three-nodes) - Two-pointer manipulation
+- [Dummy Head Design Pattern](/blog/dummy-head-design-pattern) - Sentinel nodes for edge case elimination
+
+---
+
+## Key Takeaways
+
+- **Two-phase approach:** Detection followed by entry location
+- **Mathematical foundation:** Distance relationships enable the algorithm
+- **Pointer choreography:** Careful sequencing of pointer movements
+- **Edge case handling:** Single guard condition handles all scenarios
+- **Universal pattern:** Floyd's algorithm applies beyond linked lists to sequence analysis
+
+Floyd's Tortoise & Hare demonstrates how mathematical insights can lead to elegant algorithmic solutions, making it a cornerstone technique for cycle detection across various data structures and problem domains.
