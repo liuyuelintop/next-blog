@@ -2,6 +2,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { siteConfig } from "@/config/site";
+import { getBlogStats } from "@/lib/utils";
+import { posts } from "#site/content";
 import { Metadata } from "next";
 import { Github, Linkedin, Globe, Mail } from "lucide-react";
 import Link from "next/link";
@@ -13,20 +15,35 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
+  // Get dynamic blog stats
+  const blogStats = getBlogStats(posts);
+  
+  // Dynamic skills based on blog content and manual additions
+  const blogTechTags = Object.keys(blogStats.tagsWithCounts);
+  const dynamicLanguages = blogTechTags.filter(tag => 
+    ['JavaScript', 'TypeScript', 'Python'].includes(tag)
+  );
+  const dynamicFrameworks = blogTechTags.filter(tag => 
+    ['React', 'Next.js', 'Node.js', 'Express', 'MERN'].includes(tag)
+  );
+  const dynamicTools = blogTechTags.filter(tag => 
+    ['AWS', 'Docker', 'Git', 'VSCode', 'Stripe', 'Vercel', 'AI/ML'].includes(tag)
+  );
+
   const skills = {
-    languages: ["JavaScript", "TypeScript", "Python"],
-    frameworks: ["React", "Next.js", "Node.js", "Express"],
+    languages: [...new Set([...dynamicLanguages, "Python"])], // Ensure Python is included even if not in blog tags
+    frameworks: [...new Set([...dynamicFrameworks, "Express"])], // Ensure Express is included
     aiMl: [
       "AutoGen",
-      "LangChain",
+      "LangChain", 
       "CrewAI",
       "OpenAI API",
-      "Claude API",
+      "Claude API", 
       "RAG Systems",
     ],
-    cloud: ["AWS", "GCP", "Docker", "Kubernetes"],
+    cloud: [...new Set([...dynamicTools.filter(tag => ['AWS', 'Docker', 'Vercel'].includes(tag)), "GCP", "Kubernetes"])],
     databases: ["MongoDB", "PostgreSQL", "Redis"],
-    tools: ["Git", "VSCode", "Stripe", "Vercel"],
+    tools: [...new Set([...dynamicTools.filter(tag => ['Git', 'VSCode', 'Stripe'].includes(tag)), "Claude Code"])],
   };
 
   const achievements = [
@@ -35,8 +52,8 @@ export default async function AboutPage() {
       metric: "60%",
       description: "Mobile booking increase through UX optimization",
     },
-    { metric: "48+", description: "Technical blog posts published" },
-    { metric: "29", description: "Curated topic tags for easy navigation" },
+    { metric: `${blogStats.totalPosts}+`, description: "Technical blog posts published" },
+    { metric: `${blogStats.totalTags}`, description: "Curated topic tags for easy navigation" },
   ];
 
   return (

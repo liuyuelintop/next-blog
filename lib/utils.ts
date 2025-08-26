@@ -45,3 +45,33 @@ export function getPostsByTagSlug(posts: Array<Post>, tag: string) {
     return slugifiedTags.includes(tag);
   });
 }
+
+export function getBlogStats(posts: Array<Post>) {
+  const publishedPosts = posts.filter((post) => post.published);
+  const tags = getAllTags(publishedPosts);
+  const uniqueTags = Object.keys(tags);
+  
+  // Calculate writing duration based on first and latest post
+  const sortedPosts = sortPostsByDate(publishedPosts);
+  const firstPost = sortedPosts[sortedPosts.length - 1];
+  const latestPost = sortedPosts[0];
+  
+  const firstYear = firstPost ? new Date(firstPost.date).getFullYear() : new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
+  const writingYears = Math.max(1, currentYear - firstYear + 1);
+  
+  // Get most used technologies from tags
+  const techTags = uniqueTags.filter(tag => 
+    ['JavaScript', 'TypeScript', 'React', 'Next.js', 'Node.js', 'Python', 'AWS', 'Docker'].includes(tag)
+  );
+  
+  return {
+    totalPosts: publishedPosts.length,
+    totalTags: uniqueTags.length,
+    writingYears,
+    mostUsedTech: techTags.slice(0, 6), // Top 6 most used tech tags
+    firstPostDate: firstPost?.date,
+    latestPostDate: latestPost?.date,
+    tagsWithCounts: tags
+  };
+}

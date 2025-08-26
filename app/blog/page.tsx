@@ -5,6 +5,7 @@ import { getAllTags, sortPostsByDate, sortTagsByCount } from "@/lib/utils";
 import { Metadata } from "next";
 import { Tag } from "@/components/tag";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Blog - Yuelin Liu",
@@ -94,31 +95,41 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
 
         {/* Sidebar */}
-        <div className="lg:col-span-1 space-y-6">
-          {/* Featured Tags */}
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-primary rounded-full"></div>
-                Popular Topics
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex flex-wrap gap-2">
-                {sortedTags.slice(0, 15).map((tag) => (
-                  <Tag tag={tag} key={tag} count={tags[tag]} />
-                ))}
-              </div>
-              {sortedTags.length > 15 && (
-                <p className="text-sm text-muted-foreground pt-2">
-                  +{sortedTags.length - 15} more topics
-                </p>
-              )}
-            </CardContent>
-          </Card>
+        <div className="lg:col-span-1">
+          {/* Sticky Container for Sidebar */}
+          <div className="sticky top-6 space-y-6">
+            {/* Featured Tags */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  Popular Topics
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {sortedTags.slice(0, 15).map((tag) => (
+                    <Tag tag={tag} key={tag} count={tags[tag]} />
+                  ))}
+                </div>
+                {sortedTags.length > 15 && (
+                  <div className="pt-2">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      +{sortedTags.length - 15} more topics
+                    </p>
+                    <Link 
+                      href="/tags" 
+                      className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+                    >
+                      View all topics →
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Quick Stats */}
-          <Card>
+            {/* Quick Stats */}
+            <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -142,6 +153,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </div>
