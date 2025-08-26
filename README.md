@@ -30,7 +30,9 @@
 - **MDX support** with custom components
 - **Syntax highlighting** with multiple themes
 - **Auto-generated** table of contents
-- **Tag-based** content organization (29 curated categories)
+- **Enhanced tag system** with categorized display (29 curated categories)
+- **Comprehensive tags page** with color-coded sections and improved navigation
+- **Dynamic content metrics** with auto-updating statistics
 - **Dynamic Open Graph** images
 
 ### 🎨 **Modern Design**
@@ -40,6 +42,8 @@
 - **Shadcn/ui components** for consistent design system
 - **Tailwind CSS** for rapid styling
 - **Professional typography** with @tailwindcss/typography
+- **Improved UI/UX** with fixed sidebar positioning and better scroll behavior
+- **Enhanced navigation** with tags integration in main and mobile menus
 
 ### ⚡ **Performance**
 
@@ -123,13 +127,15 @@ This is my first post using **YuelinBlog**!
 ```
 ├── app/                 # Next.js App Router pages
 │   ├── blog/           # Blog post pages
-│   ├── tags/           # Tag-based filtering
+│   ├── tags/           # Enhanced tag-based filtering with categories
+│   ├── about/          # Dynamic about page with auto-updating metrics
 │   └── search/         # Search functionality
 ├── components/         # Reusable React components
 ├── content/           # MDX blog posts
 │   └── blog/          # Individual post files
 ├── hooks/             # Custom React hooks
-├── lib/               # Utility functions
+├── lib/               # Utility functions and dynamic content processing
+│   └── content/       # Content standards and tag validation system
 ├── styles/            # CSS and styling
 └── public/            # Static assets
 ```
@@ -200,6 +206,25 @@ const fuse = new Fuse(posts, {
   threshold: 0.4, // Adjust search sensitivity
 });
 ```
+
+---
+
+## 🆕 Recent Updates
+
+### Enhanced Tags System
+- **Categorized display** with color-coded sections (Languages, Frameworks, Tools, Concepts, Industry)
+- **Improved navigation** with tags links in main and mobile menus
+- **"View all topics" link** from blog sidebar for better discoverability
+
+### Dynamic About Page
+- **Auto-updating metrics** based on actual blog data (post count, tag count, writing years)
+- **Dynamic skill showcase** that includes technologies actually used in blog posts
+- **Real-time achievement tracking** with `getBlogStats()` utility function
+
+### UI/UX Improvements
+- **Fixed sidebar overlapping** - resolved z-index conflicts between Popular Topics and Blog Stats
+- **Better scroll behavior** with unified sticky positioning for sidebar elements
+- **Enhanced user experience** with consistent visual hierarchy
 
 ---
 

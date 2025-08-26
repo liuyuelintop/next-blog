@@ -13,14 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Search integration in header (desktop) and mobile navigation
 - Keyboard shortcut (Ctrl/Cmd+K) to quickly access search
 - Dedicated `/search` page for future search enhancements
+- **Enhanced Tags System**: Comprehensive tags page with categorized display and improved navigation
+- **Dynamic About Page**: Auto-updating achievement metrics based on actual blog data
+- **Blog System Improvements**: Fixed sidebar z-index overlapping issues for better user experience
+- Tags navigation link added to main and mobile navigation
 - Professional about page with modern card-based design
 - Enhanced homepage showcasing technical expertise for job seeking
 - Comprehensive tag consolidation system reducing tags from 92 to 29
-- Achievement metrics display showing blog statistics
-- Skills showcase with technology badges
+- Achievement metrics display showing blog statistics (now dynamic)
+- Skills showcase with technology badges (now includes dynamic tech from blog content)
 - Social links integration across pages
 - Professional contact sections with clear call-to-actions
-- Blog stats sidebar with dynamic metrics
+- Blog stats sidebar with dynamic metrics and "View all topics" link
 - Improved blog page layout with card-based post display
 - **Content Standards System**: Modular tagging system with automated validation
 - **Claude Code Integration**: Automated content standards for consistent tagging across sessions
@@ -28,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New blog post: "JavaScript LinkedList Implementation: Classes vs Factories (2025 Guide)"
 - New blog post: "LeetCode 203: Remove Linked List Elements - Mastering the Dummy Head Pattern"
 - New blog post: "The Dummy Head Design Pattern: Beyond Linked Lists"
+- New blog post: "JavaScript Array Pitfalls: Why nums[-1] Doesn't Break Your 3Sum Solution"
 
 ### Changed
 - **BREAKING**: Consolidated tag system from 92 chaotic tags to 29 strategic categories:
@@ -43,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved PostItem component with better typography and hover effects
 
 ### Fixed
+- **Sidebar overlapping issue**: Fixed z-index and sticky positioning conflicts between Popular Topics and Blog Stats sections
 - React 19 compatibility issues with ref prop access
 - Next.js 15 async params compatibility across all dynamic routes
 - Hydration mismatch warnings in theme provider
@@ -61,14 +67,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Deprecated tagging files**: Removed `scripts/standard-tags.json` (analysis file) and root-level `TAGGING_STANDARDS.md`
 
 ### Technical Improvements
+- **Dynamic About Page System**: Created `getBlogStats()` utility function for real-time metrics calculation
+- **Enhanced Tags Architecture**: Implemented categorized tag display with color-coded sections
+- **UI/UX Improvements**: Fixed sidebar sticky positioning for better scroll behavior
 - Added fuse.js dependency for advanced fuzzy search capabilities
 - Created custom React hooks for search state management (useSearch, useSearchShortcut)
 - Implemented debounced search with 300ms delay for optimal performance
 - Added search and close (x) icons to the icon library
-- Enhanced mobile navigation with search input integration
+- Enhanced mobile navigation with search input integration and tags link
 - Updated all blog posts with new consolidated tag structure
 - Implemented automated tag migration and validation system
-- Created reusable tag categorization system
+- Created reusable tag categorization system with improved navigation
 - Enhanced component architecture for better maintainability
 - Improved code organization and removed technical debt
 - Added proper TypeScript typing throughout the application
