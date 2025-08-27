@@ -1,0 +1,142 @@
+---
+title: "Four Sum Algorithm: How One Character Can Break Your Solution"
+description: "Discover how a single character difference in duplicate-skipping logic can silently break your Four Sum solution. Learn why j > 1 fails across different loop iterations and how j > i + 1 ensures all valid quadruplets are found through real debugging examples."
+date: 2025-08-27T12:00:00.000Z
+tags:
+  - JavaScript
+  - Algorithms
+  - Data Structures
+  - Best Practices
+published: true
+---
+
+When I first encountered the **Four Sum** problem, I thought it would be straightforward: just extend the well-known Two Sum / Three Sum patterns. But when I actually coded it, I made mistakes that revealed I hadn't really mastered the details yet. Here's the breakdown of what went wrong and what I learned.
+
+If you're working through sum problems systematically, you might find my comprehensive guide on [From 2Sum to KSum: A Journey Through Algorithmic Problem Solving](/blog/from-2sum-to-ksum-recursive-optimization) helpful for understanding the broader patterns and evolution of these algorithms.
+
+## The Initial Attempt
+
+My skeleton solution followed the right idea:
+
+- Sort the array
+- Fix two numbers (`i` and `j`)
+- Use two pointers (`l` and `r`) to find the remaining two numbers
+
+I also tried to skip duplicates with this check:
+
+```javascript
+if (j > 1 && nums[j] === nums[j - 1]) continue;
+```
+
+At first glance, it looked like a safe invariant: "skip `j` if it's the same as the previous one."
+
+## The Hidden Bug
+
+The mistake was subtle: `j > 1` doesn't depend on `i`.
+
+That means once `j >= 2`, the duplicate check fires **even across different values of `i`**, which can accidentally skip valid quadruplets.
+
+### Debugging Example
+
+```javascript
+nums = [-3, -2, -2, 0, 2, 3, 3], target = 1;
+```
+
+Valid quadruplet: `[-2, -2, 2, 3]`
+
+But with my condition, when `i=1` (`nums[i] = -2`), `j=2` gets skipped because `nums[2] === nums[1]`.
+Result: that quadruplet never gets considered.
+
+This type of index boundary error is surprisingly common in JavaScript array algorithms. For more subtle JavaScript array gotchas that can trip you up during debugging, check out [JavaScript Array Pitfalls: Why nums[-1] Doesn't Break Your 3Sum Solution](/blog/javascript-array-pitfalls-nums-negative-index-3sum).
+
+## The Correct Condition
+
+The fix is:
+
+```javascript
+if (j > i + 1 && nums[j] === nums[j - 1]) continue;
+```
+
+Now the duplicate skip is **relative to the current `i` loop**, not global.
+That ensures each `(i, j)` pair is handled correctly.
+
+### Why This Works
+
+The key insight is understanding **loop scope vs global scope**:
+
+- `j > 1` creates a global condition that persists across all `i` iterations
+- `j > i + 1` creates a local condition that resets for each new `i` value
+- This maintains the correct invariant: "don't use the same value for `j` twice **within the same `i` iteration**"
+
+## Performance Optimizations
+
+While reviewing, I also noticed opportunities for improvement:
+
+- The `continue` statements after `l++` and `r--` were redundant. Removing them made the code cleaner without changing correctness.
+- Early pruning (breaking/continuing if sums can't possibly match the target) improves performance.
+
+## The Final Solution
+
+```javascript
+const fourSum = (nums, target) => {
+  const res = [];
+  const len = nums.length;
+  if (len < 4) return res;
+
+  nums.sort((a, b) => a - b);
+
+  for (let i = 0; i < len - 3; i++) {
+    if (i > 0 && nums[i] === nums[i - 1]) continue;
+
+    for (let j = i + 1; j < len - 2; j++) {
+      if (j > i + 1 && nums[j] === nums[j - 1]) continue; // ✅ Fixed condition
+
+      let l = j + 1,
+        r = len - 1;
+      while (l < r) {
+        const sum = nums[i] + nums[j] + nums[l] + nums[r];
+        if (sum > target) r--;
+        else if (sum < target) l++;
+        else {
+          res.push([nums[i], nums[j], nums[l], nums[r]]);
+          while (l < r && nums[l] === nums[l + 1]) l++;
+          while (l < r && nums[r] === nums[r - 1]) r--;
+          l++;
+          r--;
+        }
+      }
+    }
+  }
+  return res;
+};
+```
+
+## Testing Your Understanding
+
+Try working through these test cases to verify your solution handles edge cases correctly:
+
+```javascript
+// Test case 1: Multiple duplicates that expose the bug
+fourSum([-3, -2, -2, 0, 2, 3, 3], 1); // Should include [-2, -2, 2, 3]
+
+// Test case 2: All same numbers
+fourSum([2, 2, 2, 2, 2], 8); // Should return [[2, 2, 2, 2]]
+
+// Test case 3: No valid quadruplets
+fourSum([1, 2, 3, 4], 100); // Should return []
+```
+
+## Lessons Learned
+
+1. **Details matter.** A tiny difference (`j > 1` vs `j > i + 1`) completely changes correctness.
+2. **Mastery isn't about knowing the template.** It's about understanding the *why* behind every condition.
+3. **Write test cases that break your assumptions.** Edge cases like duplicate numbers quickly expose logical errors.
+4. **Simplify where possible.** Unnecessary `continue`s and unclear invariants make bugs harder to spot.
+
+## The Bigger Picture
+
+What I thought was an "easy" problem actually reminded me: **algorithm patterns are easy to memorize but hard to master.** Only by making these mistakes, tracing them, and fixing them do we really deepen our understanding.
+
+The debugging process revealed something important about how we learn algorithms. It's not enough to know that "we need to skip duplicates" - we must understand exactly *when* and *why* we skip them, and how the skipping condition interacts with the broader algorithm structure.
+
+This experience reinforced that true algorithmic mastery comes not from memorizing patterns, but from understanding the subtle interactions between different parts of our solution.
