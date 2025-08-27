@@ -139,7 +139,7 @@ export default function Home() {
               <Card key={post.slug} className={`hover:shadow-md transition-shadow ${index === 0 ? 'border-primary/20' : ''}`}>
                 <CardContent className="p-6">
                   <PostItem
-                    slug={post.slug}
+                    slug={post.slugAsParams}
                     title={post.title}
                     description={post.description}
                     date={post.date}

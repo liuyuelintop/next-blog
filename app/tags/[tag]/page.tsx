@@ -55,7 +55,7 @@ export default async function TagPage({ params }: TagPageProps) {
                 return (
                   <li key={slug}>
                     <PostItem
-                      slug={slug}
+                      slug={post.slugAsParams}
                       date={date}
                       title={title}
                       description={description}

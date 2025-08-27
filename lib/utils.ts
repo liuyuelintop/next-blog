@@ -46,6 +46,10 @@ export function getPostsByTagSlug(posts: Array<Post>, tag: string) {
   });
 }
 
+/**
+ * @deprecated Use useBlogStats hook for React components that need memoization.
+ * This function is kept for server components and one-time calculations.
+ */
 export function getBlogStats(posts: Array<Post>) {
   const publishedPosts = posts.filter((post) => post.published);
   const tags = getAllTags(publishedPosts);

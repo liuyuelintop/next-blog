@@ -68,7 +68,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     <Card key={slug} className={`hover:shadow-md transition-shadow ${index === 0 ? 'border-primary/20' : ''}`}>
                       <CardContent className="p-6">
                         <PostItem
-                          slug={slug}
+                          slug={post.slugAsParams}
                           date={date}
                           title={title}
                           description={description}
