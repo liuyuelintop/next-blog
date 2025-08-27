@@ -29,7 +29,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "analyze": "cross-env ANALYZE=true next build",
+    "bundle-analyzer": "npx @next/bundle-analyzer"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
@@ -53,10 +55,12 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.5.2",
     "@tailwindcss/typography": "^0.5.13",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "cross-env": "^10.0.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "gray-matter": "^4.0.3",

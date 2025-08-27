@@ -17,8 +17,8 @@ export function formatDate(input: string | number): string {
 
 export function sortPostsByDate(posts: Array<Post>) {
   return posts.sort((a, b) => {
-    if (a.date > b.date) return -1;
-    if (a.date < b.date) return 1;
+    if (a.date > b.date) { return -1; }
+    if (a.date < b.date) { return 1; }
     return 0;
   });
 }
@@ -40,7 +40,7 @@ export function sortTagsByCount(tags: Record<string, number>) {
 
 export function getPostsByTagSlug(posts: Array<Post>, tag: string) {
   return posts.filter((post) => {
-    if (!post.tags) return false;
+    if (!post.tags) { return false; }
     const slugifiedTags = post.tags.map((tag) => slug(tag));
     return slugifiedTags.includes(tag);
   });

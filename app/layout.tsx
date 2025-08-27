@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Providers } from "@/components/provider";
 import { siteConfig } from "@/config/site";
 import { SiteFooter } from "@/components/site-footer";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -37,8 +38,12 @@ export default function RootLayout({
       >
         <Providers>
           <div className="relative flex min-h-dvh flex-col bg-background">
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
+            <ErrorBoundary>
+              <SiteHeader />
+            </ErrorBoundary>
+            <main className="flex-1">
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </main>
             <SiteFooter />
           </div>
         </Providers>

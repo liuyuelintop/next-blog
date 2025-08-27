@@ -29,7 +29,12 @@
         "./.velite"
       ]
     },
-    "target": "ES2017"
+    "target": "ES2017",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true
   },
   "include": [
     "next-env.d.ts",

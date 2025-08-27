@@ -75,7 +75,7 @@ export function MobileNav() {
 
 interface MobileLinkProps extends LinkProps {
   children: React.ReactNode;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (_open: boolean) => void;
   className?: string;
 }
 
@@ -86,12 +86,12 @@ function MobileLink({
   className,
   ...props
 }: MobileLinkProps) {
-  const router = useRouter();
+  const _router = useRouter();
   return (
     <Link
       href={href}
       onClick={() => {
-        router.push(href.toString());
+        _router.push(href.toString());
         onOpenChange?.(false);
       }}
       className={className}
