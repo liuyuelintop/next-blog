@@ -69,6 +69,9 @@
 ### 🛠️ **Developer Experience**
 
 - **TypeScript** for type safety with strict mode enabled
+- **Feature-based architecture** following 2025 best practices for scalable codebases
+- **Domain-driven organization** - components grouped by business purpose, not technical type
+- **Clean import patterns** with barrel exports and backward compatibility
 - **Bundle analysis tools** with `npm run analyze` command
 - **Performance monitoring** setup for optimization tracking
 - **ESLint & Prettier** for code quality
@@ -200,22 +203,51 @@ This is my first post using **YuelinBlog**!
 
 ### Project Structure
 
+**Feature-Based Architecture (2025 Best Practices)**
+
 ```
 ├── app/                 # Next.js App Router pages
-│   ├── blog/           # Blog post pages
+│   ├── blog/           # Blog post pages  
 │   ├── tags/           # Enhanced tag-based filtering with categories
 │   ├── about/          # Dynamic about page with auto-updating metrics
 │   └── search/         # Search functionality with error boundaries
-├── components/         # Reusable React components
-│   ├── error-boundary.tsx      # General error boundary
-│   └── search-error-boundary.tsx # Search-specific error boundary
-├── content/           # MDX blog posts
-│   └── blog/          # Individual post files
-├── hooks/             # Custom React hooks
-├── lib/               # Utility functions and dynamic content processing
-│   └── content/       # Content standards and tag validation system
-├── styles/            # CSS and styling
-└── public/            # Static assets
+├── components/         # Organized by business domain
+│   ├── features/       # Domain-specific components
+│   │   ├── blog/      # Blog functionality (post-item, tag, pagination)
+│   │   ├── search/    # Search functionality (input, results, error boundary)  
+│   │   ├── navigation/# Site navigation (header, footer, nav components)
+│   │   └── mdx/       # Content authoring (MDX components, callouts)
+│   ├── layout/        # Layout-specific components (providers, theme, errors)
+│   ├── ui/           # Pure reusable UI components (shadcn/ui)
+│   └── icons.tsx     # Global icon components
+├── hooks/             # Organized by domain
+│   ├── features/     # Feature-specific hooks
+│   │   └── search/   # Search domain hooks (search, cache, shortcuts)
+│   ├── ui/          # UI-specific hooks (copy buttons, etc.)
+│   └── [general]    # General-purpose hooks (blog stats, etc.)
+├── lib/              # Domain-specific utilities
+│   ├── utils/       # Organized utility functions
+│   │   ├── ui.ts    # UI utilities (className merging)
+│   │   ├── formatting.ts # Date/text formatting
+│   │   └── blog.ts  # Blog-specific utilities (sorting, tags, stats)
+│   ├── content/     # Content standards and tag validation system
+│   └── [other libs] # Metadata, structured data, etc.
+├── content/         # MDX blog posts
+│   └── blog/        # Individual post files
+├── styles/          # CSS and styling
+└── public/          # Static assets
+```
+
+**Import Patterns:**
+```typescript
+// Feature-based imports (recommended for new code)
+import { PostItem, Tag } from '@/components/features/blog';
+import { useSearch } from '@/hooks/features/search';  
+import { cn } from '@/lib/utils/ui';
+
+// Backward compatible imports (existing code continues working)  
+import { PostItem } from '@/components/features/blog/post-item';
+import { cn, formatDate, getBlogStats } from '@/lib/utils';
 ```
 
 ### Performance Monitoring
