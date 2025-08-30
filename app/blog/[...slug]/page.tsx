@@ -71,6 +71,11 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound();
   }
 
+  // Additional safety check for post data
+  if (!post.body) {
+    notFound();
+  }
+
   return (
     <article className="container py-6 prose dark:prose-invert max-w-3xl mx-auto">
       <h2 className="mb-4 text-2xl md:text-4xl">{post.title}</h2>

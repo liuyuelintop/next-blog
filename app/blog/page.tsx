@@ -79,6 +79,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </div>
               <QueryPagination
                 totalPages={totalPages}
+                currentPage={currentPage}
+                basePath="/blog"
                 className="justify-center mt-8"
               />
             </>
