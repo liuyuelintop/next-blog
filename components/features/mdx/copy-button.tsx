@@ -45,12 +45,15 @@ export function CopyButton({ text }: CopyButtonProps) {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    if (isCopied) {
-      const timer = setTimeout(() => {
-        setIsCopied(false);
-      }, 2000);
-      return () => clearTimeout(timer);
+    if (!isCopied) {
+      return;
     }
+
+    const timer = setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
   }, [isCopied]);
 
   const onCopy = async () => {
@@ -58,7 +61,7 @@ export function CopyButton({ text }: CopyButtonProps) {
       await navigator.clipboard.writeText(text);
       setIsCopied(true);
     } catch (err) {
-      console.error("Failed to copy text: ", err);
+      // silent fail
     }
   };
 
