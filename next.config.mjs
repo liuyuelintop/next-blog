@@ -8,12 +8,26 @@ const withBundleAnalyzer = process.env.ANALYZE === 'true'
 const nextConfig = {
   // othor next config here...
   outputFileTracingRoot: import.meta.dirname,
+  poweredByHeader: false,
+  compress: true,
+  generateEtags: true,
   images: {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
   },
+  headers: async () => [
+    {
+      source: '/(.*)',
+      headers: [
+        {
+          key: 'X-Content-Type-Options',
+          value: 'nosniff',
+        },
+      ],
+    },
+  ],
   webpack: (config) => {
     config.plugins.push(new VeliteWebpackPlugin());
     return config;
@@ -31,7 +45,13 @@ class VeliteWebpackPlugin {
       if (VeliteWebpackPlugin.started) return;
       VeliteWebpackPlugin.started = true;
       const dev = compiler.options.mode === "development";
-      await build({ watch: dev, clean: !dev });
+      await build({ 
+        watch: dev, 
+        clean: !dev,
+        // Optimize build for static content
+        cache: !dev,
+        incremental: true
+      });
     });
   }
 }
