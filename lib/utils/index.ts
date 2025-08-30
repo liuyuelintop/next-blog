@@ -1,4 +1,4 @@
-// Domain-specific utilities - will be populated in Phase D
-// export * from './ui';
-// export * from './formatting';
-// export * from './blog';
+// Domain-specific utilities
+export * from './ui';
+export * from './formatting';
+export * from './blog';
