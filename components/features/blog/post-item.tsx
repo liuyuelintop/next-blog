@@ -1,6 +1,6 @@
 import { Calendar } from "lucide-react";
 import Link from "next/link";
-import { buttonVariants } from "./ui/button";
+import { buttonVariants } from "../../ui/button";
 import { cn, formatDate } from "@/lib/utils";
 import { Tag } from "./tag";
 
@@ -29,7 +29,7 @@ export function PostItem({
         
         <div>
           <h2 className="text-xl font-bold group-hover:text-primary transition-colors">
-            <Link href={"/" + slug} className="hover:underline">
+            <Link href={`/blog/${slug}`} className="hover:underline">
               {title}
             </Link>
           </h2>
@@ -60,7 +60,7 @@ export function PostItem({
           {Math.ceil((description?.length || 0) / 200)} min read
         </div>
         <Link
-          href={slug}
+          href={`/blog/${slug}`}
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }), 
             "group-hover:bg-primary/10 transition-colors"

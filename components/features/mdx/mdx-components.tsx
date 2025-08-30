@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import * as runtime from "react/jsx-runtime";
-import { useInjectCopyButtons } from "@/hooks/useInjectCopyButtons"; // 根据你的目录结构
+import { useInjectCopyButtons } from "@/hooks/ui";
 import Image from "next/image";
 import { Callout } from "./callout";
 import CollapsibleCodeBlock from "./collapsible-codeblock";

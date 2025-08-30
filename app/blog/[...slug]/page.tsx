@@ -1,10 +1,10 @@
 import { posts } from "#site/content";
-import { MDXContent } from "@/components/mdx-components";
+import { MDXComponents } from "@/components/features/mdx";
+import { Tag } from "@/components/features/blog";
 import { notFound } from "next/navigation";
 import "@/styles/mdx.css";
 import { Metadata } from "next";
 import { siteConfig } from "@/config/site";
-import { Tag } from "@/components/tag";
 
 interface PostPageProps {
   params: Promise<{
@@ -83,7 +83,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <p className="text-lg mt-0 text-muted-foreground">{post.description}</p>
       ) : null}
       <hr className="my-4" />
-      <MDXContent code={post.body} />
+      <MDXComponents code={post.body} />
     </article>
   );
 }

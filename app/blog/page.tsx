@@ -1,9 +1,7 @@
 import { posts } from "#site/content";
-import { PostItem } from "@/components/post-item";
-import { QueryPagination } from "@/components/query-pagination";
+import { PostItem, QueryPagination, Tag } from "@/components/features/blog";
 import { getAllTags, sortPostsByDate, sortTagsByCount } from "@/lib/utils";
 import { Metadata } from "next";
-import { Tag } from "@/components/tag";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 
@@ -68,7 +66,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     <Card key={slug} className={`hover:shadow-md transition-shadow ${index === 0 ? 'border-primary/20' : ''}`}>
                       <CardContent className="p-6">
                         <PostItem
-                          slug={slug}
+                          slug={post.slugAsParams}
                           date={date}
                           title={title}
                           description={description}

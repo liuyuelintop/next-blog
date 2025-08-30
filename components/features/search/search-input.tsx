@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Icons } from "./icons";
-import { cn } from "@/lib/utils";
-import { useSearch } from "@/hooks/use-search";
-import { useSearchShortcut } from "@/hooks/use-search-shortcut";
+import { Icons } from "../../icons";
+import { cn, formatDate } from "@/lib/utils";
+import { useSearch, useSearchShortcut } from "@/hooks/features/search";
 import Link from "next/link";
-import { formatDate } from "@/lib/utils";
 
 interface SearchInputProps {
   className?: string;
@@ -51,7 +49,9 @@ export function SearchInput({ className, onResultSelect }: SearchInputProps) {
   }, [query]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen || results.length === 0) return;
+    if (!isOpen || results.length === 0) {
+      return;
+    }
 
     switch (e.key) {
       case "ArrowDown":
@@ -88,7 +88,7 @@ export function SearchInput({ className, onResultSelect }: SearchInputProps) {
     inputRef.current?.focus();
   };
 
-  const handleResultClick = (slug: string) => {
+  const handleResultClick = () => {
     setIsOpen(false);
     onResultSelect?.();
   };
@@ -104,7 +104,11 @@ export function SearchInput({ className, onResultSelect }: SearchInputProps) {
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => query.trim() && setIsOpen(true)}
+          onFocus={() => {
+            if (query.trim()) {
+              setIsOpen(true);
+            }
+          }}
           className="w-full pl-8 pr-8 py-2 text-sm border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
         />
         {query && (
@@ -132,7 +136,7 @@ export function SearchInput({ className, onResultSelect }: SearchInputProps) {
                 <Link
                   key={result.item.slug}
                   href={`/blog/${result.item.slugAsParams}`}
-                  onClick={() => handleResultClick(result.item.slugAsParams)}
+                  onClick={() => handleResultClick()}
                   className={cn(
                     "block px-4 py-3 hover:bg-muted/50 transition-colors",
                     selectedIndex === index && "bg-muted/50"

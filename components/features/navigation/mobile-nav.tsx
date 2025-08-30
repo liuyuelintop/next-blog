@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
-import { Button } from "./ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "../../ui/sheet";
+import { Button } from "../../ui/button";
 import { Menu } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 import { useRouter } from "next/navigation";
-import { Icons } from "./icons";
+import { Icons } from "../../icons";
 import { siteConfig } from "@/config/site";
-import { SearchInput } from "./search-input";
+import { SearchInput } from "../search/search-input";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -75,7 +75,7 @@ export function MobileNav() {
 
 interface MobileLinkProps extends LinkProps {
   children: React.ReactNode;
-  onOpenChange?: (open: boolean) => void;
+  onOpenChange?: (_open: boolean) => void;
   className?: string;
 }
 
@@ -86,12 +86,12 @@ function MobileLink({
   className,
   ...props
 }: MobileLinkProps) {
-  const router = useRouter();
+  const _router = useRouter();
   return (
     <Link
       href={href}
       onClick={() => {
-        router.push(href.toString());
+        _router.push(href.toString());
         onOpenChange?.(false);
       }}
       className={className}
