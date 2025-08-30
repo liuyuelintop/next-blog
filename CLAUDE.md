@@ -92,3 +92,68 @@ When fixing navigation/linking bugs or component-wide issues:
 - Testing only reported location, not all similar ones
 - Acting on assumptions about data structure without verification
 - Reverting changes without understanding why they were made originally
+
+## Critical Production Error Debugging Protocol
+
+When encountering production-only crashes (error boundaries showing):
+
+### Phase 1: Environment Analysis
+1. **Identify Scope**: Determine if error occurs locally vs production only
+2. **Error Boundary Location**: Check which component/page is crashing
+3. **Recent Changes**: Review recent commits for potential causes
+4. **Browser Console**: Check for hydration errors or client/server mismatches
+
+### Phase 2: Systematic Investigation  
+1. **Component Architecture Review**:
+   - Identify client vs server components
+   - Check for improper use of hooks in server components
+   - Verify data flow and prop validation
+2. **Content Processing Analysis**:
+   - Review dynamic content rendering (MDX, user-generated content)
+   - Check for unsafe operations (`new Function()`, `eval()`, dynamic imports)
+   - Validate data sanitization and error boundaries
+
+### Phase 3: Root Cause Categories
+1. **Hydration Mismatches**:
+   - Client components using server-only APIs
+   - Different server/client rendering results  
+   - Missing `"use client"` directives
+2. **Content Security Policy (CSP) Violations**:
+   - Dynamic code execution (`new Function()`, `eval()`)
+   - Inline scripts without proper CSP headers
+   - Unsafe content rendering
+3. **Data Validation Failures**:
+   - Missing null/undefined checks
+   - Type mismatches in production data
+   - API response format changes
+
+### Phase 4: Fix Implementation Strategy
+1. **Error Boundaries**: Always add comprehensive error handling first
+2. **Graceful Fallbacks**: Provide user-friendly error messages
+3. **Data Validation**: Add null checks and type guards
+4. **Production Testing**: Test in production-like environment before deployment
+
+### MDX Component Safety Protocol
+- **Never use `new Function()` without try-catch**  
+- **Always provide fallback components for failed renders**
+- **Validate content data before processing**
+- **Use server-compatible patterns for SSR/SSG**
+
+### Example Fix Pattern
+```tsx
+const safeRender = (content: string) => {
+  try {
+    // Unsafe operation
+    const result = new Function(content);
+    return result({ ...runtime }).default;
+  } catch (error) {
+    console.error("Render failed:", error);
+    // Always return fallback component
+    return () => (
+      <div className="error-fallback">
+        Content temporarily unavailable
+      </div>
+    );
+  }
+};
+```
