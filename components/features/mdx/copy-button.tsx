@@ -43,6 +43,11 @@ const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function CopyButton({ text }: CopyButtonProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isCopied) {
@@ -64,6 +69,10 @@ export function CopyButton({ text }: CopyButtonProps) {
       // silent fail
     }
   };
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <button
