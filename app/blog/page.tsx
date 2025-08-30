@@ -1,9 +1,7 @@
 import { posts } from "#site/content";
-import { PostItem } from "@/components/post-item";
-import { QueryPagination } from "@/components/query-pagination";
+import { PostItem, QueryPagination, Tag } from "@/components/features/blog";
 import { getAllTags, sortPostsByDate, sortTagsByCount } from "@/lib/utils";
 import { Metadata } from "next";
-import { Tag } from "@/components/tag";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 

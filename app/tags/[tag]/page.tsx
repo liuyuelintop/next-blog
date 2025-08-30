@@ -1,6 +1,5 @@
 import { posts } from "#site/content";
-import { PostItem } from "@/components/post-item";
-import { Tag } from "@/components/tag";
+import { PostItem, Tag } from "@/components/features/blog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAllTags, getPostsByTagSlug, sortTagsByCount } from "@/lib/utils";
 import { slug } from "github-slugger";

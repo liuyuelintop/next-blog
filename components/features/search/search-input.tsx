@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Icons } from "./icons";
+import { Icons } from "../../icons";
 import { cn, formatDate } from "@/lib/utils";
-import { useSearch } from "@/hooks/use-search";
-import { useSearchShortcut } from "@/hooks/use-search-shortcut";
+import { useSearch, useSearchShortcut } from "@/hooks/features/search";
 import Link from "next/link";
 
 interface SearchInputProps {

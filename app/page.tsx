@@ -3,7 +3,7 @@ import { siteConfig } from "@/config/site";
 import { cn, sortPostsByDate, getAllTags } from "@/lib/utils";
 import { posts } from "#site/content";
 import Link from "next/link";
-import { PostItem } from "@/components/post-item";
+import { PostItem } from "@/components/features/blog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Github, Linkedin, Globe, Mail, Code, BookOpen, Users } from "lucide-react";

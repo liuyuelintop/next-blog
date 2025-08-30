@@ -1,6 +1,6 @@
 "use client";
 
-import { Tag } from "../tag";
+import { Tag } from "../features/blog/tag";
 
 interface TagListProps {
   tags: string[];

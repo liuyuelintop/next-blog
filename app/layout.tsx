@@ -2,11 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { SiteHeader } from "@/components/site-header";
-import { Providers } from "@/components/provider";
+import { SiteHeader, SiteFooter } from "@/components/features/navigation";
+import { Providers, ErrorBoundary } from "@/components/layout";
 import { siteConfig } from "@/config/site";
-import { SiteFooter } from "@/components/site-footer";
-import { ErrorBoundary } from "@/components/error-boundary";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 

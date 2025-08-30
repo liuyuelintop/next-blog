@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useMemo } from "react";
-import { SearchResult } from "@/hooks/use-search";
+import { SearchResult } from "@/hooks/features/search";
 import { cn, formatDate } from "@/lib/utils";
 
 interface VirtualizedSearchResultsProps {
