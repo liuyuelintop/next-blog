@@ -11,7 +11,7 @@
 
 **A modern, fast, and feature-rich blog platform built with Next.js 14+, TypeScript, and MDX**
 
-[🚀 **Live Demo**](https://blog.liuyuelin.dev/) • [📚 **Documentation**](#documentation) • [🎯 **Features**](#features) • [🛠️ **Quick Start**](#quick-start) • [⚡ **Performance**](#performance-optimization)
+[🚀 **Live Demo**](https://blog.liuyuelin.dev/) • [📚 **Documentation**](#documentation) • [🎯 **Features**](#features) • [🛠️ **Quick Start**](#quick-start) • [🔌 **API**](#public-api)
 
 </div>
 
@@ -47,7 +47,7 @@
 - **ESLint strict rules** for code quality enforcement
 - **30-day image caching** for optimal performance
 - **Static site generation** for lightning-fast loading
-- **Critical bug protection** - robust error handling prevents production crashes ([analysis](./docs/PRODUCTION_ERROR_ANALYSIS.md))
+- **Critical bug protection** - robust error handling prevents production crashes
 
 ### 🎨 **Modern Design**
 
@@ -83,52 +83,7 @@
 
 ---
 
-## ⚡ Performance Optimization
-
-This blog platform implements a **comprehensive 3-phase optimization strategy**:
-
-### Phase 1: Foundation ✅ **COMPLETED**
-
-- **Bundle Analysis**: Established 102kB baseline with monitoring tools
-- **TypeScript Strict Mode**: Enhanced type safety with additional compiler checks
-- **Image Optimization**: WebP/AVIF support with responsive sizing and 30-day caching
-- **Error Boundaries**: Graceful failure handling for critical components
-- **Code Quality**: Zero ESLint warnings with strict rules implementation
-
-**Results**: Improved error resilience, better type safety, and optimization infrastructure in place.
-
-### Phase 2: Architecture ✅ **COMPLETED**
-
-- Search performance optimization with LRU caching and virtualization (50% improvement)
-- Component consolidation with reusable patterns (ContentCard, TagList, loading skeletons)
-- SEO structured data implementation with JSON-LD schemas
-- Accessibility improvements with ARIA labels and keyboard navigation
-
-**Results**: 50% search performance improvement, comprehensive SEO enhancement, better component architecture.
-
-### Phase 3: Advanced ✅ **COMPLETED**
-
-- Security headers implementation with X-Content-Type-Options protection
-- Static optimization with compression and ETags enabled
-- Build performance optimization with Velite incremental caching
-- Iframe embedding support for portfolio integration
-
-**Results**: Enhanced security for static blog, improved build performance, portfolio-ready embedding.
-
-### Performance Commands
-
-```bash
-# Analyze bundle size and composition
-npm run analyze
-
-# Build with optimization
-npm run build
-
-# Run linting with strict rules
-npm run lint
-```
-
----
+ 
 
 ## 🚀 Quick Start
 
@@ -153,20 +108,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to see your blog running locally.
 
-### 3. Performance Analysis
-
-```bash
-# Analyze your bundle
-npm run analyze
-
-# Check code quality
-npm run lint
-
-# Build for production
-npm run build
-```
-
-### 4. Create Your First Post
+### 3. Create Your First Post
 
 Create a new MDX file in `content/blog/`:
 
@@ -184,13 +126,17 @@ published: true
 This is my first post using **YuelinBlog**!
 ```
 
-### 5. Deploy to Vercel
+### 4. Deploy to Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/liuyuelintop/next-blog)
 
 ---
 
 ## 📖 Documentation
+
+- Docs index: [docs/README.md](docs/README.md)
+- Public API: [docs/api/API_DOCS.md](docs/api/API_DOCS.md)
+- Archive: [docs/archive/](docs/archive)
 
 ### Tech Stack
 
@@ -252,28 +198,7 @@ import { PostItem } from '@/components/features/blog/post-item';
 import { cn, formatDate, getBlogStats } from '@/lib/utils';
 ```
 
-### Performance Monitoring
-
-#### Bundle Analysis
-
-Monitor your bundle size with:
-
-```bash
-npm run analyze
-```
-
-This generates reports in `.next/analyze/`:
-- `client.html` - Client-side bundle analysis
-- `nodejs.html` - Server-side bundle analysis
-- `edge.html` - Edge runtime analysis
-
-#### Key Performance Metrics
-
-- **Bundle Size**: 102kB First Load JS (baseline)
-- **Image Optimization**: WebP/AVIF with responsive sizing
-- **Error Recovery**: Comprehensive error boundary coverage
-- **Type Safety**: 100% TypeScript strict mode compliance
-- **Code Quality**: Zero ESLint warnings/errors
+ 
 
 ### Configuration
 
@@ -323,81 +248,26 @@ published: boolean (default: true)
 ---
 ```
 
-### Error Handling
+## Public API
 
-#### Error Boundaries
+Lightweight, cache-friendly API for external consumption (e.g., your portfolio).
 
-The platform includes comprehensive error boundaries:
+- Endpoints
+  - `GET /api/v1/feed?limit=6&tag=nextjs` — latest posts (no body), sorted by date desc
+  - `GET /api/v1/posts?page=1&per_page=10&tag=nextjs` — paginated listing (no body)
+  - `GET /api/v1/health` — service status, version, post count
+- Caching & CORS
+  - ISR revalidate: 300s; `Cache-Control: s-maxage=300, stale-while-revalidate=86400`
+  - CORS: `Access-Control-Allow-Origin: *` for GET
+- Examples
+  - `curl -s "https://<your-domain>/api/v1/feed?limit=6" | jq`
+  - `curl -s "https://<your-domain>/api/v1/posts?page=1&per_page=10" | jq`
 
-- **General Error Boundary**: Catches component errors with fallback UI
-- **Search Error Boundary**: Isolated error handling for search functionality
-- **Layout Error Boundaries**: Protects critical navigation components
-
-#### Error Recovery
-
-All error boundaries provide "Try again" functionality for user-initiated recovery.
-
-### Customization
-
-#### Adding Custom Components
-
-Create components in `components/` and register them in `mdx-components.tsx`:
-
-```typescript
-const components = {
-  CustomComponent,
-  // Add your components here
-};
-```
-
-#### Styling
-
-- Global styles: `app/globals.css`
-- Component styles: Use Tailwind classes
-- Custom MDX styles: `styles/mdx.css`
-
-#### Search Configuration
-
-Modify search behavior in `hooks/use-search.ts`:
-
-```typescript
-const fuse = new Fuse(posts, {
-  keys: [
-    { name: "title", weight: 0.4 },
-    { name: "description", weight: 0.3 },
-    // Customize search fields and weights
-  ],
-  threshold: 0.4, // Adjust search sensitivity
-});
-```
+ 
 
 ---
 
-## 🆕 Recent Updates
-
-### Performance Optimization Phase 1 ✅
-- **Bundle analysis infrastructure** with webpack analyzer integration
-- **TypeScript strict mode** with comprehensive type checking enabled
-- **Image optimization system** with WebP/AVIF formats and responsive sizing
-- **Error boundary architecture** for graceful failure recovery
-- **Code quality enhancements** with zero ESLint warnings/errors
-
-### Enhanced Tags System
-- **Categorized display** with color-coded sections (Languages, Frameworks, Tools, Concepts, Industry)
-- **Improved navigation** with tags links in main and mobile menus
-- **"View all topics" link** from blog sidebar for better discoverability
-
-### Dynamic About Page
-- **Auto-updating metrics** based on actual blog data (post count, tag count, writing years)
-- **Dynamic skill showcase** that includes technologies actually used in blog posts
-- **Real-time achievement tracking** with `getBlogStats()` utility function
-
-### UI/UX Improvements
-- **Fixed sidebar overlapping** - resolved z-index conflicts between Popular Topics and Blog Stats
-- **Better scroll behavior** with unified sticky positioning for sidebar elements
-- **Enhanced error resilience** with comprehensive error boundary coverage
-
----
+ 
 
 ## 🤝 Contributing
 
@@ -421,6 +291,12 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Zero ESLint warnings** before submitting
 - **Error boundary protection** for new components
 - **Performance impact** consideration for new features
+
+### Package Manager Policy
+
+- Production/CI: npm (default on Vercel). The npm lockfile is authoritative.
+- Local development: you may use pnpm or bun for speed, but do not commit their lockfiles.
+- `.gitignore` ignores `pnpm-lock.yaml` and `bun.lock` to prevent accidental commits.
 
 ### Reporting Issues
 
