@@ -5,14 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## 2025-09-13
 
 ### Added
-- Comprehensive debugging protocols for production error resolution
-- Detailed root cause analysis documentation for critical issues
+- Public, read-only API endpoints for portfolio integration:
+  - `GET /api/v1/feed` (compact latest posts, summaries only)
+  - `GET /api/v1/posts` (paginated listings)
+  - `GET /api/v1/health` (service status)
+- API documentation and plan moved under `docs/api/`
 
 ### Changed
-- Enhanced documentation structure with technical deep-dive analysis
+- Standardized on npm for CI/Production builds; clarified local dev policy (pnpm/bun allowed, lockfiles ignored)
+- Documentation reorganized to reduce root clutter; added `docs/README.md` index
+
+### Removed
+- Removed `pnpm-lock.yaml` and `bun.lock` from `main` (use npm lockfile in Production)
+- Archived outdated engineering docs under `docs/archive/2025-09/`
+
+### Fixed
+- Resolved ESLint `curly` rule violation in API utils causing Vercel build failure
 
 ---
 
@@ -32,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Prevention**: Added robust error boundaries and validation patterns for future MDX content
 
 ### Added
-- Production error debugging protocol in CLAUDE.md
+- Production error debugging protocol (see docs/archive/2025-09/DEBUGGING_PROTOCOLS.md)
 - Comprehensive root cause analysis in `/docs/PRODUCTION_ERROR_ANALYSIS.md`
 - MDX component safety patterns and guidelines
 - Enhanced error boundary architecture for graceful failure handling
@@ -73,7 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Critical Navigation Bug**: PostItem component creating double "blog" URLs
   - Root cause: Confusion between `post.slug` ("blog/post-slug") vs `post.slugAsParams` ("post-slug")
   - Fixed across homepage, blog listing, and tag pages consistently
-  - Added debugging protocols to CLAUDE.md for systematic component-wide fixes
+- Added debugging protocols (see docs/archive/2025-09/DEBUGGING_PROTOCOLS.md) for systematic component-wide fixes
 
 ---
 
@@ -177,7 +188,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Improvements
 - Modular Content Standards: Created `/lib/content/` directory structure for tagging system
-- Automated Standards Enforcement: CLAUDE.md integration ensures consistent tagging across all Claude Code sessions
+- Automated Standards Enforcement: Content standards documented under /lib/content and agent guidance in docs/archive/2025-09/DEBUGGING_PROTOCOLS.md
 - Validation System: JSON-based validation rules for automated tag compliance checking
 
 ---
