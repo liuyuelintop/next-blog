@@ -54,7 +54,9 @@ export function paginate<T>(items: T[], page = 1, perPage = 10) {
 }
 
 export function filterByTag(items: any[], tag?: string) {
-  if (!tag) return items;
+  if (!tag) {
+    return items;
+  }
   const t = tag.toLowerCase();
   return items.filter((p) => (p.tags || []).some((x: string) => x.toLowerCase() === t));
 }
