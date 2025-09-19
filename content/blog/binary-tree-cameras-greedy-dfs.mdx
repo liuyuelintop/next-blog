@@ -1,0 +1,208 @@
+---
+title: "Placing Cameras in a Binary Tree — A Complete Guide"
+description: "Master LeetCode 968: Binary Tree Cameras with a clear bottom-up strategy. Learn the state-based approach, interview-ready code, and step-by-step walkthroughs that ensure you understand both intuition and implementation."
+date: "2025-09-19T10:00:00.000Z"
+tags:
+  - JavaScript
+  - Algorithms
+  - Data Structures
+  - Interview
+published: true
+---
+
+[LeetCode 968: Binary Tree Cameras](https://leetcode.com/problems/binary-tree-cameras/)
+
+- Each camera covers **its parent, itself, and immediate children**.
+- Goal: cover every node with the **fewest cameras possible**.
+---
+
+## Core Challenges
+
+When solving this problem, two difficulties stand out:
+
+1.  **Optimal placement strategy**  
+    Cameras are most effective *above* leaves (at their parents), since one camera can cover multiple leaves and itself.
+
+2.  **Information flow upward**  
+    To decide whether a parent needs a camera, each child must report its state. Without a systematic state system, the logic becomes messy.
+
+The insight: model this as a **bottom-up state machine**.
+
+---
+
+## State Representation
+
+Every node returns one of three states:
+
+-   `UNCOVERED (0)`: This node is not covered by any camera.
+-   `HAS_CAMERA (1)`: We place a camera at this node.
+-   `COVERED (2)`: This node is covered by one of its children’s cameras.
+
+Why only these three?  
+Because they represent the **minimal complete set of information** a parent needs:
+- “My child is UNCOVERED → I must act.”  
+- “My child has a camera → I’m already safe.”  
+- “My child is COVERED → I might still need coverage.”  
+
+---
+
+## Interview-Friendly Implementation (Concise)
+
+```javascript
+/**
+ * States:
+ * 0 = UNCOVERED
+ * 1 = HAS_CAMERA
+ * 2 = COVERED
+ */
+var minCameraCover = function(root) {
+  let cameras = 0;
+
+  function dfs(node) {
+    if (!node) return 2; // null nodes are COVERED by default
+
+    const left = dfs(node.left);
+    const right = dfs(node.right);
+
+    if (left === 0 || right === 0) {
+      cameras++;
+      return 1; // place camera here
+    }
+    if (left === 1 || right === 1) {
+      return 2; // covered by child’s camera
+    }
+    return 0;   // uncovered
+  }
+
+  if (dfs(root) === 0) cameras++; // root fix-up
+  return cameras;
+};
+```
+
+Why this works in interviews:
+- Short, elegant, and correct.
+- Shows understanding of recursion and state machines.
+- Easy to explain line-by-line.
+
+--- 
+
+## Educational Implementation (Verbose & Clear)
+
+```js
+const State = {
+  UNCOVERED: 0,
+  HAS_CAMERA: 1,
+  COVERED: 2,
+};
+
+function minCameraCover(root) {
+  let cameras = 0;
+
+  function dfs(node) {
+    if (!node) return State.COVERED;
+
+    const left = dfs(node.left);
+    const right = dfs(node.right);
+
+    if (left === State.UNCOVERED || right === State.UNCOVERED) {
+      cameras++;
+      return State.HAS_CAMERA;
+    }
+
+    if (left === State.HAS_CAMERA || right === State.HAS_CAMERA) {
+      return State.COVERED;
+    }
+
+    return State.UNCOVERED;
+  }
+
+  if (dfs(root) === State.UNCOVERED) {
+    cameras++;
+  }
+  return cameras;
+}
+```
+
+## Step-by-Step Examples
+
+We’ll trace each rule with small tree diagrams.
+Notation:
+- U = UNCOVERED (0)
+- C = HAS_CAMERA (1)
+- V = COVERED (2)
+
+
+
+### 1. Leaf Node → Uncovered
+```
+   L
+  / \
+null null
+```
+- `L`'s `null` children return `V`. `L` sees `(V, V)` → returns `U`.
+
+#### B) “Any child UNCOVERED → place camera here” (Rule 1 / the cameras++; return 1)
+
+Parent with an uncovered leaf
+
+```
+   P
+  /
+ L (leaf)
+```
+
+- `L` (leaf) returns `U`.
+- `P` sees `U` from a child → places a camera, returns `C`.
+
+#### C) “Any child HAS_CAMERA → current is COVERED” (Rule 2 / the return 2)
+
+Three-node chain
+
+```
+   G
+   |
+   P
+   |
+   L (leaf)
+```
+
+- `L` (leaf) returns `U`.
+- `P` sees `U` from child `L` → places camera, returns `C`.
+- `G` sees `C` from child `P` → returns `V`.
+
+#### D) Root fix-up — root ends UNCOVERED even when both subtrees are COVERED
+
+Non-trivial example
+
+```
+          A (root)
+         /       \
+        B         E
+       /           \
+      C             F
+     /               \
+    D                 G
+```
+
+Post-order trace:
+1.  `dfs(D)` & `dfs(G)` (leaves) → return `U`.
+2.  `dfs(C)` & `dfs(F)` see `U` → place cameras, return `C`.
+3.  `dfs(B)` & `dfs(E)` see `C` → return `V`.
+4.  `dfs(A)` sees `(V, V)` → returns `U`.
+
+
+
+## Complexity
+- Time: O(n) — each node visited once
+- Space: O(h) — recursion stack (tree height)
+
+
+## key Takeaways
+- Use 3 states: uncovered, has camera, covered. Nothing more is needed.
+- Treat null as covered → simplifies leaf logic.
+- Place cameras only when a child is uncovered.
+- Always apply the root fix-up to handle edge cases.
+
+Interview tip: If asked “Why three states?” → answer that they form the minimal information set for parents to make optimal decisions.
+
+
