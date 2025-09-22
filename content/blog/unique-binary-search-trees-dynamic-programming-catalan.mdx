@@ -1,0 +1,145 @@
+---
+title: "LeetCode 96: Unique Binary Search Trees — Dynamic Programming with Catalan Numbers"
+description: "Master LeetCode problem 96 using dynamic programming to count unique BST structures. Learn the elegant divide-and-conquer approach, understand Catalan numbers, and see how fixing the root node reveals recursive substructure in this classic combinatorial problem."
+date: 2025-09-22T10:00:00.000Z
+tags:
+  - JavaScript
+  - Algorithms
+  - Data Structures
+  - Interview
+published: true
+---
+
+In the world of algorithms, some problems seem daunting at first glance, but once you discover their underlying pattern, their solutions are remarkably elegant. Today, we're going to take a deep dive into one such classic problem: **Given an integer n, how many structurally unique Binary Search Trees (BSTs) can you form using nodes from 1 to n?**
+
+This is not only problem #96 on LeetCode but also a fantastic exercise for understanding recursion, divide-and-conquer, and the power of Dynamic Programming. Let's follow a systematic approach and unravel this mystery step by step.
+
+## Understanding the Problem: From 5 Shapes to a General Rule
+
+First, let's be clear on what a Binary Search Tree (BST) is. For any given node in the tree, all values in its left subtree are smaller than the node's value, and all values in its right subtree are larger.
+
+Let's start with a concrete example. If `n = 3`, we have the nodes {1, 2, 3}. How many unique BSTs can we build? The answer is 5, and they look like this:
+
+Counting them manually works for small `n`, but this approach quickly becomes impractical. We need to find a more general and efficient method.
+
+## The Core Insight: Uncovering Subproblem Structure from n=3
+
+The key to solving most tree-based problems is to **focus on the root node**. Let's apply this to our `n=3` example and meticulously analyze what happens when we pick each possible node as the root.
+
+### Case 1: The root is `1`
+
+- **Left Subtree:** Must contain all nodes smaller than 1. There are none, so the left subtree has **0 nodes** (it's an empty tree).
+- **Right Subtree:** Must contain all nodes larger than 1, which are {2, 3}. The right subtree has **2 nodes**.
+- The problem is now reduced to: "How many unique BSTs can be formed from the set {2, 3}?" The number of structures you can form with {2, 3} is **exactly the same** as the number of structures you can form with {1, 2}.
+- Therefore, when the root is 1, the total count is: `(ways to form a BST with 0 nodes) × (ways to form a BST with 2 nodes)`.
+
+### Case 2: The root is `2`
+
+- **Left Subtree:** Must contain nodes smaller than 2, which is {1}. The left subtree has **1 node**.
+- **Right Subtree:** Must contain nodes larger than 2, which is {3}. The right subtree has **1 node**.
+- The problem is now reduced to two subproblems of size 1.
+- Therefore, when the root is 2, the total count is: `(ways to form a BST with 1 node) × (ways to form a BST with 1 node)`.
+
+### Case 3: The root is `3`
+
+- **Left Subtree:** Must contain nodes smaller than 3, which are {1, 2}. The left subtree has **2 nodes**.
+- **Right Subtree:** Must contain nodes larger than 3. There are none, so the right subtree has **0 nodes**.
+- The problem is now a subproblem of size 2 and a subproblem of size 0.
+- Therefore, when the root is 3, the total count is: `(ways to form a BST with 2 nodes) × (ways to form a BST with 0 nodes)`.
+
+This detailed breakdown reveals two critical conclusions:
+
+1. **Decomposability:** The problem for `n` nodes can be broken down into smaller subproblems by choosing different root nodes.
+2. **Structure is Independent of Values:** This is the most important insight. **The number of unique BST structures that can be formed depends only on the *quantity* of nodes, not their specific values.** The problem for `n=3` was successfully reduced to subproblems for `n=0`, `n=1`, and `n=2`.
+
+This discovery paves the way for a Dynamic Programming solution.
+
+## The Dynamic Programming Five-Step Method
+
+Now, the solution is within reach. Let's formalize our logic using the classic five-step DP approach.
+
+### 1. DP Array Definition
+
+`dp[i]` = The total number of unique BSTs that can be formed with `i` nodes.
+
+Our final goal is to find `dp[n]`.
+
+### 2. Recurrence Relation
+
+The value of `dp[i]` is the sum of all possibilities, considering each node `j` (from 1 to `i`) as the root.
+
+$$dp[i] = \sum_{j=1}^{i} dp[j-1] \times dp[i-j]$$
+
+- `j-1`: Represents the number of nodes in the left subtree when `j` is the root.
+- `i-j`: Represents the number of nodes in the right subtree when `j` is the root.
+
+### 3. DP Array Initialization
+
+- `dp[0] = 1`
+
+  This is the cornerstone of the algorithm. `dp[0]` represents the number of BSTs you can form with zero nodes. There is exactly one way to do this: the empty tree. This is crucial because if `dp[0]` were 0, any term in our recurrence relation multiplied by it would become zero, leading to an incorrect result.
+
+- The rest of the array can be initialized to `0` to serve as a starting point for our summation.
+
+### 4. Traversal Order
+
+The formula shows that to calculate `dp[i]`, we need all preceding `dp` values (`dp[0]` through `dp[i-1]`). Therefore, our traversal order must be from small to large.
+
+- The outer loop iterates `i` from 1 to `n`.
+- The inner loop iterates `j` from 1 to `i`, simulating the choice of each possible root node.
+
+## JavaScript Code Implementation
+
+Here is the complete JavaScript code that implements this logic.
+
+```javascript
+/**
+ * @param {number} n The number of nodes.
+ * @return {number} The number of structurally unique BST's.
+ */
+var numTrees = function(n) {
+    // dp[i] will store the number of unique BSTs that can be formed with i nodes.
+    const dp = new Array(n + 1).fill(0);
+
+    // Initialization: There is one way to form a BST with 0 nodes (the empty tree).
+    dp[0] = 1;
+
+    // Iterate from 1 to n to calculate dp[i] for each i.
+    for (let i = 1; i <= n; i++) {
+        // To calculate dp[i], we consider each number j (from 1 to i) as the root.
+        for (let j = 1; j <= i; j++) {
+            // The recurrence relation:
+            // Left subtree will have j-1 nodes.
+            // Right subtree will have i-j nodes.
+            // The number of unique BSTs is the product of the possibilities for the left and right subtrees.
+            // We sum this up for all possible roots j.
+            dp[i] += dp[j - 1] * dp[i - j];
+        }
+    }
+
+    // The final answer is the number of BSTs for n nodes.
+    return dp[n];
+};
+
+// Example Usage:
+console.log(`For n=3, there are ${numTrees(3)} unique BSTs.`); // Output: 5
+console.log(`For n=1, there is ${numTrees(1)} unique BST.`);   // Output: 1
+```
+
+## Complexity Analysis
+
+- **Time Complexity: O(n²)**. This comes from the two nested loops, where both the outer and inner loops are dependent on `n`.
+- **Space Complexity: O(n)**. We use a DP array of size `n+1` to store the intermediate results.
+
+## Conclusion and Further Reading
+
+Through this exploration, we've seen how a complex combinatorial problem can be elegantly solved by identifying its recursive substructure. By carefully analyzing the `n=3` case, we found the key insight that led directly to our dynamic programming solution.
+
+The sequence of numbers generated by this problem (`1, 1, 2, 5, 14, ...`) is known in mathematics as the **Catalan Numbers**. They appear in many other counting problems, such as finding the number of valid parenthesis combinations or the number of ways to triangulate a convex polygon.
+
+If you enjoyed this tree-based algorithmic approach, you might also find these related posts interesting:
+
+- [Placing Cameras in a Binary Tree — A Complete Guide](/blog/binary-tree-cameras-greedy-dfs) - Another sophisticated tree algorithm using greedy strategies
+- [Design Linked List: From Straightforward to Elegant](/blog/design-linked-list-straightforward-to-elegant) - Learn recursive design patterns in data structures
+
+Hopefully, this detailed walkthrough has helped you understand the profound thinking behind this solution. Remember, when faced with a complex tree or combinatorial problem, try to fix one element (like the root) and analyze the structure of the resulting subproblems—it's often the key to finding a breakthrough.

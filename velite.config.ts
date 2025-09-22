@@ -2,6 +2,8 @@ import { defineConfig, defineCollection, s } from "velite";
 import rehypeSlug from "rehype-slug";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 const computedFields = <T extends { slug: string }>(data: T) => ({
   ...data,
   slugAsParams: data.slug.split("/").slice(1).join("/"),
@@ -47,7 +49,8 @@ export default defineConfig({
           },
         },
       ],
+      rehypeKatex,
     ],
-    remarkPlugins: [],
+    remarkPlugins: [remarkMath],
   },
 });
