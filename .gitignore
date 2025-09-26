@@ -35,8 +35,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# velite
-.velite
+# velite - keep posts.json for deployment but ignore cache files
+.velite/cache
+.velite/**/*
+!.velite/posts.json
+!.velite/index.d.ts
+!.velite/index.js
 
 # claude 
 CLAUDE.local.md
