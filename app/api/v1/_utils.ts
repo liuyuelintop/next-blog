@@ -36,23 +36,54 @@ export function toFeedItem(p: any): FeedItem {
 
 export function getAllPosts(): any[] {
   try {
-    // Dynamically read posts.json to ensure latest content in production
-    const postsPath = path.join(process.cwd(), ".velite", "posts.json");
+    // First try to dynamically import the generated posts data (fallback for Vercel)
+    let posts: any[] = [];
 
-    if (!fs.existsSync(postsPath)) {
-      console.warn("posts.json not found at:", postsPath);
-      return [];
+    try {
+      const { postsData } = require('./_posts-data');
+      posts = postsData as any[];
+      console.log("Loaded posts from bundled data:", posts.length);
+    } catch (bundledDataError) {
+      console.log("Bundled data not available, trying file system...");
+
+      // Fallback to file system reading (for local development)
+      const possiblePaths = [
+        path.join(process.cwd(), ".velite", "posts.json"),
+        path.join(__dirname, "../../../.velite", "posts.json"),
+        path.join(__dirname, "../../../../.velite", "posts.json"),
+      ];
+
+      let postsContent: string | null = null;
+      let usedPath: string | null = null;
+
+      for (const postsPath of possiblePaths) {
+        try {
+          if (fs.existsSync(postsPath)) {
+            postsContent = fs.readFileSync(postsPath, "utf-8");
+            usedPath = postsPath;
+            break;
+          }
+        } catch (error) {
+          // Continue to next path
+          continue;
+        }
+      }
+
+      if (!postsContent || !usedPath) {
+        console.warn("posts.json not found at any of the expected paths:", possiblePaths);
+        return [];
+      }
+
+      console.log("Successfully loaded posts.json from:", usedPath);
+      posts = JSON.parse(postsContent) as any[];
     }
-
-    const postsContent = fs.readFileSync(postsPath, "utf-8");
-    const posts = JSON.parse(postsContent) as any[];
 
     // Ensure newest first by date desc
     return [...posts].sort(
       (a, b) => Date.parse(b.date) - Date.parse(a.date)
     );
   } catch (error) {
-    console.error("Error reading posts.json:", error);
+    console.error("Error reading posts data:", error);
     return [];
   }
 }

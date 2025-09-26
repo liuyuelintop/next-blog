@@ -27,7 +27,7 @@
   "private": false,
   "scripts": {                                    
     "dev": "next dev",
-    "build": "next build",  
+    "build": "node scripts/generate-posts-data.js && next build",  
     "start": "next start",
     "lint": "next lint",
     "analyze": "cross-env ANALYZE=true next build",
