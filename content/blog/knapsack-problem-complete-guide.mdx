@@ -1,0 +1,169 @@
+---
+title: "The 0-1 Knapsack Problem: From 2D to Space-Optimized 1D DP"
+description: "Master the 0-1 Knapsack problem with clean DP semantics and understand why backwards iteration is required in space-optimized solutions. Learn the snapshot mental model that transfers to other DP problems."
+date: 2025-09-26T18:00:00.000Z
+tags:
+  - JavaScript
+  - Algorithms
+  - Dynamic Programming
+  - Interview
+published: true
+---
+
+The **0-1 Knapsack problem** is a classic in dynamic programming and the perfect introduction to space optimization techniques. Most tutorials show you the backward iteration trick without explaining why it's necessary. This guide builds the intuition behind the "snapshot semantics" that make 1D DP work correctly.
+
+---
+
+## Problem Definition
+
+You have a knapsack with capacity `N` and `M` items. Each item has a weight `w[i]` and value `v[i]`. You can take each item at most once (0-1 constraint). Goal: maximize total value without exceeding capacity.
+
+**Example:**
+- Capacity: 5
+- Items: `weights = [2, 1, 3, 2]`, `values = [4, 2, 3, 2]`
+- Optimal: Take items 0 and 2 → weight = 5, value = 7
+
+---
+
+## 2D DP Foundation
+
+Define `dp[i][c]` = maximum value using first `i` items with capacity `c`.
+
+**Transition:**
+$$
+dp[i][c] =
+\begin{cases}
+dp[i-1][c], & c < w \\
+\max\big(dp[i-1][c],\; dp[i-1][c-w] + v\big), & c \ge w
+\end{cases}
+$$
+
+**Implementation:**
+```javascript
+function knapsack2D(capacity, weights, values) {
+  const M = weights.length;
+  const dp = Array.from({ length: M + 1 }, () => Array(capacity + 1).fill(0));
+
+  for (let i = 1; i <= M; i++) {
+    const w = weights[i - 1], v = values[i - 1];
+    for (let c = 0; c <= capacity; c++) {
+      dp[i][c] = dp[i - 1][c]; // Don't take item
+      if (c >= w) {
+        dp[i][c] = Math.max(dp[i][c], dp[i - 1][c - w] + v); // Take item
+      }
+    }
+  }
+
+  return dp[M][capacity];
+}
+```
+
+This works but uses `O(M × N)` space. Since we only need the previous row, we can optimize.
+
+---
+
+## 1D Space Optimization: The Snapshot Problem
+
+**Key insight:** We can use a single array `dp[c]` representing "max value for capacity `c` with items processed so far."
+
+**The challenge:** When processing item `i`, we need to compute:
+$$
+dp[c] = max(dp[c], dp[c-w] + v)
+$$
+
+But `dp[c-w]` must be the value from **before** processing item `i` (the "old" value), not after (which would double-count the item).
+
+### The Snapshot Mental Model
+
+Think of it this way:
+1. **Take a snapshot** `S` of current `dp` array
+2. **Compute new values** using snapshot: `dp_new[c] = max(S[c], S[c-w] + v)`
+3. **Replace array** with new values
+
+We simulate this snapshot behavior through iteration direction.
+
+### Why Backward Iteration Works
+
+**Backward iteration (N → w):**
+- When processing `dp[c]`, we read `dp[c-w]` where `c-w < c`
+- Since we iterate right-to-left, `dp[c-w]` hasn't been updated yet this round
+- Therefore `dp[c-w]` still holds the "snapshot" value ✓
+
+**Forward iteration (w → N) fails:**
+- When processing `dp[c]`, we read `dp[c-w]` where `c-w < c`
+- Since we iterate left-to-right, `dp[c-w]` was already updated this round
+- Therefore `dp[c-w]` holds the "new" value, double-counting the item ✗
+
+### Complete Visualization: Step-by-Step Table
+
+For a comprehensive view, let's trace through a complete example with multiple items:
+
+**Example Setup:**
+- **Capacity**: 10
+- **Items**: `[(2,1), (3,3), (4,5), (7,9)]` (weight, value)
+- **Initial state** (no items processed): `dp: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]`
+
+
+**State Transition Table**
+
+| Step | After Processing | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|------|------------------|---|---|---|---|---|---|---|---|---|---|----|
+| 0    | Initial state    | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0  |
+| 1    | Item (2,1)       | 0 | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1  |
+| 2    | Item (3,3)       | 0 | 0 | 1 | 3 | 3 | 4 | 4 | 4 | 4 | 4 | 4  |
+| 3    | Item (4,5)       | 0 | 0 | 1 | 3 | 5 | 5 | 6 | 8 | 8 | 9 | 9  |
+| 4    | Item (7,9)       | 0 | 0 | 1 | 3 | 5 | 5 | 6 | 9 | 9 | 10| 12 |
+
+**Final answer**: `dp[10] = 12`
+
+**Key observation**: Each round updates from right to left, so when computing `dp[c]`, the value at `dp[c-w]` hasn't been modified yet this round. This ensures we read from the "snapshot" before processing the current item.
+
+---
+
+## Working Implementations
+
+**Space-Optimized 1D (Correct):**
+```javascript
+function knapsack1D(capacity, weights, values) {
+  const dp = Array(capacity + 1).fill(0);
+
+  for (let i = 0; i < weights.length; i++) {
+    const w = weights[i], v = values[i];
+
+    // CRITICAL: Iterate backwards to preserve snapshot semantics
+    for (let c = capacity; c >= w; c--) {
+      dp[c] = Math.max(dp[c], dp[c - w] + v);
+    }
+  }
+
+  return dp[capacity];
+}
+```
+
+**Complete Example with Test:**
+```javascript
+// Test both implementations
+const capacity = 5;
+const weights = [2, 1, 3, 2];
+const values = [4, 2, 3, 2];
+
+console.log(knapsack2D(capacity, weights, values)); // 7
+console.log(knapsack1D(capacity, weights, values)); // 7
+```
+
+**Iteration Direction Rule:**
+- **0-1 Knapsack** → backward iteration (prevent reusing items)
+- **Unbounded Knapsack** → forward iteration (allow reusing items)
+
+---
+
+## Key Takeaways
+
+1. **Start with 2D DP** for clear semantics, then optimize to 1D
+2. **Snapshot mental model**: 1D DP simulates 2D by preserving "old row" values during updates
+3. **Direction matters**: Backward iteration creates safe-read zones for snapshot values
+4. **Pattern transfers**: This snapshot preservation technique applies to many DP space optimizations
+
+The core insight isn't memorizing "go backward" - it's understanding that space-optimized DP requires careful management of when values get updated to maintain correctness.
+
+This mental model applies to other DP problems like [unique BST counting](/blog/unique-binary-search-trees-dynamic-programming-catalan) and helps you avoid [common JavaScript pitfalls](/blog/javascript-array-initialization-pitfalls) when implementing DP solutions.

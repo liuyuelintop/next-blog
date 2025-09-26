@@ -25,9 +25,9 @@
     "static-site"
   ],
   "private": false,
-  "scripts": {
+  "scripts": {                                    
     "dev": "next dev",
-    "build": "next build",
+    "build": "velite && next build",  
     "start": "next start",
     "lint": "next lint",
     "analyze": "cross-env ANALYZE=true next build",
