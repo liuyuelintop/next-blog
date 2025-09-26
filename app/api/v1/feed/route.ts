@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
 
   const limit = Math.min(Math.max(Number(limitParam) || 6, 1), 20);
 
-  const posts = filterByTag(getAllPosts(), tag).slice(0, limit);
+  const allPosts = await getAllPosts();
+  const posts = filterByTag(allPosts, tag).slice(0, limit);
   const data = posts.map(toFeedItem);
 
   const headers = {

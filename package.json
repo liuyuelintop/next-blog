@@ -27,7 +27,7 @@
   "private": false,
   "scripts": {                                    
     "dev": "next dev",
-    "build": "node scripts/generate-posts-data.js && next build",  
+    "build": "velite && next build",  
     "start": "next start",
     "lint": "next lint",
     "analyze": "cross-env ANALYZE=true next build",

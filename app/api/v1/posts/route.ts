@@ -17,7 +17,8 @@ export async function GET(req: NextRequest) {
   const tag = searchParams.get("tag") || undefined;
   const sort = (searchParams.get("sort") || "date_desc").toLowerCase();
 
-  let items = filterByTag(getAllPosts(), tag);
+  const allPosts = await getAllPosts();
+  let items = filterByTag(allPosts, tag);
   if (sort === "date_asc") {
     items = [...items].reverse();
   }

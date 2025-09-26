@@ -1,6 +1,4 @@
 import sitePackage from "../../../package.json" assert { type: "json" };
-import fs from "fs";
-import path from "path";
 
 export type FeedItem = {
   slug: string;
@@ -34,56 +32,34 @@ export function toFeedItem(p: any): FeedItem {
   };
 }
 
-export function getAllPosts(): any[] {
+export async function getAllPosts(): Promise<any[]> {
   try {
-    // First try to dynamically import the generated posts data (fallback for Vercel)
-    let posts: any[] = [];
+    // Fetch posts data from public directory
+    // In development, construct localhost URL; in production, use full URL
+    const postsUrl = process.env.NODE_ENV === 'development'
+      ? 'http://localhost:3001/data/posts.json'
+      : `${getSiteBaseUrl()}/data/posts.json`;
 
-    try {
-      const { postsData } = require('./_posts-data');
-      posts = postsData as any[];
-      console.log("Loaded posts from bundled data:", posts.length);
-    } catch (bundledDataError) {
-      console.log("Bundled data not available, trying file system...");
+    console.log("Attempting to fetch posts from:", postsUrl);
 
-      // Fallback to file system reading (for local development)
-      const possiblePaths = [
-        path.join(process.cwd(), ".velite", "posts.json"),
-        path.join(__dirname, "../../../.velite", "posts.json"),
-        path.join(__dirname, "../../../../.velite", "posts.json"),
-      ];
+    const response = await fetch(postsUrl);
 
-      let postsContent: string | null = null;
-      let usedPath: string | null = null;
-
-      for (const postsPath of possiblePaths) {
-        try {
-          if (fs.existsSync(postsPath)) {
-            postsContent = fs.readFileSync(postsPath, "utf-8");
-            usedPath = postsPath;
-            break;
-          }
-        } catch (error) {
-          // Continue to next path
-          continue;
-        }
-      }
-
-      if (!postsContent || !usedPath) {
-        console.warn("posts.json not found at any of the expected paths:", possiblePaths);
-        return [];
-      }
-
-      console.log("Successfully loaded posts.json from:", usedPath);
-      posts = JSON.parse(postsContent) as any[];
+    if (!response.ok) {
+      console.error("Failed to fetch posts.json:", response.status, response.statusText);
+      return [];
     }
+
+    const posts = await response.json() as any[];
+
+    console.log(`Successfully loaded ${posts.length} posts from ${postsUrl}`);
+    console.log("Latest post:", posts[0]?.title, posts[0]?.date);
 
     // Ensure newest first by date desc
     return [...posts].sort(
       (a, b) => Date.parse(b.date) - Date.parse(a.date)
     );
   } catch (error) {
-    console.error("Error reading posts data:", error);
+    console.error("Error fetching posts data:", error);
     return [];
   }
 }

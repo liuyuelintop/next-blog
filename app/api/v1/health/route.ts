@@ -6,11 +6,12 @@ import { corsHeaders, getAllPosts } from "../_utils";
 export const revalidate = 0;
 
 export async function GET(_req: NextRequest) {
+  const allPosts = await getAllPosts();
   const payload = {
     status: "ok",
     version: (sitePackage as any).version ?? "0.0.0",
     time: new Date().toISOString(),
-    posts: { total: getAllPosts().length },
+    posts: { total: allPosts.length },
   };
 
   const headers = {
