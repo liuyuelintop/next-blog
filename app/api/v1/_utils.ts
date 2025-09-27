@@ -1,4 +1,5 @@
 import sitePackage from "../../../package.json" assert { type: "json" };
+import crypto from "crypto";
 
 export type FeedItem = {
   slug: string;
@@ -51,13 +52,15 @@ export async function getAllPosts(): Promise<any[]> {
 
     const posts = await response.json() as any[];
 
-    console.log(`Successfully loaded ${posts.length} posts from ${postsUrl}`);
-    console.log("Latest post:", posts[0]?.title, posts[0]?.date);
-
     // Ensure newest first by date desc
-    return [...posts].sort(
+    const sortedPosts = [...posts].sort(
       (a, b) => Date.parse(b.date) - Date.parse(a.date)
     );
+
+    console.log(`Successfully loaded ${posts.length} posts from ${postsUrl}`);
+    console.log("Latest post:", sortedPosts[0]?.title, sortedPosts[0]?.date);
+
+    return sortedPosts;
   } catch (error) {
     console.error("Error fetching posts data:", error);
     return [];
@@ -91,14 +94,39 @@ export function corsHeaders() {
   };
 }
 
-export function cacheHeaders(key?: string) {
+/**
+ * Generate content-based hash for ETag from posts data
+ * This ensures ETag changes when actual content changes
+ */
+export function generateContentHash(posts: any[]): string {
+  // Create a minimal representation of content for hashing
+  const contentSignature = posts.map(p => ({
+    slug: p.slug,
+    date: p.date,
+    title: p.title
+  }));
+
+  const contentString = JSON.stringify(contentSignature);
+  return crypto.createHash('md5').update(contentString).digest('hex').slice(0, 12);
+}
+
+export function cacheHeaders(contentHash?: string, legacyKey?: string) {
   const headers: Record<string, string> = {
-    "Cache-Control": "s-maxage=300, stale-while-revalidate=86400",
+    // New conservative caching strategy:
+    // - s-maxage=1800: Edge cache for 30 minutes (vs 24h stale-while-revalidate)
+    // - max-age=300: Browser cache for 5 minutes
+    // - must-revalidate: Prevent stale content serving
+    "Cache-Control": "public, s-maxage=1800, max-age=300, must-revalidate",
     Vary: "Accept-Encoding, Origin",
   };
-  if (key) {
-    // Lightweight ETag based on key (caller may pass a hash if desired)
-    headers["ETag"] = `W/"${Buffer.from(key).toString("base64")}"`;
+
+  if (contentHash) {
+    // Strong ETag based on actual content hash
+    headers["ETag"] = `"${contentHash}"`;
+  } else if (legacyKey) {
+    // Fallback weak ETag for backwards compatibility
+    headers["ETag"] = `W/"${Buffer.from(legacyKey).toString("base64")}"`;
   }
+
   return headers;
 }

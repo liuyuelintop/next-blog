@@ -1,4 +1,4 @@
-export const revalidate = 300;
+export const revalidate = 86400; // ISR every 24 hours - matches actual content update frequency
 
 import { NextRequest } from "next/server";
 import {
@@ -8,6 +8,7 @@ import {
   getAllPosts,
   paginate,
   toFeedItem,
+  generateContentHash,
 } from "../_utils";
 
 export async function GET(req: NextRequest) {
@@ -26,10 +27,13 @@ export async function GET(req: NextRequest) {
   const { data, meta } = paginate(items, page, perPage);
   const payload = { data: data.map(toFeedItem), meta };
 
+  // Generate content-based ETag hash
+  const contentHash = generateContentHash(allPosts);
+
   const headers = {
     "Content-Type": "application/json",
     ...corsHeaders(),
-    ...cacheHeaders(`posts:${tag || "all"}:${page}:${perPage}:${sort}`),
+    ...cacheHeaders(contentHash),
   };
 
   return Response.json(payload, { headers });

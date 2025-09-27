@@ -1,4 +1,4 @@
-export const revalidate = 300; // ISR every 5 minutes
+export const revalidate = 86400; // ISR every 24 hours - matches actual content update frequency
 
 import { NextRequest } from "next/server";
 import {
@@ -7,6 +7,7 @@ import {
   filterByTag,
   getAllPosts,
   toFeedItem,
+  generateContentHash,
 } from "../_utils";
 
 export async function GET(req: NextRequest) {
@@ -20,10 +21,13 @@ export async function GET(req: NextRequest) {
   const posts = filterByTag(allPosts, tag).slice(0, limit);
   const data = posts.map(toFeedItem);
 
+  // Generate content-based ETag hash
+  const contentHash = generateContentHash(allPosts);
+
   const headers = {
     "Content-Type": "application/json",
     ...corsHeaders(),
-    ...cacheHeaders(`feed:${tag || "all"}:${limit}`),
+    ...cacheHeaders(contentHash),
   };
 
   return Response.json({ data }, { headers });
